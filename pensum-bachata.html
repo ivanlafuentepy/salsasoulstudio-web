@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pensum de Bachata | Salsa Soul Studio</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --gold-dark: #8a6820;
+      --black: #0a0a0a;
+      --dark: #111111;
+      --dark2: #1a1a1a;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--black);
+      color: #fff;
+    }
+
+    .header {
+      background: #000;
+      text-align: center;
+      padding: 40px 20px 30px;
+      border-bottom: 1px solid #1f1600;
+    }
+
+    .header img {
+      width: 280px;
+      max-width: 70%;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      color: var(--gold);
+      font-size: 1.8rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .header .subtitle {
+      color: #888;
+      font-style: italic;
+      margin-top: 8px;
+      font-size: 0.95rem;
+    }
+
+    .nav-switch {
+      margin-top: 20px;
+    }
+
+    .nav-switch a {
+      display: inline-block;
+      padding: 10px 28px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      margin: 4px;
+      transition: opacity 0.2s;
+    }
+
+    .nav-switch a:hover { opacity: 0.85; }
+
+    .nav-switch .active {
+      background: var(--gold);
+      color: #000;
+    }
+
+    .nav-switch .inactive {
+      background: var(--dark2);
+      color: var(--gold-light);
+      border: 1px solid var(--gold-dark);
+    }
+
+    .divider {
+      width: 90px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 24px auto;
+    }
+
+    .nivel-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 50px 24px 30px;
+    }
+
+    .nivel-section h2 {
+      text-align: center;
+      color: var(--gold);
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .nivel-section .nivel-badge {
+      text-align: center;
+      margin-top: 6px;
+      font-size: 1.2rem;
+    }
+
+    .nivel-separator {
+      border: none;
+      border-top: 1px solid #222;
+      margin: 0;
+    }
+
+    .proximamente {
+      text-align: center;
+      color: #666;
+      font-style: italic;
+      margin-top: 20px;
+      font-size: 1rem;
+    }
+
+    footer {
+      background: #000;
+      border-top: 1px solid #1f1600;
+      text-align: center;
+      padding: 32px 20px;
+      color: #444;
+      font-size: 0.82rem;
+    }
+
+    footer .gold { color: var(--gold); }
+
+    footer a {
+      color: var(--gold-light);
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .header h1 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <a href="index.html"><img src="logo-dorado.png" alt="Salsa Soul Studio"></a>
+    <h1>Pensum de Bachata</h1>
+    <p class="subtitle">Videos de todos los pasos por nivel</p>
+    <div class="nav-switch">
+      <a class="inactive" href="pensum-salsa.html">Salsa</a>
+      <a class="active" href="pensum-bachata.html">Bachata</a>
+    </div>
+  </div>
+
+  <!-- PRINCIPIANTE 1 -->
+  <hr class="nivel-separator">
+  <div class="nivel-section">
+    <h2>Principiante 1</h2>
+    <p class="nivel-badge">🌱</p>
+    <div class="divider"></div>
+    <p class="proximamente">Próximamente</p>
+  </div>
+
+  <!-- BASICO 2 -->
+  <hr class="nivel-separator">
+  <div class="nivel-section">
+    <h2>Básico 2</h2>
+    <p class="nivel-badge">🌿</p>
+    <div class="divider"></div>
+    <p class="proximamente">Próximamente</p>
+  </div>
+
+  <!-- BASICO 3 -->
+  <hr class="nivel-separator">
+  <div class="nivel-section">
+    <h2>Básico 3</h2>
+    <p class="nivel-badge">🌳</p>
+    <div class="divider"></div>
+    <p class="proximamente">Próximamente</p>
+  </div>
+
+  <!-- INTERMEDIO 1 -->
+  <hr class="nivel-separator">
+  <div class="nivel-section">
+    <h2>Intermedio 1</h2>
+    <p class="nivel-badge">⭐</p>
+    <div class="divider"></div>
+    <p class="proximamente">Próximamente</p>
+  </div>
+
+  <!-- INTERMEDIO 2 -->
+  <hr class="nivel-separator">
+  <div class="nivel-section">
+    <h2>Intermedio 2</h2>
+    <p class="nivel-badge">🌟</p>
+    <div class="divider"></div>
+    <p class="proximamente">Próximamente</p>
+  </div>
+
+  <!-- AVANZADO -->
+  <hr class="nivel-separator">
+  <div class="nivel-section">
+    <h2>Avanzado</h2>
+    <p class="nivel-badge">🏆</p>
+    <div class="divider"></div>
+    <p class="proximamente">Próximamente</p>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p><span class="gold">Salsa Soul Studio</span> · Asunción, Paraguay</p>
+    <p style="margin-top:6px;"><a href="index.html">Volver al inicio</a></p>
+    <p style="margin-top:6px;">Disfruta la vida bailando</p>
+  </footer>
+
+</body>
+</html>

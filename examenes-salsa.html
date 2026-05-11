@@ -26,6 +26,11 @@
     .paso-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light), var(--gold-dark)); }
     .paso-card .video-container { position: relative; width: 100%; padding-top: 177.78%; background: #000; }
     .paso-card .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+    .video-link { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; text-decoration: none; }
+    .video-link img { width: 100%; height: 100%; object-fit: cover; }
+    .video-link .play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 68px; height: 48px; background: rgba(204, 0, 0, 0.9); border-radius: 12px; }
+    .video-link .play-btn::after { content: ''; position: absolute; top: 50%; left: 54%; transform: translate(-50%, -50%); border-style: solid; border-width: 10px 0 10px 18px; border-color: transparent transparent transparent #fff; }
+    .video-link:hover .play-btn { background: rgba(204, 0, 0, 1); }
     .paso-card .paso-info { padding: 14px 16px; text-align: center; }
     .paso-card .paso-numero { color: var(--gold); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
     .paso-card .paso-nombre { color: #ddd; font-size: 1rem; font-weight: bold; }
@@ -56,7 +61,10 @@
     <div class="divider"></div>
     <div class="paso-card">
       <div class="video-container">
-        <iframe src="https://www.youtube.com/embed/bxhfOHt1QPw" allowfullscreen loading="lazy"></iframe>
+        <a href="https://www.youtube.com/watch?v=bxhfOHt1QPw" target="_blank" class="video-link">
+          <img src="https://img.youtube.com/vi/bxhfOHt1QPw/hqdefault.jpg" alt="Prueba Principiante 1" loading="lazy">
+          <div class="play-btn"></div>
+        </a>
       </div>
       <div class="paso-info">
         <div class="paso-numero">Examen</div>
@@ -73,7 +81,10 @@
     <div class="divider"></div>
     <div class="paso-card">
       <div class="video-container">
-        <iframe src="https://www.youtube.com/embed/FWv0pebe5Zs" allowfullscreen loading="lazy"></iframe>
+        <a href="https://www.youtube.com/watch?v=FWv0pebe5Zs" target="_blank" class="video-link">
+          <img src="https://img.youtube.com/vi/FWv0pebe5Zs/hqdefault.jpg" alt="Prueba Básico 2" loading="lazy">
+          <div class="play-btn"></div>
+        </a>
       </div>
       <div class="paso-info">
         <div class="paso-numero">Examen</div>

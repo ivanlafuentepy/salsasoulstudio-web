@@ -36,33 +36,50 @@ function mapState(post) {
   return 'inbox';
 }
 
-// Detectar marca del post por nombre de integración/canal
+// Mapeo exacto de integration ID → marca
+// Generado desde GET /integrations
+const INTEGRATION_BRAND = {
+  // Salsa Soul Studio
+  'cmo9gcn5h0001n07t9rieeqqa': 'Salsa Soul Studio',   // threads salsasoulstudio
+  'cmo8ss7690001lk7t42dob2fk': 'Salsa Soul Studio',   // facebook
+  'cmo91hr200001nu7ss6mqua9s': 'Salsa Soul Studio',    // tiktok
+  'cmoghv03v0001l37qajtnjbx2': 'Salsa Soul Studio',    // instagram ESCUELA DE BAILADORES
+  'cmonp71x10001oi7s83m81rpw': 'Salsa Soul Studio',    // youtube
+  // Ivan & Ingrid Dancers
+  'cmo9oue7d000frp7rr63xoo4e': 'Ivan & Ingrid Dancers', // threads ivan_ingrid.py
+  'cmo9r4ovk000fqu7s9gjnlwba': 'Ivan & Ingrid Dancers', // facebook Ivan&ingrid.py
+  'cmo9r6f1a000lqu7stixm34gp': 'Ivan & Ingrid Dancers', // instagram
+  // Ivan Lafuente (personal) → Ivan & Ingrid Dancers
+  'cmo9dxfeh0001mg7t2cgyut6s': 'Ivan & Ingrid Dancers', // youtube IVAN LAFUENTE
+  'cmo9orab2000brp7r9e3wv7yz': 'Ivan & Ingrid Dancers', // threads ivanlafuente.py
+  'cmo9pn4vu000nrp7rsjryyo5s': 'Ivan & Ingrid Dancers', // tiktok Ivan Lafuente
+  'cmo9pqoe4000prp7rtruslf2p': 'Ivan & Ingrid Dancers', // tiktok ivanlafuente.py
+  // NY2Cali Social
+  'cmpa7mvwz0001pm7tyxwx4arp': 'NY2Cali Social',       // facebook
+  'cmpa7neu90003pm7tsk4bha55': 'NY2Cali Social',       // instagram
+  'cmpa8uqux0003o478dps9tekd': 'NY2Cali Social',       // threads
+  // Fenix Kids Academy
+  'cmo9mvhv70001ms7uwgwb3pio': 'Fenix Kids Academy',   // facebook
+  'cmo9mw5jg0003ms7uw8tmsjwe': 'Fenix Kids Academy',   // instagram
+  'cmo9ott1x000drp7rm8zna4f2': 'Fenix Kids Academy',   // threads
+  'cmo9paa3j000lrp7rbe8go67t': 'Fenix Kids Academy',   // tiktok
+  'cmoqg1407000buw85oekfwohg': 'Fenix Kids Academy',   // youtube
+  // La Casona Lafuente
+  'cmo9psnh30001qu7se8w9knol': 'La Casona Lafuente',   // facebook
+  // Alma Latina Boutique
+  'cmo9pszrq0003qu7srk5tf2s5': 'Alma Latina Boutique', // facebook
+  'cmo9pw38a000dqu7swoqxw69m': 'Alma Latina Boutique', // instagram
+  // Mamba Basket Academy
+  'cmo9mwlxd0005ms7uigtsx1ne': 'Mamba Basket Academy', // instagram
+  'cmo9r5z1h000jqu7sw0wfwu7k': 'Mamba Basket Academy', // facebook
+  'cmo9owf1x000hrp7r4rbey8dm': 'Mamba Basket Academy', // threads
+};
+
 function detectBrand(post, integrations) {
-  // Buscar en la integración asociada
   const intId = post.integrationId || post.integration?.id;
-  if (intId && integrations) {
-    const integration = integrations.find(i => i.id === intId);
-    if (integration) {
-      const name = (integration.name || integration.providerIdentifier || '').toLowerCase();
-      for (const brand of BRANDS) {
-        if (name.includes(brand.toLowerCase().split(' ')[0])) return brand;
-      }
-      // Buscar por profile/identifier
-      const profile = (integration.profile || integration.identifier || '').toLowerCase();
-      for (const brand of BRANDS) {
-        const words = brand.toLowerCase().split(' ');
-        if (words.some(w => w.length > 3 && profile.includes(w))) return brand;
-      }
-    }
+  if (intId && INTEGRATION_BRAND[intId]) {
+    return INTEGRATION_BRAND[intId];
   }
-
-  // Fallback: buscar en contenido/título del post
-  const content = ((post.content || '') + ' ' + (post.title || '')).toLowerCase();
-  for (const brand of BRANDS) {
-    const words = brand.toLowerCase().split(' ');
-    if (words.some(w => w.length > 3 && content.includes(w))) return brand;
-  }
-
   return 'Sin marca';
 }
 

@@ -1,0 +1,72 @@
+// API pública — lista servicios profesionales desde Airtable
+// GET /api/comunidad → JSON con todos los servicios activos
+// Cache: 5 minutos
+
+const BASE_ID = 'appWwCQxALdMMV4MA';
+const TABLE = 'SERVICIOS';
+
+export async function onRequestGet(context) {
+  const apiKey = context.env.AIRTABLE_API_KEY;
+  if (!apiKey) {
+    return Response.json({ error: 'AIRTABLE_API_KEY no configurada' }, { status: 500 });
+  }
+
+  const headers = {
+    Authorization: `Bearer ${apiKey}`,
+    'Content-Type': 'application/json',
+  };
+
+  const servicios = [];
+  let offset = null;
+
+  try {
+    while (true) {
+      const params = new URLSearchParams({
+        filterByFormula: '{ACTIVO}=1',
+        pageSize: '100',
+        'sort[0][field]': 'CATEGORIA',
+        'sort[0][direction]': 'asc',
+      });
+      if (offset) params.set('offset', offset);
+
+      const res = await fetch(
+        `https://api.airtable.com/v0/${BASE_ID}/${TABLE}?${params}`,
+        { headers }
+      );
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        return Response.json(
+          { error: `Airtable respondió ${res.status}: ${errText.slice(0, 200)}` },
+          { status: 502 }
+        );
+      }
+
+      const data = await res.json();
+      for (const rec of data.records || []) {
+        const f = rec.fields || {};
+        servicios.push({
+          nombre: f.NOMBRE || '',
+          categoria: f.CATEGORIA || 'Otro',
+          servicio: f.SERVICIO || '',
+          descripcion: f.DESCRIPCION || '',
+          whatsapp: f.WHATSAPP || '',
+          redes: f.REDES || '',
+        });
+      }
+
+      offset = data.offset;
+      if (!offset) break;
+    }
+
+    return new Response(JSON.stringify({ servicios }), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=300',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  } catch (e) {
+    return Response.json({ error: 'Error: ' + e.message }, { status: 502 });
+  }
+}

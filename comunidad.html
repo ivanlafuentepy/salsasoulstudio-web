@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comunidad Profesional | Salsa Soul Studio</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c96a;
+    --gold-dark: #8a6820;
+    --black: #0a0a0a;
+    --dark: #111111;
+    --dark2: #1a1a1a;
+  }
+  body {
+    font-family: 'Georgia', serif;
+    background: var(--black);
+    color: #fff;
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: var(--dark);
+    border-bottom: 1px solid #222;
+    padding: 20px 24px;
+    text-align: center;
+  }
+  .header a { text-decoration: none; }
+  .header h1 { color: var(--gold); font-size: 1.5rem; margin-bottom: 4px; }
+  .header p { color: #888; font-size: 0.9rem; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+  /* Intro */
+  .intro {
+    text-align: center; padding: 32px 16px 8px;
+    max-width: 700px; margin: 0 auto;
+  }
+  .intro h2 { color: var(--gold); font-size: 1.3rem; margin-bottom: 12px; }
+  .intro p { color: #aaa; font-size: 0.95rem; }
+
+  /* Buscador + filtros */
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    align-items: center; justify-content: center;
+    margin: 24px 0;
+  }
+  .search-box {
+    padding: 10px 16px; background: var(--dark2); border: 1px solid #333;
+    border-radius: 8px; color: #fff; font-size: 0.95rem; width: 300px;
+    font-family: inherit;
+  }
+  .search-box:focus { outline: none; border-color: var(--gold); }
+  .search-box::placeholder { color: #666; }
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+  .filter-btn {
+    padding: 6px 14px; background: var(--dark2); border: 1px solid #333;
+    border-radius: 20px; color: #aaa; font-size: 0.8rem; cursor: pointer;
+    font-family: inherit;
+  }
+  .filter-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .filter-btn.active { background: var(--gold); color: var(--black); border-color: var(--gold); }
+
+  /* Grid de tarjetas */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px; margin-top: 16px;
+  }
+  .card {
+    background: var(--dark2); border: 1px solid #222; border-radius: 12px;
+    padding: 24px; transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--gold-dark); }
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .card-name { font-size: 1.1rem; color: #fff; }
+  .card-cat {
+    font-size: 0.7rem; color: var(--gold); background: #1f1a0e;
+    padding: 3px 10px; border-radius: 4px; white-space: nowrap;
+  }
+  .card-servicio { color: #ccc; font-size: 0.95rem; margin-bottom: 8px; }
+  .card-desc { color: #888; font-size: 0.85rem; margin-bottom: 16px; }
+  .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-wa {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; background: #25D366; color: #fff;
+    border-radius: 8px; text-decoration: none; font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .btn-wa:hover { background: #1da851; }
+  .card-redes { color: #888; font-size: 0.8rem; }
+
+  /* Contador */
+  .count { text-align: center; color: #666; font-size: 0.85rem; margin-top: 8px; }
+
+  /* CTA */
+  .cta {
+    text-align: center; padding: 40px 16px; margin-top: 32px;
+    border-top: 1px solid #222;
+  }
+  .cta p { color: #888; font-size: 0.95rem; margin-bottom: 12px; }
+  .cta a {
+    display: inline-block; padding: 12px 32px;
+    background: var(--gold); color: var(--black);
+    border-radius: 8px; text-decoration: none;
+    font-weight: 600; font-size: 1rem;
+  }
+  .cta a:hover { background: var(--gold-light); }
+
+  /* Loading */
+  .loading { text-align: center; padding: 60px; color: #666; }
+  .spinner {
+    width: 32px; height: 32px; border: 3px solid #222;
+    border-top-color: var(--gold); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-msg {
+    background: #1a0a0a; border: 1px solid #3a1a1a; border-radius: 8px;
+    padding: 16px; color: #e74c3c; text-align: center; margin: 24px 0;
+  }
+  .empty {
+    text-align: center; color: #666; padding: 40px;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 600px) {
+    .grid { grid-template-columns: 1fr; }
+    .search-box { width: 100%; }
+    .container { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/">
+    <h1>Salsa Soul Studio</h1>
+    <p>Comunidad Profesional</p>
+  </a>
+</div>
+
+<div class="intro">
+  <h2>Directorio de la Comunidad</h2>
+  <p>Profesionales y emprendedores de nuestra familia Salsa Soul. Antes de buscar afuera, buscamos adentro.</p>
+</div>
+
+<div class="container">
+  <div class="controls">
+    <input type="text" class="search-box" id="search" placeholder="Buscar profesional...">
+    <div class="filters" id="filters">
+      <button class="filter-btn active" data-cat="all">Todos</button>
+    </div>
+  </div>
+  <div class="count" id="count"></div>
+  <div class="grid" id="grid">
+    <div class="loading"><div class="spinner"></div>Cargando servicios...</div>
+  </div>
+</div>
+
+<div class="cta">
+  <p>Sos alumno de Salsa Soul y querés ofrecer tu servicio?</p>
+  <a href="https://wa.me/595971938655?text=servicios%20profesionales">Registrate con Dorita</a>
+</div>
+
+<script>
+let allServicios = [];
+let activeFilter = 'all';
+
+async function loadData() {
+  try {
+    const res = await fetch('/api/comunidad');
+    if (!res.ok) throw new Error('Error ' + res.status);
+    const data = await res.json();
+    if (data.error) { showError(data.error); return; }
+    allServicios = data.servicios || [];
+    buildFilters();
+    render();
+  } catch (e) {
+    showError('No se pudieron cargar los servicios: ' + e.message);
+  }
+}
+
+function showError(msg) {
+  document.getElementById('grid').innerHTML = '<div class="error-msg">' + msg + '</div>';
+}
+
+function buildFilters() {
+  const cats = [...new Set(allServicios.map(s => s.categoria))].sort();
+  const container = document.getElementById('filters');
+  container.innerHTML = '<button class="filter-btn active" data-cat="all">Todos</button>';
+  cats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn';
+    btn.dataset.cat = cat;
+    btn.textContent = cat;
+    container.appendChild(btn);
+  });
+}
+
+function render() {
+  const query = document.getElementById('search').value.toLowerCase().trim();
+  let filtered = allServicios;
+
+  if (activeFilter !== 'all') {
+    filtered = filtered.filter(s => s.categoria === activeFilter);
+  }
+  if (query) {
+    filtered = filtered.filter(s =>
+      s.nombre.toLowerCase().includes(query) ||
+      s.servicio.toLowerCase().includes(query) ||
+      s.descripcion.toLowerCase().includes(query) ||
+      s.categoria.toLowerCase().includes(query)
+    );
+  }
+
+  document.getElementById('count').textContent =
+    filtered.length + ' profesional' + (filtered.length !== 1 ? 'es' : '');
+
+  if (!filtered.length) {
+    document.getElementById('grid').innerHTML =
+      '<div class="empty">No se encontraron servicios' +
+      (query ? ' para "' + escapeHtml(query) + '"' : '') + '</div>';
+    return;
+  }
+
+  document.getElementById('grid').innerHTML = filtered.map(s => {
+    const waLink = s.whatsapp ? 'https://wa.me/' + s.whatsapp.replace(/[^0-9]/g, '') : '';
+    return '<div class="card">' +
+      '<div class="card-header">' +
+        '<span class="card-name">' + escapeHtml(s.nombre) + '</span>' +
+        '<span class="card-cat">' + escapeHtml(s.categoria) + '</span>' +
+      '</div>' +
+      '<div class="card-servicio">' + escapeHtml(s.servicio) + '</div>' +
+      (s.descripcion ? '<div class="card-desc">' + escapeHtml(s.descripcion) + '</div>' : '') +
+      '<div class="card-actions">' +
+        (waLink ? '<a class="btn-wa" href="' + waLink + '" target="_blank">WhatsApp</a>' : '') +
+        (s.redes ? '<span class="card-redes">' + escapeHtml(s.redes) + '</span>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// Eventos
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.classList.contains('filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  activeFilter = e.target.dataset.cat;
+  render();
+});
+
+loadData();
+</script>
+</body>
+</html>

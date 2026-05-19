@@ -43,8 +43,39 @@ export async function onRequestGet(context) {
       }
 
       const data = await res.json();
-      for (const rec of data.records || []) {
+      // Recoger record IDs de alumnos para traer niveles
+      const records = data.records || [];
+      const alumnoIds = new Set();
+      for (const rec of records) {
+        const alumnoArr = rec.fields?.ALUMNO;
+        if (alumnoArr && alumnoArr[0]) alumnoIds.add(alumnoArr[0]);
+      }
+
+      // Traer niveles de alumnos en batch
+      const niveles = {};
+      if (alumnoIds.size > 0) {
+        const idsArr = [...alumnoIds];
+        // Airtable permite max 100 por request, usar OR de RECORD_ID()
+        const formula = 'OR(' + idsArr.map(id => `RECORD_ID()="${id}"`).join(',') + ')';
+        const alumnoParams = new URLSearchParams({
+          filterByFormula: formula,
+          'fields[]': 'NIVEL',
+        });
+        const alumnoRes = await fetch(
+          `https://api.airtable.com/v0/${BASE_ID}/ALUMNOS?${alumnoParams}`,
+          { headers }
+        );
+        if (alumnoRes.ok) {
+          const alumnoData = await alumnoRes.json();
+          for (const ar of alumnoData.records || []) {
+            niveles[ar.id] = ar.fields?.NIVEL || '';
+          }
+        }
+      }
+
+      for (const rec of records) {
         const f = rec.fields || {};
+        const alumnoId = f.ALUMNO?.[0] || '';
         servicios.push({
           nombre: f.NOMBRE || '',
           categoria: f.CATEGORIA || 'Otro',
@@ -52,6 +83,7 @@ export async function onRequestGet(context) {
           descripcion: f.DESCRIPCION || '',
           whatsapp: f.WHATSAPP || '',
           redes: f.REDES || '',
+          nivel: niveles[alumnoId] || '',
         });
       }
 

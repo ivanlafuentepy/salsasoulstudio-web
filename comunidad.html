@@ -83,7 +83,8 @@
     padding: 3px 10px; border-radius: 4px; white-space: nowrap;
   }
   .card-servicio { color: #ccc; font-size: 0.95rem; margin-bottom: 8px; }
-  .card-desc { color: #888; font-size: 0.85rem; margin-bottom: 16px; }
+  .card-desc { color: #888; font-size: 0.85rem; margin-bottom: 8px; }
+  .card-nivel { color: #d4a843; font-size: 0.8rem; margin-bottom: 16px; font-style: italic; }
   .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
   .btn-wa {
     display: inline-flex; align-items: center; gap: 6px;
@@ -229,7 +230,9 @@ function render() {
   }
 
   document.getElementById('grid').innerHTML = filtered.map(s => {
-    const waLink = s.whatsapp ? 'https://wa.me/' + s.whatsapp.replace(/[^0-9]/g, '') : '';
+    const waNum = s.whatsapp ? s.whatsapp.replace(/[^0-9]/g, '') : '';
+    const waMsg = encodeURIComponent('Hola ' + s.nombre + ', vi que ofrecés ' + s.servicio + ' en la página de Salsa Soul.');
+    const waLink = waNum ? 'https://wa.me/' + waNum + '?text=' + waMsg : '';
     return '<div class="card">' +
       '<div class="card-header">' +
         '<span class="card-name">' + escapeHtml(s.nombre) + '</span>' +
@@ -237,6 +240,7 @@ function render() {
       '</div>' +
       '<div class="card-servicio">' + escapeHtml(s.servicio) + '</div>' +
       (s.descripcion ? '<div class="card-desc">' + escapeHtml(s.descripcion) + '</div>' : '') +
+      (s.nivel ? '<div class="card-nivel">💃 ' + escapeHtml(s.nivel) + '</div>' : '') +
       '<div class="card-actions">' +
         (waLink ? '<a class="btn-wa" href="' + waLink + '" target="_blank">WhatsApp</a>' : '') +
         (s.redes ? '<span class="card-redes">' + escapeHtml(s.redes) + '</span>' : '') +

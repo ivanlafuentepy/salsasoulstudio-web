@@ -94,6 +94,10 @@
   }
   .btn-wa:hover { background: #1da851; }
   .card-redes { color: #888; font-size: 0.8rem; }
+  .card-foto {
+    width: 100%; height: 150px; object-fit: cover;
+    border-radius: 8px; margin-bottom: 12px;
+  }
 
   /* Contador */
   .count { text-align: center; color: #666; font-size: 0.85rem; margin-top: 8px; }
@@ -234,6 +238,7 @@ function render() {
     const waMsg = encodeURIComponent('Hola ' + s.nombre + ', vi que ofrecés ' + s.servicio + ' en la página de Salsa Soul.');
     const waLink = waNum ? 'https://wa.me/' + waNum + '?text=' + waMsg : '';
     return '<div class="card">' +
+      (s.foto ? '<img class="card-foto" src="' + escapeHtml(s.foto) + '" alt="' + escapeHtml(s.nombre) + '" loading="lazy">' : '') +
       '<div class="card-header">' +
         '<span class="card-name">' + escapeHtml(s.nombre) + '</span>' +
         '<span class="card-cat">' + escapeHtml(s.categoria) + '</span>' +

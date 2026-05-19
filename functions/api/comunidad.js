@@ -76,6 +76,9 @@ export async function onRequestGet(context) {
       for (const rec of records) {
         const f = rec.fields || {};
         const alumnoId = f.ALUMNO?.[0] || '';
+        // FOTO es attachment array: [{url, thumbnails: {small: {url}, large: {url}}}]
+        const fotoArr = f.FOTO || [];
+        const fotoUrl = fotoArr[0]?.thumbnails?.large?.url || fotoArr[0]?.url || '';
         servicios.push({
           nombre: f.NOMBRE || '',
           categoria: f.CATEGORIA || 'Otro',
@@ -84,6 +87,7 @@ export async function onRequestGet(context) {
           whatsapp: f.WHATSAPP || '',
           redes: f.REDES || '',
           nivel: niveles[alumnoId] || '',
+          foto: fotoUrl,
         });
       }
 

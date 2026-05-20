@@ -24,7 +24,7 @@ export async function onRequestGet(context) {
       const params = new URLSearchParams({
         filterByFormula: '{ACTIVO}=1',
         pageSize: '100',
-        'sort[0][field]': 'CATEGORIA',
+        'sort[0][field]': 'NOMBRE',
         'sort[0][direction]': 'asc',
       });
       if (offset) params.set('offset', offset);

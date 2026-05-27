@@ -96,7 +96,7 @@ function renderizar(data) {
             asistente = `<div class="asistente">${e.nombre_asistente} ${e.apellido_asistente || ''}</div>`;
         }
 
-        const shareText = encodeURIComponent(`🎭 Te comparto mi entrada #${e.entrada_numero} para el Salsa Soul & Friends Festival!\n📅 Viernes 19 de Junio, 20:30h\n📍 Teatro Municipal Fernando de la Mora\n\nMostra este QR en la entrada:\n${e.checkin_url}`);
+        const shareText = encodeURIComponent(`🎭 Te comparto mi entrada #${e.entrada_numero} para el Salsa Soul & Friends Festival!\n📅 Viernes 19 de Junio, 20:30h\n📍 Teatro Municipal Fernando de la Mora\n\n🎟️ Mostrá este QR en la entrada:\n${e.qr_url}\n\n🎁 Con esta entrada tenés 2 clases gratis en Salsa Soul Studio antes del 15 de junio 💃🕺`);
 
         html += `
         <div class="entrada">

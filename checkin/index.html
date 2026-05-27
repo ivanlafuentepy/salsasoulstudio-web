@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Check-in — Salsa Soul Studio</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{background:#16213e;border-radius:20px;padding:30px;max-width:420px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.3)}
+h2{text-align:center;font-size:1.5em;margin-bottom:5px}
+.entrada-num{text-align:center;color:#e94560;font-size:1.2em;margin-bottom:5px}
+.comprador{text-align:center;opacity:0.7;margin-bottom:20px;font-size:0.95em}
+.loading{text-align:center;padding:60px 0;font-size:1.2em;opacity:0.6}
+.error-page{text-align:center;padding:40px 0}
+.error-page h2{color:#e94560;margin-bottom:15px}
+label{display:block;margin:10px 0 4px;font-size:0.9em;opacity:0.8}
+input[type=text],input[type=password]{width:100%;padding:12px;border-radius:8px;border:1px solid #333;background:#0f3460;color:#fff;font-size:1em}
+.checks{margin:20px 0;display:flex;flex-direction:column;gap:10px}
+.btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:1.05em;font-weight:bold;cursor:pointer;color:#fff;transition:transform 0.1s}
+.btn:active{transform:scale(0.97)}
+.btn-green{background:#10b981}.btn-green:hover{background:#059669}
+.btn-yellow{background:#f59e0b}.btn-yellow:hover{background:#d97706}
+.btn-pin{background:#e94560;margin-top:15px}.btn-pin:hover{background:#c73652}
+.done{display:block;text-align:center;padding:14px;background:rgba(16,185,129,0.2);border-radius:10px;font-size:1em}
+.locked{display:block;text-align:center;padding:14px;background:rgba(255,255,255,0.05);border-radius:10px;font-size:1em;opacity:0.5}
+.pin-section{margin-top:10px}
+.pin-error{color:#e94560;text-align:center;margin-top:8px;font-size:0.9em;display:none}
+.success-page{text-align:center;padding:30px 0}
+.success-page h1{font-size:3em;margin-bottom:10px}
+.success-page .msg{font-size:1.3em;margin-bottom:10px}
+.success-page .wa{font-size:0.95em;opacity:0.7;margin-top:15px}
+.hidden{display:none}
+.disabled{opacity:0.5;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+    <div id="loading" class="loading">Cargando entrada... 🎭</div>
+    <div id="error" class="error-page hidden"></div>
+    <div id="pin-screen" class="hidden">
+        <h2>🔐 Check-in Festival</h2>
+        <div id="entrada-info"></div>
+        <div class="pin-section">
+            <label>PIN de acceso</label>
+            <input type="password" id="pin-input" placeholder="Ingresá el PIN" maxlength="4" inputmode="numeric">
+            <div class="pin-error" id="pin-error">PIN incorrecto</div>
+            <button class="btn btn-pin" onclick="validarPin()">🔓 Ingresar</button>
+        </div>
+    </div>
+    <div id="form-screen" class="hidden">
+        <h2>🎭 Check-in</h2>
+        <div id="entrada-info2"></div>
+        <label>Nombre *</label>
+        <input type="text" id="nombre" placeholder="Nombre del asistente">
+        <label>Apellido</label>
+        <input type="text" id="apellido" placeholder="Apellido">
+        <label>Celular *</label>
+        <input type="text" id="cell" placeholder="0981..." inputmode="tel">
+        <div class="checks" id="checks"></div>
+    </div>
+    <div id="success-screen" class="hidden">
+        <div class="success-page">
+            <h1>✅</h1>
+            <div class="msg" id="success-msg">Registro completado</div>
+            <div class="wa" id="success-wa"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = 'https://salsa-soul-dorita-production.up.railway.app';
+const PIN = '9876';
+let entradaData = null;
+let recordId = '';
+
+async function cargar() {
+    const params = new URLSearchParams(window.location.search);
+    recordId = params.get('id');
+    if (!recordId) {
+        mostrarError('Link no válido', 'Este link no tiene un ID de entrada.');
+        return;
+    }
+    try {
+        const res = await fetch(`${API}/api/entrada/${recordId}`);
+        if (!res.ok) {
+            mostrarError('Entrada no encontrada', 'Verificá el QR o contactá a Salsa Soul Studio.');
+            return;
+        }
+        entradaData = await res.json();
+        mostrarPinScreen();
+    } catch (e) {
+        mostrarError('Error de conexión', 'Intentá de nuevo en unos minutos.');
+    }
+}
+
+function mostrarError(titulo, msg) {
+    document.getElementById('loading').classList.add('hidden');
+    const el = document.getElementById('error');
+    el.innerHTML = `<h2>❌ ${titulo}</h2><p style="margin-top:10px;opacity:0.8">${msg}</p>`;
+    el.classList.remove('hidden');
+}
+
+function mostrarPinScreen() {
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('entrada-info').innerHTML = infoHtml();
+    document.getElementById('pin-screen').classList.remove('hidden');
+    document.getElementById('pin-input').focus();
+}
+
+function infoHtml() {
+    return `<div class="entrada-num">Entrada #${entradaData.entrada_numero}</div>
+            <div class="comprador">Comprador: ${entradaData.comprador}</div>`;
+}
+
+function validarPin() {
+    const pin = document.getElementById('pin-input').value;
+    if (pin === PIN) {
+        document.getElementById('pin-screen').classList.add('hidden');
+        mostrarFormScreen();
+    } else {
+        document.getElementById('pin-error').style.display = 'block';
+        document.getElementById('pin-input').value = '';
+        document.getElementById('pin-input').focus();
+    }
+}
+
+// Enter en campo PIN
+document.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter' && !document.getElementById('pin-screen').classList.contains('hidden')) {
+        validarPin();
+    }
+});
+
+function mostrarFormScreen() {
+    document.getElementById('entrada-info2').innerHTML = infoHtml();
+    // Pre-llenar si ya tiene datos
+    if (entradaData.nombre_asistente) document.getElementById('nombre').value = entradaData.nombre_asistente;
+    if (entradaData.apellido_asistente) document.getElementById('apellido').value = entradaData.apellido_asistente;
+    if (entradaData.cell_asistente) document.getElementById('cell').value = entradaData.cell_asistente;
+
+    renderChecks();
+    document.getElementById('form-screen').classList.remove('hidden');
+}
+
+function renderChecks() {
+    const d = entradaData;
+    let html = '';
+
+    if (d.clase_1) {
+        html += '<span class="done">✅ Clase 1 — Registrada</span>';
+    } else {
+        html += '<button class="btn btn-green" onclick="marcar(\'clase_1\')">💃 Marcar Clase 1</button>';
+    }
+
+    if (d.clase_2) {
+        html += '<span class="done">✅ Clase 2 — Registrada</span>';
+    } else {
+        html += '<button class="btn btn-green" onclick="marcar(\'clase_2\')">🕺 Marcar Clase 2</button>';
+    }
+
+    if (d.festival) {
+        html += '<span class="done">✅ Festival — Registrado</span>';
+    } else if (d.festival_habilitado) {
+        html += '<button class="btn btn-yellow" onclick="marcar(\'festival\')">🎭 Marcar Festival</button>';
+    } else {
+        html += '<span class="locked">🔒 Festival (se habilita el 19 de junio)</span>';
+    }
+
+    document.getElementById('checks').innerHTML = html;
+}
+
+async function marcar(accion) {
+    const nombre = document.getElementById('nombre').value.trim();
+    const cell = document.getElementById('cell').value.trim();
+
+    if ((accion === 'clase_1' || accion === 'clase_2') && !nombre) {
+        alert('Ingresá el nombre del asistente');
+        document.getElementById('nombre').focus();
+        return;
+    }
+    if ((accion === 'clase_1' || accion === 'clase_2') && !cell) {
+        alert('Ingresá el celular del asistente');
+        document.getElementById('cell').focus();
+        return;
+    }
+
+    // Deshabilitar botones
+    document.getElementById('checks').classList.add('disabled');
+
+    try {
+        const res = await fetch(`${API}/api/checkin-festival/${recordId}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                pin: PIN,
+                accion: accion,
+                nombre: nombre,
+                apellido: document.getElementById('apellido').value.trim(),
+                cell: cell,
+            }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            alert(data.error || 'Error al registrar');
+            document.getElementById('checks').classList.remove('disabled');
+            return;
+        }
+        // Mostrar pantalla de éxito
+        mostrarExito(accion, data);
+    } catch (e) {
+        alert('Error de conexión. Intentá de nuevo.');
+        document.getElementById('checks').classList.remove('disabled');
+    }
+}
+
+function mostrarExito(accion, data) {
+    document.getElementById('form-screen').classList.add('hidden');
+    const textos = {
+        'clase_1': '💃 Clase 1 registrada',
+        'clase_2': '🕺 Clase 2 registrada',
+        'festival': '🎭 Festival registrado',
+    };
+    document.getElementById('success-msg').textContent = textos[accion] || 'Registro completado';
+    if (data.whatsapp_enviado) {
+        document.getElementById('success-wa').textContent = '📲 WhatsApp de bienvenida enviado';
+    }
+    document.getElementById('success-screen').classList.remove('hidden');
+}
+
+cargar();
+</script>
+</body>
+</html>

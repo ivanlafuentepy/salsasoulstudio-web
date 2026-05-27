@@ -427,7 +427,12 @@
     .comunidad-section {
       position: relative;
       overflow: hidden;
-      min-height: 400px;
+    }
+
+    /* Bloque 1: Explicación con fondo */
+    .comunidad-hero {
+      position: relative;
+      min-height: 350px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -463,6 +468,120 @@
       font-style: italic;
       font-size: 1rem;
       margin-bottom: 32px;
+    }
+
+    /* Bloque 2: Carrusel interactivo */
+    .comunidad-preview {
+      background: var(--dark);
+      padding: 48px 24px;
+    }
+
+    .comunidad-preview-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .comunidad-preview h3 {
+      color: var(--gold);
+      font-size: 1.2rem;
+      text-align: center;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .comunidad-carousel {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--gold-dark) var(--dark2);
+    }
+
+    .comunidad-carousel::-webkit-scrollbar {
+      height: 6px;
+    }
+    .comunidad-carousel::-webkit-scrollbar-track {
+      background: var(--dark2);
+      border-radius: 3px;
+    }
+    .comunidad-carousel::-webkit-scrollbar-thumb {
+      background: var(--gold-dark);
+      border-radius: 3px;
+    }
+
+    .comunidad-card {
+      flex: 0 0 280px;
+      scroll-snap-align: start;
+      background: var(--dark2);
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 20px;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .comunidad-card:hover {
+      border-color: var(--gold-dark);
+      transform: translateY(-4px);
+    }
+
+    .comunidad-card-foto {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .comunidad-card-name {
+      color: #fff;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .comunidad-card-cat {
+      display: inline-block;
+      font-size: 0.7rem;
+      color: var(--gold);
+      background: #1f1a0e;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .comunidad-card-servicio {
+      color: #ccc;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .comunidad-card-wa {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: #25D366;
+      color: #fff;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .comunidad-card-wa:hover { background: #1da851; }
+
+    .comunidad-ver-todos {
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    .comunidad-loading {
+      text-align: center;
+      color: #666;
+      padding: 32px;
+      font-style: italic;
       line-height: 1.6;
     }
 
@@ -897,11 +1016,25 @@
 
   <!-- COMUNIDAD -->
   <div class="comunidad-section" id="comunidad">
-    <div class="comunidad-bg"></div>
-    <div class="comunidad-content">
-      <h2>Más que una academia</h2>
-      <p class="subtitle">Una comunidad de profesionales y emprendedores que se conocieron bailando. Descubrí sus servicios y conectá.</p>
-      <a href="comunidad.html" class="btn-gold">Conocé la comunidad</a>
+    <!-- Bloque 1: Qué es -->
+    <div class="comunidad-hero">
+      <div class="comunidad-bg"></div>
+      <div class="comunidad-content">
+        <h2>Más que una academia</h2>
+        <p class="subtitle">Una comunidad de profesionales y emprendedores que se conocieron bailando. Antes de buscar afuera, buscamos adentro. Descubrí sus servicios y conectá.</p>
+      </div>
+    </div>
+    <!-- Bloque 2: Carrusel interactivo -->
+    <div class="comunidad-preview">
+      <div class="comunidad-preview-inner">
+        <h3>Profesionales de la comunidad</h3>
+        <div class="comunidad-carousel" id="comunidad-carousel">
+          <div class="comunidad-loading">Cargando profesionales...</div>
+        </div>
+        <div class="comunidad-ver-todos">
+          <a href="comunidad.html" class="btn-gold">Ver todos los profesionales</a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1029,6 +1162,37 @@
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') closeLightbox();
     });
+
+    // ── Comunidad: cargar profesionales desde API ──
+    (async function loadComunidad() {
+      const carousel = document.getElementById('comunidad-carousel');
+      if (!carousel) return;
+      try {
+        const res = await fetch('/api/comunidad');
+        if (!res.ok) throw new Error('Error ' + res.status);
+        const data = await res.json();
+        const servicios = data.servicios || [];
+        if (!servicios.length) {
+          carousel.innerHTML = '<div class="comunidad-loading">Próximamente</div>';
+          return;
+        }
+        carousel.innerHTML = servicios.map(s => {
+          const waNum = s.whatsapp ? s.whatsapp.replace(/[^0-9]/g, '') : '';
+          const waMsg = encodeURIComponent('Hola ' + s.nombre + ', vi tu servicio en la web de Salsa Soul.');
+          const waLink = waNum ? 'https://wa.me/' + waNum + '?text=' + waMsg : '';
+          const esc = t => { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; };
+          return '<div class="comunidad-card">' +
+            (s.foto ? '<img class="comunidad-card-foto" src="' + esc(s.foto) + '" alt="' + esc(s.nombre) + '" loading="lazy">' : '') +
+            '<div class="comunidad-card-name">' + esc(s.nombre) + '</div>' +
+            '<span class="comunidad-card-cat">' + esc(s.categoria) + '</span>' +
+            '<div class="comunidad-card-servicio">' + esc(s.servicio) + '</div>' +
+            (waLink ? '<a class="comunidad-card-wa" href="' + waLink + '" target="_blank">WhatsApp</a>' : '') +
+          '</div>';
+        }).join('');
+      } catch (e) {
+        carousel.innerHTML = '<div class="comunidad-loading">No se pudieron cargar los servicios</div>';
+      }
+    })();
   </script>
 
 </body>

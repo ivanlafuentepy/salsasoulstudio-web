@@ -429,30 +429,39 @@
       overflow: hidden;
     }
 
-    /* Bloque 1: Explicación con fondo */
+    /* Bloque 1: Explicación con fondo negro + foto */
     .comunidad-hero {
-      position: relative;
-      min-height: 350px;
+      background: var(--black);
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: center;
+      gap: 32px;
+      padding: 60px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
     }
 
-    .comunidad-bg {
-      position: absolute;
-      inset: 0;
-      background-image: url('foto-comunidad.jpg');
-      background-size: cover;
-      background-position: center 30%;
-      filter: brightness(0.35);
+    .comunidad-foto {
+      flex: 0 0 auto;
+      max-width: 420px;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+    .comunidad-foto img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
     }
 
     .comunidad-content {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      padding: 70px 24px;
-      max-width: 700px;
+      flex: 1;
+      min-width: 280px;
+      text-align: left;
+      max-width: 500px;
     }
 
     .comunidad-content h2 {
@@ -529,8 +538,9 @@
 
     .comunidad-card-foto {
       width: 100%;
-      height: 140px;
+      height: 160px;
       object-fit: cover;
+      object-position: top center;
       border-radius: 8px;
       margin-bottom: 12px;
     }
@@ -879,6 +889,8 @@
       .hero-photo { height: 260px; }
       .price-card.featured { transform: none; }
       .pensum-content h2, .comunidad-content h2 { font-size: 1.4rem; }
+      .comunidad-hero { padding: 40px 16px; }
+      .comunidad-content { text-align: center; }
     }
   </style>
 </head>
@@ -1018,10 +1030,13 @@
   <div class="comunidad-section" id="comunidad">
     <!-- Bloque 1: Qué es -->
     <div class="comunidad-hero">
-      <div class="comunidad-bg"></div>
+      <div class="comunidad-foto">
+        <img src="foto-comunidad.jpg" alt="Comunidad Salsa Soul" loading="lazy">
+      </div>
       <div class="comunidad-content">
         <h2>Más que una academia</h2>
         <p class="subtitle">Una comunidad de profesionales y emprendedores que se conocieron bailando. Antes de buscar afuera, buscamos adentro. Descubrí sus servicios y conectá.</p>
+        <a href="comunidad.html" class="btn-gold">Ver todos los profesionales</a>
       </div>
     </div>
     <!-- Bloque 2: Carrusel interactivo -->

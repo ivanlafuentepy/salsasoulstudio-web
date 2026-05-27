@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mis Entradas — Salsa Soul Studio</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-height:100vh;padding:20px}
+.container{max-width:500px;margin:0 auto}
+.header{text-align:center;padding:20px 0}
+.header h1{font-size:1.8em;margin-bottom:5px}
+.header .sub{color:#e94560;font-size:1.1em}
+.comprador{text-align:center;opacity:0.7;margin-bottom:25px;font-size:0.95em}
+.loading{text-align:center;padding:60px 0;font-size:1.2em;opacity:0.6}
+.error{text-align:center;padding:60px 0;color:#e94560}
+.entrada{background:#16213e;border-radius:16px;padding:20px;margin-bottom:20px;box-shadow:0 4px 20px rgba(0,0,0,0.2)}
+.entrada-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.entrada-num{font-size:1.3em;font-weight:bold;color:#e94560}
+.entrada-checks{display:flex;gap:8px;flex-wrap:wrap}
+.check{padding:4px 10px;border-radius:20px;font-size:0.8em;font-weight:bold}
+.check-done{background:rgba(16,185,129,0.2);color:#10b981}
+.check-pending{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3)}
+.check-locked{background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.15)}
+.qr-container{text-align:center;margin:15px 0;background:#fff;border-radius:12px;padding:15px}
+.qr-container img{width:200px;height:200px}
+.asistente{font-size:0.9em;opacity:0.7;text-align:center;margin:10px 0}
+.btns{display:flex;gap:10px;margin-top:15px}
+.btn{flex:1;padding:12px;border:none;border-radius:10px;font-size:0.95em;font-weight:bold;cursor:pointer;text-decoration:none;text-align:center;color:#fff}
+.btn-wa{background:#25d366}
+.btn-wa:hover{background:#1da851}
+.btn-download{background:#0f3460}
+.btn-download:hover{background:#1a4a8a}
+.promo{background:linear-gradient(135deg,#e94560,#0f3460);border-radius:16px;padding:20px;margin-bottom:25px;text-align:center}
+.promo h3{margin-bottom:8px;font-size:1.1em}
+.promo p{opacity:0.9;font-size:0.95em}
+.footer{text-align:center;margin-top:30px;opacity:0.4;font-size:0.85em}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🎭 Mis Entradas</h1>
+        <div class="sub">Salsa Soul & Friends Festival</div>
+    </div>
+    <div id="content">
+        <div class="loading">Cargando tus entradas...</div>
+    </div>
+    <div class="footer">Salsa Soul Studio — salsasoulstudio.com</div>
+</div>
+
+<script>
+const API_BASE = 'https://salsa-soul-dorita-production.up.railway.app';
+
+async function cargar() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('t');
+    const content = document.getElementById('content');
+
+    if (!token) {
+        content.innerHTML = '<div class="error"><h2>Link no valido</h2><p>Este link no tiene un token de compra.</p></div>';
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/api/entradas/${token}`);
+        if (!res.ok) {
+            content.innerHTML = '<div class="error"><h2>Entradas no encontradas</h2><p>Verifica tu link o contacta a Salsa Soul Studio.</p></div>';
+            return;
+        }
+        const data = await res.json();
+        renderizar(data);
+    } catch (e) {
+        content.innerHTML = '<div class="error"><h2>Error de conexion</h2><p>Intenta de nuevo en unos minutos.</p></div>';
+    }
+}
+
+function renderizar(data) {
+    const content = document.getElementById('content');
+    let html = '';
+
+    html += `<div class="comprador">Comprador: ${data.comprador} — ${data.total} entrada${data.total > 1 ? 's' : ''}</div>`;
+
+    html += `<div class="promo">
+        <h3>🎁 DOS CLASES GRATIS</h3>
+        <p>Con cada entrada tenes 2 clases gratis en Salsa Soul Studio antes del 15 de junio. Solo presenta tu QR.</p>
+    </div>`;
+
+    for (const e of data.entradas) {
+        const clase1 = e.clase_1 ? '<span class="check check-done">Clase 1 ✅</span>' : '<span class="check check-pending">Clase 1</span>';
+        const clase2 = e.clase_2 ? '<span class="check check-done">Clase 2 ✅</span>' : '<span class="check check-pending">Clase 2</span>';
+        const fest = e.festival ? '<span class="check check-done">Festival ✅</span>' : '<span class="check check-locked">Festival 🔒</span>';
+
+        let asistente = '';
+        if (e.nombre_asistente) {
+            asistente = `<div class="asistente">${e.nombre_asistente} ${e.apellido_asistente || ''}</div>`;
+        }
+
+        const shareText = encodeURIComponent(`🎭 Te comparto mi entrada #${e.entrada_numero} para el Salsa Soul & Friends Festival!\n📅 Viernes 19 de Junio, 20:30h\n📍 Teatro Municipal Fernando de la Mora\n\nMostra este QR en la entrada:\n${e.checkin_url}`);
+
+        html += `
+        <div class="entrada">
+            <div class="entrada-header">
+                <div class="entrada-num">Entrada #${e.entrada_numero}</div>
+                <div class="entrada-checks">${clase1}${clase2}${fest}</div>
+            </div>
+            ${asistente}
+            <div class="qr-container">
+                <img src="${e.qr_url}" alt="QR Entrada ${e.entrada_numero}" loading="lazy">
+            </div>
+            <div class="btns">
+                <a href="https://wa.me/?text=${shareText}" target="_blank" class="btn btn-wa">📲 Compartir</a>
+                <a href="${e.qr_url}" download="entrada-${e.entrada_numero}.png" class="btn btn-download">📥 Descargar</a>
+            </div>
+        </div>`;
+    }
+
+    content.innerHTML = html;
+}
+
+cargar();
+</script>
+</body>
+</html>

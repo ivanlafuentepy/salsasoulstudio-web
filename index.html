@@ -455,7 +455,26 @@
       height: auto;
       display: block;
       border-radius: 12px;
-      filter: brightness(0.7) blur(1.5px);
+      transition: transform 0.6s ease, filter 0.6s ease;
+    }
+    .comunidad-foto:hover img {
+      transform: scale(1.05);
+      filter: brightness(1.1);
+    }
+    .comunidad-foto::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      background: linear-gradient(135deg, var(--gold), transparent, var(--gold-dark)) border-box;
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .comunidad-foto {
+      position: relative;
     }
 
     .comunidad-content {

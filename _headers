@@ -1,0 +1,16 @@
+# Cloudflare Pages — control de caché
+# Objetivo: que nadie vea una versión vieja del sitio en su celular.
+
+# HTML, CSS y JS: el navegador SIEMPRE revalida con el servidor antes de usar
+# la copia guardada. Si cambió, baja la nueva; si no, responde 304 (liviano).
+/*
+  Cache-Control: no-cache
+
+# Imágenes: pesan mucho y casi nunca cambian -> caché de 1 semana.
+# Si cambiás una imagen y querés forzar, renombrala o subí el ?v= que la llama.
+/*.png
+  Cache-Control: public, max-age=604800
+/*.jpg
+  Cache-Control: public, max-age=604800
+/*.jpeg
+  Cache-Control: public, max-age=604800

@@ -32,6 +32,9 @@ input[type=text],input[type=password]{width:100%;padding:12px;border-radius:8px;
 .success-page .wa{font-size:0.95em;opacity:0.7;margin-top:15px}
 .hidden{display:none}
 .disabled{opacity:0.5;pointer-events:none}
+.badge-tipo{display:block;text-align:center;font-weight:bold;border-radius:10px;padding:12px;margin:14px 0;font-size:1.1em;letter-spacing:0.5px}
+.badge-cortesia{background:#fbbf24;color:#dc2626;border:2px solid #dc2626}
+.badge-pagado{background:#10b981;color:#0a0a0a}
 </style>
 </head>
 <body>
@@ -109,8 +112,13 @@ function mostrarPinScreen() {
 }
 
 function infoHtml() {
+    const esCortesia = entradaData.tipo === 'CORTESIA';
+    const badge = esCortesia
+        ? '<div class="badge-tipo badge-cortesia">🎁 ENTRADA DE CORTESÍA</div>'
+        : '<div class="badge-tipo badge-pagado">✅ PAGADO</div>';
     return `<div class="entrada-num">Entrada #${entradaData.entrada_numero}</div>
-            <div class="comprador">Comprador: ${entradaData.comprador}</div>`;
+            <div class="comprador">Comprador: ${entradaData.comprador}</div>
+            ${badge}`;
 }
 
 function validarPin() {

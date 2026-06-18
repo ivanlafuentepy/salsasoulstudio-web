@@ -35,6 +35,9 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#1a1a2e;color:#ff
 .promo h3{margin-bottom:8px;font-size:1.1em}
 .promo p{opacity:0.9;font-size:0.95em}
 .footer{text-align:center;margin-top:30px;opacity:0.4;font-size:0.85em}
+.badge-tipo{display:block;text-align:center;font-weight:bold;border-radius:10px;padding:10px;margin:0 0 14px;font-size:1em;letter-spacing:0.5px}
+.badge-cortesia{background:#fbbf24;color:#dc2626;border:2px solid #dc2626}
+.badge-pagado{background:#10b981;color:#0a0a0a}
 </style>
 </head>
 <body>
@@ -91,6 +94,11 @@ function renderizar(data) {
         const clase2 = e.clase_2 ? '<span class="check check-done">Clase 2 ✅</span>' : '<span class="check check-pending">Clase 2</span>';
         const fest = e.festival ? '<span class="check check-done">Festival ✅</span>' : '<span class="check check-locked">Festival 🔒</span>';
 
+        const esCortesia = e.tipo === 'CORTESIA';
+        const badgeTipo = esCortesia
+            ? '<div class="badge-tipo badge-cortesia">🎁 ENTRADA DE CORTESÍA</div>'
+            : '<div class="badge-tipo badge-pagado">✅ PAGADO</div>';
+
         let asistente = '';
         if (e.nombre_asistente) {
             asistente = `<div class="asistente">${e.nombre_asistente} ${e.apellido_asistente || ''}</div>`;
@@ -104,6 +112,7 @@ function renderizar(data) {
                 <div class="entrada-num">Entrada #${e.entrada_numero}</div>
                 <div class="entrada-checks">${clase1}${clase2}${fest}</div>
             </div>
+            ${badgeTipo}
             ${asistente}
             <div class="qr-container">
                 <img src="${e.qr_url}" alt="QR Entrada ${e.entrada_numero}" loading="lazy">

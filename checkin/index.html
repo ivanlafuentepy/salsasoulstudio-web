@@ -21,11 +21,8 @@ input[type=text],input[type=password]{width:100%;padding:12px;border-radius:8px;
 .btn:active{transform:scale(0.97)}
 .btn-green{background:#10b981}.btn-green:hover{background:#059669}
 .btn-yellow{background:#f59e0b}.btn-yellow:hover{background:#d97706}
-.btn-pin{background:#e94560;margin-top:15px}.btn-pin:hover{background:#c73652}
 .done{display:block;text-align:center;padding:14px;background:rgba(16,185,129,0.2);border-radius:10px;font-size:1em}
 .locked{display:block;text-align:center;padding:14px;background:rgba(255,255,255,0.05);border-radius:10px;font-size:1em;opacity:0.5}
-.pin-section{margin-top:10px}
-.pin-error{color:#e94560;text-align:center;margin-top:8px;font-size:0.9em;display:none}
 .success-page{text-align:center;padding:30px 0}
 .success-page h1{font-size:3em;margin-bottom:10px}
 .success-page .msg{font-size:1.3em;margin-bottom:10px}
@@ -41,16 +38,6 @@ input[type=text],input[type=password]{width:100%;padding:12px;border-radius:8px;
 <div class="card" id="card">
     <div id="loading" class="loading">Cargando entrada... 🎭</div>
     <div id="error" class="error-page hidden"></div>
-    <div id="pin-screen" class="hidden">
-        <h2>🔐 Check-in Festival</h2>
-        <div id="entrada-info"></div>
-        <div class="pin-section">
-            <label>PIN de acceso</label>
-            <input type="password" id="pin-input" placeholder="Ingresá el PIN" maxlength="4" inputmode="numeric">
-            <div class="pin-error" id="pin-error">PIN incorrecto</div>
-            <button class="btn btn-pin" onclick="validarPin()">🔓 Ingresar</button>
-        </div>
-    </div>
     <div id="form-screen" class="hidden">
         <h2>🎭 Check-in</h2>
         <div id="entrada-info2"></div>
@@ -73,7 +60,6 @@ input[type=text],input[type=password]{width:100%;padding:12px;border-radius:8px;
 
 <script>
 const API = 'https://salsa-soul-dorita-production.up.railway.app';
-const PIN = '9876';
 let entradaData = null;
 let recordId = '';
 
@@ -91,7 +77,8 @@ async function cargar() {
             return;
         }
         entradaData = await res.json();
-        mostrarPinScreen();
+        document.getElementById('loading').classList.add('hidden');
+        mostrarFormScreen();
     } catch (e) {
         mostrarError('Error de conexión', 'Intentá de nuevo en unos minutos.');
     }
@@ -104,13 +91,6 @@ function mostrarError(titulo, msg) {
     el.classList.remove('hidden');
 }
 
-function mostrarPinScreen() {
-    document.getElementById('loading').classList.add('hidden');
-    document.getElementById('entrada-info').innerHTML = infoHtml();
-    document.getElementById('pin-screen').classList.remove('hidden');
-    document.getElementById('pin-input').focus();
-}
-
 function infoHtml() {
     const esCortesia = entradaData.tipo === 'CORTESIA';
     const badge = esCortesia
@@ -120,25 +100,6 @@ function infoHtml() {
             <div class="comprador">Comprador: ${entradaData.comprador}</div>
             ${badge}`;
 }
-
-function validarPin() {
-    const pin = document.getElementById('pin-input').value;
-    if (pin === PIN) {
-        document.getElementById('pin-screen').classList.add('hidden');
-        mostrarFormScreen();
-    } else {
-        document.getElementById('pin-error').style.display = 'block';
-        document.getElementById('pin-input').value = '';
-        document.getElementById('pin-input').focus();
-    }
-}
-
-// Enter en campo PIN
-document.addEventListener('keyup', (e) => {
-    if (e.key === 'Enter' && !document.getElementById('pin-screen').classList.contains('hidden')) {
-        validarPin();
-    }
-});
 
 function mostrarFormScreen() {
     document.getElementById('entrada-info2').innerHTML = infoHtml();
@@ -201,7 +162,6 @@ async function marcar(accion) {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
-                pin: PIN,
                 accion: accion,
                 nombre: nombre,
                 apellido: document.getElementById('apellido').value.trim(),

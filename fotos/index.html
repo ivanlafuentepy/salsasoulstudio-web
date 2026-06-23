@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fotos de las clases | Salsa Soul Studio</title>
+  <meta name="description" content="Mirá y descargá las fotos de las clases de Salsa Soul Studio.">
+  <link rel="icon" href="/logo-dorado.png">
+  <style>
+    :root{
+      --gold:#c9a84c; --gold-light:#e8c96a; --gold-dark:#8a6820;
+      --black:#0a0a0a; --dark:#111; --dark2:#1a1a1a;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family:'Georgia',serif; background:var(--black); color:#fff;
+      min-height:100vh; -webkit-tap-highlight-color:transparent;
+    }
+    a{color:inherit;text-decoration:none}
+
+    /* NAV */
+    .nav{
+      position:sticky;top:0;z-index:50; display:flex;align-items:center;gap:12px;
+      padding:14px 20px; background:rgba(10,10,10,.92); backdrop-filter:blur(8px);
+      border-bottom:1px solid rgba(201,168,76,.25);
+    }
+    .nav img{height:38px}
+    .nav .back{margin-left:auto;font-size:.85rem;color:var(--gold-light);opacity:.9}
+
+    /* HERO */
+    .hero{text-align:center;padding:34px 20px 10px}
+    .hero h1{
+      font-size:1.9rem;letter-spacing:.5px;
+      background:linear-gradient(90deg,var(--gold-dark),var(--gold-light),var(--gold-dark));
+      -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    }
+    .hero p{color:#bbb;margin-top:8px;font-size:.95rem}
+    .divider{
+      width:70px;height:3px;margin:16px auto 6px;border-radius:2px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    }
+
+    /* SELECTOR DE FECHA */
+    .selector{display:flex;flex-direction:column;align-items:center;gap:12px;padding:22px 20px 6px}
+    .sel-label{color:var(--gold-light);font-size:.95rem;letter-spacing:.3px}
+    .sel-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%;max-width:540px}
+    .sel{
+      flex:1 1 220px;min-width:150px;padding:12px 14px;border-radius:12px;
+      background:var(--dark2);color:#fff;font-family:inherit;font-size:.95rem;
+      border:1px solid rgba(201,168,76,.4);cursor:pointer;outline:none;transition:border-color .2s;
+    }
+    .sel:focus{border-color:var(--gold)}
+    .sel option{background:var(--dark);color:#fff}
+    .sel-date{color-scheme:dark}
+    .sel-date::-webkit-calendar-picker-indicator{filter:sepia(1) saturate(3) hue-rotate(5deg);cursor:pointer}
+
+    /* GRID */
+    .wrap{padding:14px 16px 60px;max-width:1100px;margin:0 auto}
+    .titulo-fecha{text-align:center;color:var(--gold-light);font-size:1.1rem;margin:10px 0 18px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+    @media(min-width:700px){.grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}}
+    .foto{
+      position:relative;aspect-ratio:1;overflow:hidden;border-radius:12px;cursor:pointer;
+      background:var(--dark2);border:1px solid rgba(201,168,76,.15);
+      opacity:0;transform:translateY(14px);transition:opacity .5s,transform .5s,border-color .25s;
+    }
+    .foto.in{opacity:1;transform:none}
+    .foto:hover{border-color:var(--gold)}
+    .foto img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+    .foto:hover img{transform:scale(1.06)}
+
+    /* ESTADOS */
+    .estado{text-align:center;padding:70px 24px;color:#999}
+    .estado .big{font-size:2.4rem;margin-bottom:14px}
+    .spin{
+      width:38px;height:38px;margin:60px auto;border-radius:50%;
+      border:3px solid rgba(201,168,76,.25);border-top-color:var(--gold);
+      animation:spin .8s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* LIGHTBOX */
+    .lb{
+      position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.95);
+      display:none;align-items:center;justify-content:center;flex-direction:column;
+    }
+    .lb.open{display:flex}
+    .lb img{max-width:94vw;max-height:80vh;border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+    .lb-close{position:absolute;top:16px;right:22px;font-size:2.2rem;color:#fff;cursor:pointer;line-height:1}
+    .lb-nav{
+      position:absolute;top:50%;transform:translateY(-50%);font-size:2.6rem;color:#fff;
+      cursor:pointer;padding:10px 18px;opacity:.7;user-select:none
+    }
+    .lb-nav:hover{opacity:1}
+    .lb-prev{left:4px}.lb-next{right:4px}
+    .lb-bar{margin-top:18px;display:flex;gap:14px;align-items:center}
+    .lb-count{color:#bbb;font-size:.9rem;align-self:center}
+    .btn-descargar{
+      padding:10px 22px;border-radius:999px;cursor:pointer;border:none;font-family:inherit;
+      background:linear-gradient(135deg,var(--gold-dark),var(--gold));color:#0a0a0a;font-weight:bold;
+      font-size:.92rem
+    }
+    .btn-descargar:disabled{opacity:.6;cursor:wait}
+
+    footer{text-align:center;padding:28px 20px;color:#666;font-size:.85rem;border-top:1px solid rgba(201,168,76,.12)}
+    footer .gold{color:var(--gold)}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/"><img src="/logo-dorado.png" alt="Salsa Soul Studio"></a>
+    <a href="/" class="back">← Volver al inicio</a>
+  </nav>
+
+  <div class="hero">
+    <h1>Fotos de las clases</h1>
+    <p>Elegí el día, mirá las fotos y descargá las que quieras 📸</p>
+    <div class="divider"></div>
+  </div>
+
+  <div class="selector" id="selector" style="display:none">
+    <span class="sel-label">📅 Elegí el día</span>
+    <div class="sel-row">
+      <select id="selFecha" class="sel" aria-label="Elegí el día"></select>
+      <input type="text" id="inpFecha" class="sel" inputmode="numeric"
+             placeholder="o escribí: dd/mm/aaaa" maxlength="10" aria-label="Escribí la fecha">
+    </div>
+  </div>
+  <div class="wrap" id="wrap">
+    <div class="spin" id="spin"></div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="lb" id="lb">
+    <span class="lb-close" onclick="cerrarLb()">&times;</span>
+    <span class="lb-nav lb-prev" onclick="navLb(-1)">‹</span>
+    <span class="lb-nav lb-next" onclick="navLb(1)">›</span>
+    <img id="lb-img" src="" alt="Foto de la clase">
+    <div class="lb-bar">
+      <span class="lb-count" id="lb-count"></span>
+      <button class="btn-descargar" id="btn-desc" onclick="descargar()">⬇ Descargar</button>
+    </div>
+  </div>
+
+  <footer>
+    <p><span class="gold">Salsa Soul Studio</span> · Asunción, Paraguay</p>
+    <p style="margin-top:6px">Disfruta la vida bailando 🕺💃</p>
+  </footer>
+
+  <script>
+    // Storage público (Cloudflare R2). El manifest indexa las fotos por fecha.
+    const R2 = "https://pub-1fc0fb1ac8244995981fc724066bf71c.r2.dev";
+    const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+    const DIAS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+
+    let manifest = {fechas:{}};
+    let fechaActiva = null;
+    let fotosActuales = [];
+    let lbIndex = 0;
+
+    function fmtFecha(iso){
+      const [a,m,d] = iso.split("-").map(Number);
+      const dt = new Date(a, m-1, d);
+      return `${DIAS[dt.getDay()]} ${d} de ${MESES[m-1]}`;
+    }
+    function fmtFechaLarga(iso){
+      const s = fmtFecha(iso) + " de " + iso.slice(0,4);
+      return s.charAt(0).toUpperCase() + s.slice(1); // "Viernes 13 de junio de 2026"
+    }
+    function fmtDMA(iso){ // ISO → dd/mm/aaaa (formato Paraguay)
+      const [a,m,d] = iso.split("-");
+      return `${d}/${m}/${a}`;
+    }
+    function parsearDMA(s){ // "13/06/2026" / "13-6" / "13/06" → ISO, o null
+      const m = (s||"").trim().match(/^(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?$/);
+      if(!m) return null;
+      let d = +m[1], mes = +m[2], a = m[3];
+      if(d<1 || d>31 || mes<1 || mes>12) return null;
+      a = !a ? String(new Date().getFullYear()) : (a.length===2 ? "20"+a : a);
+      return `${a.padStart(4,"0")}-${String(mes).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    }
+    function queryFecha(){
+      return new URLSearchParams(location.search).get("fecha");
+    }
+
+    async function init(){
+      try{
+        const r = await fetch(R2 + "/manifest.json?t=" + Date.now());
+        manifest = await r.json();
+      }catch(e){
+        document.getElementById("wrap").innerHTML =
+          '<div class="estado"><div class="big">😕</div>No pude cargar las fotos. Probá de nuevo en un rato.</div>';
+        return;
+      }
+      const fechas = Object.keys(manifest.fechas || {});
+      if(!fechas.length){
+        document.getElementById("spin").remove();
+        document.getElementById("wrap").innerHTML =
+          '<div class="estado"><div class="big">📷</div>Todavía no hay fotos publicadas.</div>';
+        return;
+      }
+      // Menú desplegable con las fechas disponibles
+      const sel = document.getElementById("selFecha");
+      sel.innerHTML = "";
+      fechas.forEach(f=>{
+        const op = document.createElement("option");
+        op.value = f; op.textContent = fmtFechaLarga(f);
+        sel.appendChild(op);
+      });
+      sel.onchange = ()=>mostrar(sel.value);
+      // Campo para escribir/saltar a una fecha en formato dd/mm/aaaa (Paraguay)
+      const inp = document.getElementById("inpFecha");
+      const buscarTexto = ()=>{ const iso = parsearDMA(inp.value); if(iso) mostrar(iso); };
+      inp.onkeydown = e=>{ if(e.key === "Enter"){ e.preventDefault(); buscarTexto(); } };
+      inp.onblur = buscarTexto;
+      document.getElementById("selector").style.display = "flex";
+      // Fecha pedida por URL, o la más nueva
+      const pedida = queryFecha();
+      mostrar(fechas.includes(pedida) ? pedida : fechas[0]);
+    }
+
+    function mostrar(fecha){
+      fechaActiva = fecha;
+      fotosActuales = (manifest.fechas[fecha] || {}).fotos || [];
+      // Sincronizar los controles con la fecha activa
+      const sel = document.getElementById("selFecha");
+      const inp = document.getElementById("inpFecha");
+      if(manifest.fechas[fecha]) sel.value = fecha;
+      inp.value = fmtDMA(fecha); // dd/mm/aaaa
+      // Mantener la URL compartible
+      history.replaceState(null,"", "?fecha=" + fecha);
+
+      const wrap = document.getElementById("wrap");
+      if(!fotosActuales.length){
+        wrap.innerHTML =
+          `<div class="estado"><div class="big">📷</div>
+            No hay fotos del <b>${fmtFecha(fecha)}</b>.<br>
+            <span style="font-size:.9rem;opacity:.8">Elegí otro día en el menú de arriba 👆</span>
+          </div>`;
+        return;
+      }
+      wrap.innerHTML =
+        `<div class="titulo-fecha">${fmtFecha(fecha)} · ${fotosActuales.length} foto(s)</div>
+         <div class="grid" id="grid"></div>`;
+      const grid = document.getElementById("grid");
+      fotosActuales.forEach((url,i)=>{
+        const div = document.createElement("div");
+        div.className = "foto";
+        div.innerHTML = `<img loading="lazy" src="${url}" alt="Foto ${i+1}">`;
+        div.onclick = ()=>abrirLb(i);
+        grid.appendChild(div);
+        // Animación de entrada escalonada
+        setTimeout(()=>div.classList.add("in"), 40*i);
+      });
+    }
+
+    // ── Lightbox ──
+    function abrirLb(i){
+      lbIndex = i;
+      document.getElementById("lb-img").src = fotosActuales[i];
+      document.getElementById("lb-count").textContent = `${i+1} / ${fotosActuales.length}`;
+      document.getElementById("lb").classList.add("open");
+    }
+    function cerrarLb(){ document.getElementById("lb").classList.remove("open"); }
+    function navLb(d){
+      lbIndex = (lbIndex + d + fotosActuales.length) % fotosActuales.length;
+      abrirLb(lbIndex);
+    }
+    async function descargar(){
+      const btn = document.getElementById("btn-desc");
+      const url = fotosActuales[lbIndex];
+      btn.disabled = true; btn.textContent = "Descargando…";
+      try{
+        const resp = await fetch(url);
+        const blob = await resp.blob();
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `salsa-soul-${fechaActiva}-${lbIndex+1}.jpg`;
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(a.href);
+      }catch(e){
+        window.open(url, "_blank"); // fallback: abrir para guardar manual
+      }
+      btn.disabled = false; btn.textContent = "⬇ Descargar";
+    }
+
+    // Teclado
+    document.addEventListener("keydown", e=>{
+      if(!document.getElementById("lb").classList.contains("open")) return;
+      if(e.key === "Escape") cerrarLb();
+      if(e.key === "ArrowLeft") navLb(-1);
+      if(e.key === "ArrowRight") navLb(1);
+    });
+
+    init();
+  </script>
+</body>
+</html>

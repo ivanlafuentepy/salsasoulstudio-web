@@ -20,6 +20,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ══════════════════════════════════════════
+     MENÚ HAMBURGUER (móvil)
+     ══════════════════════════════════════════ */
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  if (navToggle && navLinks) {
+    const setOpen = (open) => {
+      navLinks.classList.toggle('open', open);
+      navToggle.classList.toggle('open', open);
+      navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    navToggle.addEventListener('click', () => setOpen(!navLinks.classList.contains('open')));
+    // Al elegir una sección, cerrar el menú
+    navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setOpen(false)));
+  }
+
+  /* ══════════════════════════════════════════
      SMOOTH SCROLL
      ══════════════════════════════════════════ */
   document.querySelectorAll('.nav-links a').forEach(link => {

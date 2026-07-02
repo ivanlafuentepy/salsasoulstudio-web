@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Festival 2026 | Salsa Soul Studio</title>
+  <meta name="description" content="Sé parte del Festival Salsa Soul Studio 2026 — miércoles 16 de diciembre en el Teatro del Hotel Guaraní. Conocé los requisitos e inscribite.">
+  <link rel="icon" href="/logo-dorado.png">
+  <meta property="og:title" content="Festival Salsa Soul Studio 2026 🎭">
+  <meta property="og:description" content="16 de diciembre · Teatro del Hotel Guaraní. Tu talento, nuestro escenario. Inscribite 💃🕺">
+  <meta property="og:image" content="/festival/flyer2.png">
+  <style>
+    :root{
+      --gold:#c9a84c; --gold-light:#e8c96a; --gold-dark:#8a6820;
+      --black:#0a0a0a; --dark:#111; --dark2:#1a1a1a;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family:'Georgia',serif; background:var(--black); color:#fff;
+      min-height:100vh; -webkit-tap-highlight-color:transparent;
+    }
+    a{color:inherit;text-decoration:none}
+
+    /* NAV */
+    .nav{
+      position:sticky;top:0;z-index:50; display:flex;align-items:center;gap:12px;
+      padding:14px 20px; background:rgba(10,10,10,.92); backdrop-filter:blur(8px);
+      border-bottom:1px solid rgba(201,168,76,.25);
+    }
+    .nav img{height:38px}
+    .nav .back{margin-left:auto;font-size:.85rem;color:var(--gold-light);opacity:.9}
+
+    /* HERO */
+    .hero{text-align:center;padding:28px 20px 6px}
+    .flyer{
+      display:block;width:100%;max-width:340px;margin:0 auto 20px;border-radius:16px;
+      border:1px solid rgba(201,168,76,.3);box-shadow:0 8px 34px rgba(0,0,0,.6);
+    }
+    .hero h1{
+      font-size:2rem;letter-spacing:.5px;line-height:1.15;
+      background:linear-gradient(90deg,var(--gold-dark),var(--gold-light),var(--gold-dark));
+      -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    }
+    .hero .cuando{color:var(--gold-light);margin-top:12px;font-size:1.05rem}
+    .hero .donde{color:#bbb;margin-top:4px;font-size:.95rem}
+    .hero .lema{color:#999;margin-top:10px;font-style:italic;font-size:.95rem}
+    .divider{
+      width:70px;height:3px;margin:22px auto 6px;border-radius:2px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    }
+
+    /* CONTENEDOR */
+    .wrap{padding:14px 16px 40px;max-width:760px;margin:0 auto}
+    .seccion-titulo{
+      text-align:center;color:var(--gold-light);font-size:1.4rem;
+      margin:34px 0 6px;letter-spacing:.5px;
+    }
+    .seccion-sub{text-align:center;color:#888;font-size:.9rem;margin-bottom:18px}
+
+    /* REQUISITOS */
+    .req{
+      display:flex;gap:14px;align-items:flex-start;
+      background:var(--dark2);border:1px solid rgba(201,168,76,.2);border-radius:16px;
+      padding:18px 18px;margin-bottom:14px;
+    }
+    .req .num{
+      flex:0 0 auto;width:34px;height:34px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;font-weight:bold;
+      background:linear-gradient(135deg,var(--gold-dark),var(--gold));color:#0a0a0a;font-size:1rem;
+    }
+    .req .txt h3{color:#fff;font-size:1.05rem;margin-bottom:4px}
+    .req .txt p{color:#aaa;font-size:.92rem;line-height:1.45}
+    .req .txt .destaca{color:var(--gold-light);font-weight:bold}
+
+    /* ENSAYOS */
+    .ensayos{
+      background:var(--dark2);border:1px solid rgba(201,168,76,.2);border-radius:16px;
+      padding:8px 18px;margin-bottom:14px;
+    }
+    .ensayo-mes{
+      display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+      padding:14px 0;border-bottom:1px solid rgba(201,168,76,.12);
+    }
+    .ensayo-mes:last-child{border-bottom:none}
+    .ensayo-mes .mes{color:var(--gold-light);font-weight:bold;font-size:1rem;text-transform:capitalize}
+    .ensayo-mes .fechas{color:#ccc;font-size:.92rem;text-align:right}
+
+    /* CTA */
+    .cta{text-align:center;padding:30px 16px 10px}
+    .cta h2{color:#fff;font-size:1.5rem;margin-bottom:6px}
+    .cta p{color:#aaa;font-size:.95rem;margin-bottom:20px}
+    .btn-inscribirme{
+      display:inline-flex;align-items:center;gap:10px;
+      padding:16px 34px;border-radius:999px;font-family:inherit;font-weight:bold;font-size:1.1rem;
+      background:linear-gradient(135deg,var(--gold-dark),var(--gold),var(--gold-light));
+      color:#0a0a0a;box-shadow:0 8px 26px rgba(201,168,76,.35);
+      transition:transform .2s, box-shadow .2s;
+    }
+    .btn-inscribirme:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(201,168,76,.5)}
+    .cta .nota{color:#777;font-size:.85rem;margin-top:16px}
+
+    footer{text-align:center;padding:34px 20px;color:#666;font-size:.85rem;border-top:1px solid rgba(201,168,76,.12);margin-top:20px}
+    footer .gold{color:var(--gold)}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/"><img src="/logo-dorado.png" alt="Salsa Soul Studio"></a>
+    <a href="/" class="back">← Volver al inicio</a>
+  </nav>
+
+  <div class="hero">
+    <img class="flyer" src="flyer2.png" alt="Festival Salsa Soul Studio 2026 — no es solo un show, es tu historia">
+    <h1>Sé parte del<br>Festival 2026 🎭</h1>
+    <p class="cuando">🗓️ Miércoles 16 de diciembre</p>
+    <p class="donde">📍 Teatro del Hotel Guaraní · el más grandioso del país</p>
+    <p class="lema">Tu talento. Nuestro escenario. Un festival inolvidable.</p>
+    <div class="divider"></div>
+  </div>
+
+  <div class="wrap">
+
+    <h2 class="seccion-titulo">Requisitos para participar</h2>
+    <p class="seccion-sub">Todo lo que necesitás para subir al escenario</p>
+
+    <div class="req">
+      <div class="num">1</div>
+      <div class="txt">
+        <h3>💳 Inscripción</h3>
+        <p>Inscripción de <span class="destaca">250.000 Gs</span> — podés pagarla en <span class="destaca">1 pago</span> o en <span class="destaca">2 cuotas de 125.000 Gs</span>.</p>
+        <p style="margin-top:6px">👕 Incluye tu <span class="destaca">remera exclusiva del festival</span>, que sale solamente para los que participan.</p>
+      </div>
+    </div>
+
+    <div class="req">
+      <div class="num">2</div>
+      <div class="txt">
+        <h3>💃 Asistencia a clases</h3>
+        <p>Venir a clases regulares <span class="destaca">todos los meses que quedan</span> — julio, agosto, septiembre, octubre y noviembre (5 meses) — como mínimo <span class="destaca">una vez al mes</span>.</p>
+      </div>
+    </div>
+
+    <div class="req">
+      <div class="num">3</div>
+      <div class="txt">
+        <h3>⭐ Nivel mínimo</h3>
+        <p>Estar por lo menos en nivel <span class="destaca">Básico 3</span>.</p>
+      </div>
+    </div>
+
+    <div class="req">
+      <div class="num">4</div>
+      <div class="txt">
+        <h3>🎟️ Venta de entradas</h3>
+        <p>Cada participante vende como mínimo <span class="destaca">una entrada en septiembre, una en octubre y una en noviembre</span>. Cada entrada cuesta <span class="destaca">80.000 Gs</span>.</p>
+      </div>
+    </div>
+
+    <h2 class="seccion-titulo">Ensayos</h2>
+    <p class="seccion-sub">Prepará tu presentación paso a paso</p>
+
+    <div class="ensayos">
+      <div class="ensayo-mes">
+        <span class="mes">Julio</span>
+        <span class="fechas">Viernes 31 <span style="color:#888">(primer ensayo)</span></span>
+      </div>
+      <div class="ensayo-mes">
+        <span class="mes">Agosto</span>
+        <span class="fechas">Domingo 9 · Viernes 28</span>
+      </div>
+      <div class="ensayo-mes">
+        <span class="mes">Septiembre</span>
+        <span class="fechas">Después de las clases</span>
+      </div>
+      <div class="ensayo-mes">
+        <span class="mes">Octubre</span>
+        <span class="fechas">Después de las clases</span>
+      </div>
+      <div class="ensayo-mes">
+        <span class="mes">Noviembre</span>
+        <span class="fechas">Después de las clases</span>
+      </div>
+    </div>
+
+    <img class="flyer" src="flyer.png" alt="Festival Salsa Soul Studio 2026 — Teatro del Hotel Guaraní" loading="lazy" style="margin-top:30px">
+
+  </div>
+
+  <div class="cta">
+    <h2>¿Querés ser parte? 🌟</h2>
+    <p>Escribinos y coordinamos tu inscripción al instante.</p>
+    <a class="btn-inscribirme" id="btnInscribirme" href="#" target="_blank" rel="noopener">🎭 Inscribirme al Festival</a>
+    <p class="nota">Te va a atender Dorita por WhatsApp 💛</p>
+  </div>
+
+  <footer>
+    <p><span class="gold">Salsa Soul Studio</span> · Asunción, Paraguay</p>
+    <p style="margin-top:6px">Disfruta la vida bailando 🕺💃</p>
+  </footer>
+
+  <script>
+    // Número de WhatsApp de Dorita (Salsa Soul) — inicia el flujo de inscripción
+    const WA = "595971889475";
+    const MSG = "¡Hola Dorita! 🎭 Quiero inscribirme al Festival Salsa Soul Studio 2026";
+    document.getElementById("btnInscribirme").href =
+      `https://wa.me/${WA}?text=${encodeURIComponent(MSG)}`;
+  </script>
+</body>
+</html>

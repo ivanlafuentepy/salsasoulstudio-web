@@ -1023,6 +1023,26 @@ footer a:hover::after {
   line-height: 1.5;
 }
 
+/* Botones de pago dentro de las cards de precios (van a Dorita por WhatsApp) */
+.price-card .btn-pago {
+  margin-top: 16px;
+  padding: 10px 22px;
+  font-size: 0.82rem;
+  position: relative;
+  z-index: 1; /* por encima del brillo ::after de la card */
+}
+
+.pago-cuota-cta {
+  text-align: center;
+  margin-top: 26px;
+}
+
+.pago-cuota-cta .pago-nota {
+  color: #888;
+  font-size: 0.82rem;
+  margin-top: 12px;
+}
+
 .promo-banner {
   background: linear-gradient(135deg, #161000, #221800);
   border: 1px solid var(--gold-dark);

@@ -108,6 +108,16 @@
     .btn-inscribirme:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(201,168,76,.5)}
     .cta .nota{color:#777;font-size:.85rem;margin-top:16px}
 
+    /* Pago directo con tarjeta (pasarela Bancard) — sin pasar por WhatsApp */
+    .pago-directo{margin-top:26px;padding-top:22px;border-top:1px solid rgba(201,168,76,.18)}
+    .btn-tarjeta-fest{
+      display:inline-block;margin:4px 6px;padding:12px 22px;border-radius:999px;
+      font-family:inherit;font-weight:bold;font-size:.92rem;text-decoration:none;
+      background:transparent;color:var(--gold);border:2px solid var(--gold-dark);
+      transition:transform .2s, background .2s, color .2s;
+    }
+    .btn-tarjeta-fest:hover{transform:translateY(-2px);background:var(--gold);color:#0a0a0a}
+
     footer{text-align:center;padding:34px 20px;color:#666;font-size:.85rem;border-top:1px solid rgba(201,168,76,.12);margin-top:20px}
     footer .gold{color:var(--gold)}
   </style>
@@ -200,6 +210,13 @@
     <p>Escribinos y coordinamos tu inscripción al instante.</p>
     <a class="btn-inscribirme" id="btnInscribirme" href="#" target="_blank" rel="noopener">🎭 Inscribirme al Festival</a>
     <p class="nota">Te va a atender Dorita por WhatsApp 💛</p>
+    <div class="pago-directo">
+      <p class="nota" style="margin-bottom:10px">O pagá tu inscripción directo con tarjeta (Bancard 🔒):</p>
+      <a class="btn-tarjeta-fest" target="_blank" rel="noopener"
+         href="https://pago.ivanlafuente.com/pagar/salsa?monto=250000&amp;sig=0d71eadaef575574&amp;concepto=Inscripci%C3%B3n+Festival+2026">💳 Pago único · 250.000 Gs</a>
+      <a class="btn-tarjeta-fest" target="_blank" rel="noopener"
+         href="https://pago.ivanlafuente.com/pagar/salsa?monto=125000&amp;sig=e2e3a5c3f5fbb0e8&amp;concepto=Cuota+Festival+2026+%281+de+2%29">💳 En 2 cuotas · 125.000 Gs</a>
+    </div>
   </div>
 
   <footer>

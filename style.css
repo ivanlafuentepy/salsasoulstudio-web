@@ -947,6 +947,39 @@ footer a:hover::after {
   transform: translateY(-2px);
 }
 
+/* Pago directo con tarjeta (pasarela Bancard, pago.ivanlafuente.com) — dorado
+   de marca para distinguirlo del verde-WhatsApp de Dorita. */
+.btn-tarjeta {
+  display: inline-block;
+  padding: 14px 36px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: #0a0a0a;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.btn-tarjeta:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.price-card .btn-tarjeta,
+.pago-cuota-cta .btn-tarjeta {
+  margin-top: 10px;
+  padding: 10px 22px;
+  font-size: 0.82rem;
+}
+
+.pago-cuota-cta .btn-festival {
+  margin: 10px 6px 0;
+  padding: 10px 22px;
+  font-size: 0.82rem;
+}
+
 @media (max-width: 600px) {
   .festival-inner {
     flex-direction: column;

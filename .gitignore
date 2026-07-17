@@ -1,3 +1,6 @@
 .env
 node_modules/
 .wrangler/
+
+# Contactos personales — NUNCA subir
+contactos/

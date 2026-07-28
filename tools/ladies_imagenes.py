@@ -32,6 +32,8 @@ grupos = []
 for t in tarjetas:
     nombre = re.search(r"<h3>(.*?)</h3>", t).group(1)
     cupo = re.search(r'<span class="cupo">(.*?)</span>', t).group(1)
+    m_rango = re.search(r'<div class="grupo-horario">(.*?)</div>', t)
+    rango = m_rango.group(1) if m_rango else ""
     lista = re.findall(r"<li>(.*?)</li>", t)
     dias = []
     for dm in re.finditer(r'<div class="dia-nombre">(.*?)</div>(.*?)(?=<div class="dia">|<div class="horarios|$)', t, re.S):
@@ -40,7 +42,7 @@ for t in tarjetas:
                              r'<span class="clase">(.*?)</span>(?:<span class="profe">(.*?)</span>)?', dm.group(2)):
             franjas.append({"css": f.group(1), "hora": f.group(2), "clase": f.group(3), "profe": f.group(4) or ""})
         dias.append({"dia": dm.group(1), "franjas": franjas})
-    grupos.append({"nombre": nombre, "cupo": cupo, "lista": lista, "dias": dias})
+    grupos.append({"nombre": nombre, "cupo": cupo, "rango": rango, "lista": lista, "dias": dias})
     print(f"Parseado {nombre}: {len(lista)} nombres, {len(dias)} días")
 
 
@@ -85,8 +87,8 @@ def html_grupo(g):
       <div class="cab">
         <img src="{LOGO_B64}">
         <h1>{g["nombre"]}</h1>
-        <div class="sub">Ladies Salsa Soul · Nivel Intermedio · Martes y Jueves</div>
-        <div class="cupo">{g["cupo"]}</div>
+        <div class="sub">Ladies Salsa Soul · Nivel Intermedio</div>
+        <div class="cupo">{g["cupo"]}{(" · " + g["rango"]) if g["rango"] else ""}</div>
       </div>
       <div class="divider"></div>
       <ul>{items}</ul>

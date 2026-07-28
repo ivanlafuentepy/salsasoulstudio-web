@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Check-in — Salsa Soul Studio</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{background:#16213e;border-radius:20px;padding:30px;max-width:420px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.3);text-align:center}
+h2{font-size:1.5em;margin-bottom:5px}
+.entrada-num{color:#e94560;font-size:1.2em;margin-bottom:5px}
+.comprador{opacity:0.7;margin-bottom:20px;font-size:0.95em}
+.loading{padding:60px 0;font-size:1.2em;opacity:0.6}
+.error-page{padding:40px 0}
+.error-page h2{color:#e94560;margin-bottom:15px}
+.btn{width:100%;padding:16px;border:none;border-radius:10px;font-size:1.1em;font-weight:bold;cursor:pointer;color:#0a0a0a;background:#10b981;transition:transform 0.1s;margin-top:10px}
+.btn:active{transform:scale(0.97)}
+.btn:hover{background:#059669}
+.done{display:block;padding:14px;background:rgba(16,185,129,0.2);border-radius:10px;font-size:1em;margin-top:10px}
+.disabled{opacity:0.5;pointer-events:none}
+.success-page h1{font-size:3em;margin-bottom:10px}
+.success-page .msg{font-size:1.3em;margin-bottom:10px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+    <div id="loading" class="loading">Cargando entrada... 🎉</div>
+    <div id="error" class="error-page hidden"></div>
+    <div id="form-screen" class="hidden">
+        <h2>🎉 Check-in</h2>
+        <div id="entrada-info"></div>
+        <div id="checks"></div>
+    </div>
+    <div id="success-screen" class="hidden success-page">
+        <h1>✅</h1>
+        <div class="msg" id="success-msg">Presente registrado</div>
+    </div>
+</div>
+
+<script>
+const API = 'https://salsa-soul-dorita-production.up.railway.app';
+let recordId = '';
+
+async function cargar() {
+    const params = new URLSearchParams(window.location.search);
+    recordId = params.get('id');
+    if (!recordId) {
+        mostrarError('Link no válido', 'Este link no tiene un ID de entrada.');
+        return;
+    }
+    try {
+        const res = await fetch(`${API}/api/entrada-social/${recordId}`);
+        if (!res.ok) {
+            mostrarError('Entrada no encontrada', 'Verificá el QR o contactá a Salsa Soul Studio.');
+            return;
+        }
+        const data = await res.json();
+        document.getElementById('loading').classList.add('hidden');
+        mostrarFormScreen(data);
+    } catch (e) {
+        mostrarError('Error de conexión', 'Intentá de nuevo en unos minutos.');
+    }
+}
+
+function mostrarError(titulo, msg) {
+    document.getElementById('loading').classList.add('hidden');
+    const el = document.getElementById('error');
+    el.innerHTML = `<h2>❌ ${titulo}</h2><p style="margin-top:10px;opacity:0.8">${msg}</p>`;
+    el.classList.remove('hidden');
+}
+
+function mostrarFormScreen(data) {
+    document.getElementById('entrada-info').innerHTML =
+        `<div class="entrada-num">Entrada #${data.entrada_numero}</div>
+         <div class="comprador">${data.comprador}</div>`;
+    const checks = document.getElementById('checks');
+    if (data.presente) {
+        checks.innerHTML = '<span class="done">✅ Ya estaba registrado como presente</span>';
+    } else {
+        checks.innerHTML = '<button class="btn" onclick="marcar()">✅ Marcar presente</button>';
+    }
+    document.getElementById('form-screen').classList.remove('hidden');
+}
+
+async function marcar() {
+    document.getElementById('checks').classList.add('disabled');
+    try {
+        const res = await fetch(`${API}/api/checkin-social/${recordId}`, { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) {
+            alert(data.error || 'Error al registrar');
+            document.getElementById('checks').classList.remove('disabled');
+            return;
+        }
+        document.getElementById('form-screen').classList.add('hidden');
+        document.getElementById('success-msg').textContent =
+            data.ya_estaba ? 'Ya estaba registrado como presente' : `Entrada #${data.entrada_numero} — presente registrado`;
+        document.getElementById('success-screen').classList.remove('hidden');
+    } catch (e) {
+        alert('Error de conexión. Intentá de nuevo.');
+        document.getElementById('checks').classList.remove('disabled');
+    }
+}
+
+cargar();
+</script>
+</body>
+</html>

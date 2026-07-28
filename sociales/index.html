@@ -107,7 +107,7 @@
   <div class="hero">
     <h1>Sociales NY2CALI</h1>
     <p>Salsa · Bachata · Amigos · Buena vibra 💃🕺</p>
-    <img class="flyer" src="ny2cali.jpg?v=2" alt="NY2CALI · Palladium Night — temática Cowboy · Sábado 25 de julio">
+    <img class="flyer" src="ny2cali.jpg?v=3" alt="Havana Night · Sábado 8 de agosto · La Casona Lafuente">
     <div class="divider"></div>
   </div>
 
@@ -139,6 +139,11 @@
       return `https://wa.me/${WA}?text=${encodeURIComponent(txt)}`;
     }
 
+    function linkEntrada(social){
+      const txt = `Hola! 🎉 Quiero mi entrada para *${social.nombre}* del *${fmtFecha(social.fecha)}*. ¿Me ayudás? 🙌`;
+      return `https://wa.me/${WA}?text=${encodeURIComponent(txt)}`;
+    }
+
     function render(sociales){
       const wrap = document.getElementById("wrap");
       if(!sociales.length){
@@ -152,7 +157,15 @@
            <div class="social-meta">${hora ? "🕗 "+hora+" hs" : ""}${s.lugar ? ' · <span class="pin">📍 '+s.lugar+'</span>' : ""}</div>`;
 
         let mesasHtml;
-        if(!s.mesas.length){
+        if(s.tipo_venta === 'ENTRADA'){
+          mesasHtml = `<div class="mesa">
+                          <div class="mesa-top">
+                            <span class="mesa-nom">Entrada general</span>
+                            <span class="mesa-precio">${fmtGs(s.precio_entrada)}</span>
+                          </div>
+                          <a class="btn-reservar" href="${linkEntrada(s)}" target="_blank" rel="noopener">Comprar entrada por WhatsApp</a>
+                        </div>`;
+        }else if(!s.mesas.length){
           mesasHtml = '<div class="mesa-disp" style="margin-top:8px">Mesas en breve 🪑</div>';
         }else{
           mesasHtml = '<div class="mesas">' + s.mesas.map(m => {
@@ -173,7 +186,8 @@
                     </div>`;
           }).join("") + '</div>';
         }
-        return `<div class="social">${cabecera}<div class="mesas-label">Mesas disponibles</div>${mesasHtml}</div>`;
+        const label = s.tipo_venta === 'ENTRADA' ? 'Entrada' : 'Mesas disponibles';
+        return `<div class="social">${cabecera}<div class="mesas-label">${label}</div>${mesasHtml}</div>`;
       }).join("");
     }
 

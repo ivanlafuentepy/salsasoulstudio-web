@@ -12,6 +12,20 @@ function nombreMesa(clave) {
   return i >= 0 ? clave.slice(i + 1).trim() : (clave || '').trim();
 }
 
+// Precio escalonado de la entrada de Havana Night (8/08, La Casona Lafuente).
+// Fuente de verdad: agent/social_entradas.py (whatsapp-agentkit) — mismo criterio
+// espejado acá, igual que el precio de mesas vive en Airtable y se lee en los dos lados.
+function fechaHoyAsuncion() {
+  const fmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Asuncion', year: 'numeric', month: '2-digit', day: '2-digit' });
+  return fmt.format(new Date()); // "YYYY-MM-DD"
+}
+function precioEntradaSocial() {
+  const hoy = fechaHoyAsuncion();
+  if (hoy <= '2026-07-31') return 50000;
+  if (hoy <= '2026-08-04') return 60000;
+  return 80000;
+}
+
 export async function onRequestGet(context) {
   const apiKey = context.env.AIRTABLE_API_KEY;
   if (!apiKey) {
@@ -41,13 +55,18 @@ export async function onRequestGet(context) {
       return Response.json({ error: `Airtable SOCIALES ${socialesRes.status}: ${t.slice(0, 200)}` }, { status: 502 });
     }
     const socialesData = await socialesRes.json();
-    const sociales = (socialesData.records || []).map((rec) => ({
-      record_id: rec.id,
-      nombre: rec.fields?.NOMBRE || '',
-      fecha: rec.fields?.FECHA || '',
-      lugar: rec.fields?.LUGAR || '',
-      mesas: [],
-    }));
+    const sociales = (socialesData.records || []).map((rec) => {
+      const tipoVenta = rec.fields?.TIPO_VENTA || 'MESA';
+      return {
+        record_id: rec.id,
+        nombre: rec.fields?.NOMBRE || '',
+        fecha: rec.fields?.FECHA || '',
+        lugar: rec.fields?.LUGAR || '',
+        tipo_venta: tipoVenta,
+        precio_entrada: tipoVenta === 'ENTRADA' ? precioEntradaSocial() : null,
+        mesas: [],
+      };
+    });
     if (!sociales.length) {
       return new Response(JSON.stringify({ sociales: [] }), {
         headers: {

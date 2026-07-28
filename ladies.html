@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ladies Intermedio | Salsa Soul Studio</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --gold: #c9a84c; --gold-light: #e8c96a; --gold-dark: #8a6820; --black: #0a0a0a; --dark: #111111; --dark2: #1a1a1a; --rosa: #e5486f; --rosa-light: #ff7d9c; }
+    body { font-family: 'Georgia', serif; background: var(--black); color: #fff; scroll-behavior: smooth; }
+    .header { background: #000; text-align: center; padding: 40px 20px 20px; border-bottom: 1px solid #1f1600; }
+    .header img { width: 280px; max-width: 70%; margin-bottom: 20px; }
+    .header h1 { color: var(--gold); font-size: 1.8rem; letter-spacing: 3px; text-transform: uppercase; }
+    .header .subtitle { color: #888; font-style: italic; margin-top: 8px; font-size: 0.95rem; }
+    .nav-switch { margin-top: 20px; }
+    .nav-switch a { display: inline-block; padding: 10px 28px; border-radius: 4px; text-decoration: none; font-size: 0.9rem; font-weight: bold; letter-spacing: 0.5px; margin: 4px; transition: opacity 0.2s; }
+    .nav-switch a:hover { opacity: 0.85; }
+    .nav-switch .active { background: var(--gold); color: #000; }
+    .nav-switch .inactive { background: var(--dark2); color: var(--gold-light); border: 1px solid var(--gold-dark); }
+    .divider { width: 90px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 24px auto; }
+    .seccion { max-width: 980px; margin: 0 auto; padding: 50px 24px 20px; }
+    .seccion h2 { text-align: center; color: var(--gold); font-size: 1.4rem; letter-spacing: 2px; text-transform: uppercase; }
+    .seccion .intro { text-align: center; color: #999; font-style: italic; margin-top: 8px; font-size: 0.95rem; }
+
+    /* Profes */
+    .profes-grid { display: grid; grid-template-columns: 1fr; gap: 26px; margin-top: 34px; }
+    @media (min-width: 640px) { .profes-grid { grid-template-columns: repeat(3, 1fr); } }
+    .profe-card { background: var(--dark2); border: 1px solid var(--gold-dark); border-radius: 8px; overflow: hidden; position: relative; }
+    .profe-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; z-index: 1; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light), var(--gold-dark)); }
+    .profe-card img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; }
+    .profe-card .profe-info { padding: 16px 14px 18px; text-align: center; }
+    .profe-card .profe-rol { color: var(--rosa-light); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px; }
+    .profe-card .profe-nombre { color: #fff; font-size: 1.15rem; font-weight: bold; }
+    .profe-card .profe-tag { display: inline-block; margin-top: 10px; padding: 5px 14px; border: 1px solid var(--rosa); border-radius: 20px; color: var(--rosa-light); font-size: 0.78rem; letter-spacing: 1px; text-transform: uppercase; }
+
+    /* Grupos */
+    .grupos-grid { display: grid; grid-template-columns: 1fr; gap: 26px; margin-top: 34px; }
+    @media (min-width: 720px) { .grupos-grid { grid-template-columns: 1fr 1fr; } }
+    .grupo-card { background: var(--dark2); border: 1px solid var(--gold-dark); border-radius: 8px; padding: 26px 24px 30px; position: relative; overflow: hidden; }
+    .grupo-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light), var(--gold-dark)); }
+    .grupo-titulo { display: flex; align-items: baseline; justify-content: center; gap: 10px; }
+    .grupo-titulo h3 { color: var(--gold); font-size: 1.3rem; letter-spacing: 2.5px; text-transform: uppercase; text-align: center; }
+    .grupo-titulo .cupo { color: #777; font-size: 0.85rem; font-style: italic; }
+    .grupo-card .divider { margin: 18px auto 22px; }
+    .grupo-card ul { list-style: none; columns: 1; }
+    @media (min-width: 460px) { .grupo-card ul { columns: 2; column-gap: 28px; } }
+    .grupo-card li { color: #ddd; font-size: 0.98rem; padding: 5px 0; break-inside: avoid; }
+    .grupo-card li::before { content: '•'; color: var(--rosa); margin-right: 9px; }
+
+    .frase { text-align: center; color: var(--gold-light); font-style: italic; padding: 34px 20px 10px; font-size: 1.05rem; }
+    footer { background: #000; border-top: 1px solid #1f1600; text-align: center; padding: 32px 20px; color: #444; font-size: 0.82rem; margin-top: 40px; }
+    footer .gold { color: var(--gold); }
+    footer a { color: var(--gold-light); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    @media (max-width: 600px) { .header h1 { font-size: 1.4rem; } }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <a href="index.html"><img src="logo-dorado.png" alt="Salsa Soul Studio"></a>
+    <h1>Ladies Intermedio</h1>
+    <p class="subtitle">Ladies Salsa Soul · Grupos A y B del nivel intermedio</p>
+    <div class="nav-switch">
+      <a class="inactive" href="index.html">Inicio</a>
+      <a class="active" href="ladies.html">Ladies</a>
+      <a class="inactive" href="pensum.html">Pensum</a>
+    </div>
+  </div>
+
+  <!-- PROFES -->
+  <div class="seccion">
+    <h2>Nuestras Profes</h2>
+    <p class="intro">El equipo que lidera Ladies en el nivel intermedio</p>
+    <div class="profes-grid">
+      <div class="profe-card">
+        <img src="ladies-fatima.jpg" alt="Profe Fátima Fornerón">
+        <div class="profe-info">
+          <div class="profe-rol">Profe</div>
+          <div class="profe-nombre">Fátima Fornerón</div>
+          <span class="profe-tag">Ladies Salsa</span>
+        </div>
+      </div>
+      <div class="profe-card">
+        <img src="ladies-alheli.jpg" alt="Profe Alhelí Fleitas">
+        <div class="profe-info">
+          <div class="profe-rol">Profe</div>
+          <div class="profe-nombre">Alhelí Fleitas</div>
+          <span class="profe-tag">Ladies Bachata</span>
+        </div>
+      </div>
+      <div class="profe-card">
+        <img src="ladies-ingrid.jpg" alt="Profe Ingrid González">
+        <div class="profe-info">
+          <div class="profe-rol">Profe</div>
+          <div class="profe-nombre">Ingrid González</div>
+          <span class="profe-tag">Ladies Salsa &amp; Bachata</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRUPOS -->
+  <div class="seccion">
+    <h2>Los Grupos</h2>
+    <p class="intro">Alumnas del nivel intermedio — Ladies + Pareja · Martes y Jueves</p>
+    <div class="grupos-grid">
+
+      <div class="grupo-card">
+        <div class="grupo-titulo"><h3>Grupo A</h3><span class="cupo">28 chicas</span></div>
+        <div class="divider"></div>
+        <ul>
+          <li>Aida Giménez</li>
+          <li>Andrea Cardozo</li>
+          <li>Anita Barrios</li>
+          <li>Ana Vargas</li>
+          <li>Clara Lugo</li>
+          <li>Claudia Ruiz</li>
+          <li>Claudia Zurita</li>
+          <li>Denise Colmán</li>
+          <li>Diana Melgarejo</li>
+          <li>Gabriela Cabrera</li>
+          <li>Gabriela Martínez</li>
+          <li>Jhanniley Amarilla</li>
+          <li>Jessica Galeano</li>
+          <li>Laura Grau</li>
+          <li>Liza Ramírez</li>
+          <li>Lourdes Cáceres</li>
+          <li>Luz Echeverría</li>
+          <li>Mirtha Gómez</li>
+          <li>Monserrat Aparici</li>
+          <li>Monse Fernández</li>
+          <li>Norma Giménez</li>
+          <li>Paula Prette</li>
+          <li>Patricia Narváez</li>
+          <li>Rebeca Benítez</li>
+          <li>Rocío Cárdenas</li>
+          <li>Sandra Alarcón</li>
+          <li>Stephanie Narváez</li>
+          <li>Victoria Acosta</li>
+        </ul>
+      </div>
+
+      <div class="grupo-card">
+        <div class="grupo-titulo"><h3>Grupo B</h3><span class="cupo">31 chicas</span></div>
+        <div class="divider"></div>
+        <ul>
+          <li>Andrea Ferreira</li>
+          <li>Andrea Samudio</li>
+          <li>Cristy González</li>
+          <li>Cynthia Melgarejo</li>
+          <li>Dalia Morel</li>
+          <li>Eliana Ferrer</li>
+          <li>Elisa Ferreira</li>
+          <li>Emilia Bogado</li>
+          <li>Gladys Peralta</li>
+          <li>Guadalupe Ramírez</li>
+          <li>Guadalupe Silva</li>
+          <li>Jaz Thompson</li>
+          <li>Juliana Bogado</li>
+          <li>Keila Villanueva</li>
+          <li>Lourdes González</li>
+          <li>Lujan Meza</li>
+          <li>Mariel Sanabria</li>
+          <li>Mariela Gimenez</li>
+          <li>Marisa Sanjurjo</li>
+          <li>Marlene Alfonso</li>
+          <li>Mercedes Bedoya</li>
+          <li>Mirella Benítez</li>
+          <li>Myriam Tande</li>
+          <li>Nina Osorio</li>
+          <li>Noelia Gutiérrez</li>
+          <li>Paz Alarcón</li>
+          <li>Rocío Coronel</li>
+          <li>Susan Ríos</li>
+          <li>Tais Casco</li>
+          <li>Tiara Cocco</li>
+          <li>Vilma Miserlian</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <p class="frase">Bailamos juntas, crecemos juntas 💃</p>
+
+  <footer>
+    <p><span class="gold">Salsa Soul Studio</span> · Asunción, Paraguay</p>
+    <p style="margin-top:6px;"><a href="index.html">Inicio</a> · <a href="pensum.html">Pensum</a> · <a href="examenes-salsa.html">Exámenes</a></p>
+  </footer>
+
+</body>
+</html>

@@ -47,6 +47,21 @@
     .grupo-card li { color: #ddd; font-size: 0.98rem; padding: 5px 0; break-inside: avoid; }
     .grupo-card li::before { content: '•'; color: var(--rosa); margin-right: 9px; }
 
+    /* Horarios por grupo */
+    .horarios { margin-top: 28px; }
+    .horarios h4 { color: var(--gold); font-size: 0.95rem; letter-spacing: 2px; text-transform: uppercase; text-align: center; margin-bottom: 4px; }
+    .dia { margin-top: 16px; }
+    .dia .dia-nombre { color: var(--gold-light); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; text-align: center; margin-bottom: 8px; }
+    .franja { display: grid; grid-template-columns: 92px 1fr auto; gap: 8px; align-items: baseline; padding: 6px 10px; border-radius: 4px; font-size: 0.88rem; }
+    .franja + .franja { margin-top: 3px; }
+    .franja .hora { color: #999; font-variant-numeric: tabular-nums; }
+    .franja .clase { color: #ddd; }
+    .franja .profe { color: #888; font-style: italic; font-size: 0.8rem; text-align: right; }
+    .franja.ladies { background: rgba(229, 72, 111, 0.12); border: 1px solid rgba(229, 72, 111, 0.35); }
+    .franja.ladies .clase { color: var(--rosa-light); font-weight: bold; }
+    .franja.libre .clase, .franja.libre .hora { color: #555; }
+    @media (max-width: 460px) { .franja { grid-template-columns: 82px 1fr; } .franja .profe { grid-column: 2; text-align: left; } }
+
     .frase { text-align: center; color: var(--gold-light); font-style: italic; padding: 34px 20px 10px; font-size: 1.05rem; }
     footer { background: #000; border-top: 1px solid #1f1600; text-align: center; padding: 32px 20px; color: #444; font-size: 0.82rem; margin-top: 40px; }
     footer .gold { color: var(--gold); }
@@ -140,6 +155,24 @@
           <li>Stephanie Narváez</li>
           <li>Tiara Cocco</li>
         </ul>
+
+        <div class="horarios">
+          <h4>Horarios Grupo A</h4>
+          <div class="dia">
+            <div class="dia-nombre">Martes</div>
+            <div class="franja libre"><span class="hora">19:15–20:00</span><span class="clase">— sin clase</span></div>
+            <div class="franja"><span class="hora">20:00–20:45</span><span class="clase">Pareja Salsa</span><span class="profe">Profes Javi / Ingrid</span></div>
+            <div class="franja ladies"><span class="hora">20:45–21:30</span><span class="clase">Ladies Bachata</span><span class="profe">Profe Ingrid González</span></div>
+            <div class="franja"><span class="hora">21:30–22:15</span><span class="clase">Pareja Bachata</span><span class="profe">Profes Javi / Ingrid</span></div>
+          </div>
+          <div class="dia">
+            <div class="dia-nombre">Jueves</div>
+            <div class="franja libre"><span class="hora">19:15–20:00</span><span class="clase">— sin clase</span></div>
+            <div class="franja"><span class="hora">20:00–20:45</span><span class="clase">Pareja Bachata</span><span class="profe">Profes Javi / Ingrid</span></div>
+            <div class="franja ladies"><span class="hora">20:45–21:30</span><span class="clase">Ladies Salsa</span><span class="profe">Profe Ingrid González</span></div>
+            <div class="franja"><span class="hora">21:30–22:15</span><span class="clase">Pareja Salsa</span><span class="profe">Profes Javi / Ingrid</span></div>
+          </div>
+        </div>
       </div>
 
       <div class="grupo-card">
@@ -178,6 +211,24 @@
           <li>Victoria Acosta</li>
           <li>Vilma Miserlian</li>
         </ul>
+
+        <div class="horarios">
+          <h4>Horarios Grupo B</h4>
+          <div class="dia">
+            <div class="dia-nombre">Martes</div>
+            <div class="franja"><span class="hora">19:15–20:00</span><span class="clase">Pareja Salsa</span><span class="profe">Profes Javi / Ingrid</span></div>
+            <div class="franja ladies"><span class="hora">20:00–20:45</span><span class="clase">Ladies Salsa</span><span class="profe">Profe Fátima Fornerón</span></div>
+            <div class="franja"><span class="hora">20:45–21:30</span><span class="clase">Pareja Bachata</span><span class="profe">Profes Javi / Fátima</span></div>
+            <div class="franja libre"><span class="hora">21:30–22:15</span><span class="clase">— sin clase</span></div>
+          </div>
+          <div class="dia">
+            <div class="dia-nombre">Jueves</div>
+            <div class="franja"><span class="hora">19:15–20:00</span><span class="clase">Pareja Bachata</span><span class="profe">Profes Javi / Ingrid</span></div>
+            <div class="franja ladies"><span class="hora">20:00–20:45</span><span class="clase">Ladies Bachata</span><span class="profe">Profe Alhelí Fleitas</span></div>
+            <div class="franja"><span class="hora">20:45–21:30</span><span class="clase">Pareja Salsa</span><span class="profe">Profes Javi / Alhelí</span></div>
+            <div class="franja libre"><span class="hora">21:30–22:15</span><span class="clase">— sin clase</span></div>
+          </div>
+        </div>
       </div>
 
     </div>

@@ -5,5 +5,10 @@
 /ronda https://salsa-soul-dorita-production.up.railway.app/ronda/ 302
 /ronda/* https://salsa-soul-dorita-production.up.railway.app/ronda/:splat 302
 # Salsa Soul App (PWA del alumno) — mismo criterio que /ronda
+# /miapp es la URL oficial. /app tiene un 301 viejo a AppSheet en las reglas de
+# Cloudflare (nivel dominio) que le gana a este archivo — cuando Iván borre esa
+# regla, /app empieza a andar solo (estas líneas ya quedan listas).
+/miapp https://salsa-soul-dorita-production.up.railway.app/app/ 302
+/miapp/* https://salsa-soul-dorita-production.up.railway.app/app/:splat 302
 /app https://salsa-soul-dorita-production.up.railway.app/app/ 302
 /app/* https://salsa-soul-dorita-production.up.railway.app/app/:splat 302

@@ -1,0 +1,6 @@
+# Redirecciones de Cloudflare Pages — salsasoulstudio.com
+# Ronda (app del social) vive en el servidor de Dorita (Railway).
+# 302 a propósito: si algún día pasa a subdominio propio, se cambia sin caché pegada.
+# Los query params (?k=<invite>) se preservan solos.
+/ronda https://salsa-soul-dorita-production.up.railway.app/ronda/ 302
+/ronda/* https://salsa-soul-dorita-production.up.railway.app/ronda/:splat 302

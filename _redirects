@@ -4,3 +4,6 @@
 # Los query params (?k=<invite>) se preservan solos.
 /ronda https://salsa-soul-dorita-production.up.railway.app/ronda/ 302
 /ronda/* https://salsa-soul-dorita-production.up.railway.app/ronda/:splat 302
+# Salsa Soul App (PWA del alumno) — mismo criterio que /ronda
+/app https://salsa-soul-dorita-production.up.railway.app/app/ 302
+/app/* https://salsa-soul-dorita-production.up.railway.app/app/:splat 302

@@ -19,11 +19,15 @@ function fechaHoyAsuncion() {
   const fmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Asuncion', year: 'numeric', month: '2-digit', day: '2-digit' });
   return fmt.format(new Date()); // "YYYY-MM-DD"
 }
+// Precio de la entrada de Havana Night. Nació escalonado (50k → 60k → 80k) y el
+// 05/08 Iván dejó el tramo final en 60.000: de acá al social vale 60.000.
+// ⚠️ Esta lógica está DUPLICADA en Dorita (`agent/social_entradas.py`,
+// precio_entrada_social). Si cambia el precio hay que tocar los dos: si no, la web
+// y el WhatsApp cotizan distinto.
 function precioEntradaSocial() {
   const hoy = fechaHoyAsuncion();
   if (hoy <= '2026-07-31') return 50000;
-  if (hoy <= '2026-08-04') return 60000;
-  return 80000;
+  return 60000;
 }
 
 export async function onRequestGet(context) {

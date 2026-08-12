@@ -313,8 +313,11 @@ footer a:hover::after {
   padding: 20px;
 }
 
+/* 460px y no mas: a 600px el logo empujaba la tagline y la ubicacion fuera de
+   los 600px del hero, que recorta con overflow:hidden. En movil no cambia nada,
+   ahi manda el max-width. */
 .hero .logo {
-  width: 600px;
+  width: 460px;
   max-width: 88%;
   mix-blend-mode: multiply;
   margin-bottom: 16px;

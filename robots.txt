@@ -1,0 +1,19 @@
+# robots.txt — salsasoulstudio.com
+# Que Google entre a todo lo publico y no pierda tiempo en las herramientas
+# internas (check-in, entradas, apps). Bloquear aca NO es seguridad: cualquiera
+# con la URL sigue entrando. Es solo para que el buscador no las indexe.
+
+User-agent: *
+Allow: /
+
+# Herramientas privadas — se abren con un link puntual, no son paginas de visita.
+Disallow: /checkin/
+Disallow: /checkin-social/
+Disallow: /entradas/
+
+# Redirecciones a las apps en Railway: son otra aplicacion, no contenido del sitio.
+Disallow: /miapp
+Disallow: /ronda
+Disallow: /app
+
+Sitemap: https://salsasoulstudio.com/sitemap.xml

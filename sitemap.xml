@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  sitemap.xml — salsasoulstudio.com
+  La lista de paginas publicas que le pasamos a Google.
+
+  Las fechas de <lastmod> salen del ultimo commit que toco cada archivo: si
+  editas una pagina, actualiza tambien su fecha aca. Una fecha mentirosa (todas
+  "hoy") le ensena a Google a desconfiar del sitemap entero.
+
+  No lleva <priority> ni <changefreq>: Google los ignora hace anios.
+
+  NO van en esta lista, a proposito: /checkin, /checkin-social, /entradas
+  (herramientas privadas) y /miapp, /ronda, /app (redirecciones a Railway).
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://salsasoulstudio.com/</loc>
+    <lastmod>2026-08-04</lastmod>
+  </url>
+
+  <url>
+    <loc>https://salsasoulstudio.com/pensum.html</loc>
+    <lastmod>2026-05-11</lastmod>
+  </url>
+  <url>
+    <loc>https://salsasoulstudio.com/pensum-salsa.html</loc>
+    <lastmod>2026-05-11</lastmod>
+  </url>
+  <url>
+    <loc>https://salsasoulstudio.com/pensum-bachata.html</loc>
+    <lastmod>2026-05-11</lastmod>
+  </url>
+
+  <url>
+    <loc>https://salsasoulstudio.com/examenes-salsa.html</loc>
+    <lastmod>2026-05-11</lastmod>
+  </url>
+  <url>
+    <loc>https://salsasoulstudio.com/examenes-bachata.html</loc>
+    <lastmod>2026-05-11</lastmod>
+  </url>
+
+  <url>
+    <loc>https://salsasoulstudio.com/ladies.html</loc>
+    <lastmod>2026-08-04</lastmod>
+  </url>
+  <url>
+    <loc>https://salsasoulstudio.com/comunidad.html</loc>
+    <lastmod>2026-05-27</lastmod>
+  </url>
+
+  <url>
+    <loc>https://salsasoulstudio.com/festival/</loc>
+    <lastmod>2026-07-16</lastmod>
+  </url>
+  <url>
+    <loc>https://salsasoulstudio.com/sociales/</loc>
+    <lastmod>2026-07-28</lastmod>
+  </url>
+  <url>
+    <loc>https://salsasoulstudio.com/fotos/</loc>
+    <lastmod>2026-06-23</lastmod>
+  </url>
+
+  <url>
+    <loc>https://salsasoulstudio.com/privacy.html</loc>
+    <lastmod>2026-05-06</lastmod>
+  </url>
+
+</urlset>

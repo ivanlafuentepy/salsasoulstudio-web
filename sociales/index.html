@@ -108,7 +108,7 @@
   <div class="hero">
     <h1>Sociales NY2CALI</h1>
     <p>Salsa · Bachata · Amigos · Buena vibra 💃🕺</p>
-    <img class="flyer" src="ny2cali.jpg?v=3" alt="Havana Night · Sábado 8 de agosto · La Casona Lafuente">
+    <img class="flyer" src="ny2cali.jpg?v=4" alt="Havana Night · Sábado 22 de agosto · Casino de Asunción">
     <div class="divider"></div>
   </div>
 
@@ -158,7 +158,16 @@
            <div class="social-meta">${hora ? "🕗 "+hora+" hs" : ""}${s.lugar ? ' · <span class="pin">📍 '+s.lugar+'</span>' : ""}</div>`;
 
         let mesasHtml;
-        if(s.tipo_venta === 'ENTRADA'){
+        if(s.tipo_venta === 'LIBRE'){
+          // Social de entrada libre y gratuita: no hay mesas que reservar ni entrada que vender
+          mesasHtml = `<div class="mesa">
+                          <div class="mesa-top">
+                            <span class="mesa-nom">Entrada libre</span>
+                            <span class="mesa-precio">Gratis</span>
+                          </div>
+                          <div class="mesa-disp">Sin reservas — venís y entrás 💃🕺</div>
+                        </div>`;
+        }else if(s.tipo_venta === 'ENTRADA'){
           mesasHtml = `<div class="mesa">
                           <div class="mesa-top">
                             <span class="mesa-nom">Entrada general</span>
@@ -187,7 +196,7 @@
                     </div>`;
           }).join("") + '</div>';
         }
-        const label = s.tipo_venta === 'ENTRADA' ? 'Entrada' : 'Mesas disponibles';
+        const label = (s.tipo_venta === 'ENTRADA' || s.tipo_venta === 'LIBRE') ? 'Entrada' : 'Mesas disponibles';
         return `<div class="social">${cabecera}<div class="mesas-label">${label}</div>${mesasHtml}</div>`;
       }).join("");
     }

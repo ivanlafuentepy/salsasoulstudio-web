@@ -55,6 +55,13 @@
     }
     .hero .sub{color:var(--gold-light);margin-top:10px;font-size:1.05rem}
     .hero .sub2{color:#bbb;margin-top:4px;font-size:.95rem}
+    .ig-link{
+      display:inline-flex;align-items:center;gap:8px;margin-top:14px;
+      padding:9px 18px;border-radius:999px;font-size:.92rem;color:var(--gold-light);
+      border:1px solid rgba(201,168,76,.45);background:rgba(201,168,76,.08);
+      transition:background .2s,transform .2s;
+    }
+    .ig-link:hover{background:rgba(201,168,76,.18);transform:translateY(-2px)}
     .divider{
       width:70px;height:3px;margin:22px auto 6px;border-radius:2px;
       background:linear-gradient(90deg,transparent,var(--gold),transparent);
@@ -209,6 +216,14 @@
     <h1>Alma Latina Boutique</h1>
     <p class="sub">La tienda de Salsa Soul Studio</p>
     <p class="sub2">Calzado profesional para bailar salsa y bachata ✨</p>
+    <a class="ig-link" href="https://instagram.com/almalatinaboutique" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="2" y="2" width="20" height="20" rx="5"></rect>
+        <circle cx="12" cy="12" r="4"></circle>
+        <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"></circle>
+      </svg>
+      @almalatinaboutique
+    </a>
   </div>
 
   <div class="contador-wrap">
@@ -350,6 +365,9 @@
 
   <footer>
     <p><span class="gold">Alma Latina Boutique</span> · Salsa Soul Studio · Asunción, Paraguay</p>
+    <p style="margin-top:8px">
+      <a href="https://instagram.com/almalatinaboutique" target="_blank" rel="noopener" style="color:var(--gold-light)">📸 @almalatinaboutique</a>
+    </p>
     <p style="margin-top:6px">Disfruta la vida bailando 🕺💃</p>
   </footer>
 

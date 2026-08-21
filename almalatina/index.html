@@ -5,22 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alma Latina Boutique | Salsa Soul Studio</title>
   <link rel="canonical" href="https://salsasoulstudio.com/almalatina/">
-  <meta name="description" content="Alma Latina Boutique — la tienda de Salsa Soul Studio. Botitas y zapatos profesionales para bailar salsa y bachata. Reservá tu talle con 50.000 Gs y pagá en 6 cuotas de 100.000 Gs sin intereses.">
+  <meta name="description" content="Alma Latina Boutique — la tienda de Salsa Soul Studio. Botitas y zapatos profesionales para bailar salsa y bachata. Costo 650.000 Gs — reservando hoy 550.000: seña de 50.000 y 5 cuotas de 100.000 sin intereses.">
   <link rel="icon" href="/logo-dorado.png">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://salsasoulstudio.com/almalatina/">
   <meta property="og:title" content="Alma Latina Boutique 👠">
-  <meta property="og:description" content="Botitas y zapatos profesionales para salsa y bachata ✨ Reservá con 50.000 Gs y pagá en 6 cuotas sin intereses. ¡Números limitados!">
+  <meta property="og:description" content="Botitas y zapatos profesionales para salsa y bachata ✨ Reservando HOY: 550.000 Gs (costo 650.000) — seña 50.000 + 5 cuotas sin intereses. Llegan la primera semana de septiembre 📦">
   <!-- og:image con ?v=: WhatsApp cachea el preview por URL — si se cambia la
        imagen hay que subir el contador o el chat sigue mostrando la vieja -->
-  <meta property="og:image" content="https://salsasoulstudio.com/almalatina/og-almalatina.jpg?v=2">
+  <meta property="og:image" content="https://salsasoulstudio.com/almalatina/og-almalatina.jpg?v=3">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Alma Latina Boutique — calzado profesional de baile">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Alma Latina Boutique 👠">
   <meta name="twitter:description" content="Botitas y zapatos profesionales para salsa y bachata. Reservá tu talle ✨">
-  <meta name="twitter:image" content="https://salsasoulstudio.com/almalatina/og-almalatina.jpg?v=2">
+  <meta name="twitter:image" content="https://salsasoulstudio.com/almalatina/og-almalatina.jpg?v=3">
   <style>
     :root{
       --gold:#c9a84c; --gold-light:#e8c96a; --gold-dark:#8a6820;
@@ -60,6 +60,24 @@
       background:linear-gradient(90deg,transparent,var(--gold),transparent);
     }
 
+    /* CONTADOR */
+    .contador-wrap{
+      max-width:760px;margin:14px auto 0;padding:0 16px;text-align:center;
+    }
+    .contador-box{
+      background:linear-gradient(135deg,rgba(201,168,76,.22),rgba(201,168,76,.08));
+      border:1px solid var(--gold);border-radius:16px;padding:16px 14px;
+    }
+    .contador-box .tit{color:var(--gold-light);font-size:1rem;margin-bottom:10px}
+    .contador{display:flex;justify-content:center;gap:10px}
+    .contador .bloque{
+      background:var(--black);border:1px solid rgba(201,168,76,.4);border-radius:12px;
+      min-width:74px;padding:10px 8px;
+    }
+    .contador .num{font-size:1.7rem;font-weight:bold;color:var(--gold-light)}
+    .contador .lbl{font-size:.7rem;color:#999;margin-top:2px;letter-spacing:1px}
+    .contador-fin{color:var(--gold-light);font-size:1rem;display:none}
+
     .wrap{padding:14px 16px 40px;max-width:760px;margin:0 auto}
     .seccion-titulo{
       text-align:center;color:var(--gold-light);font-size:1.4rem;
@@ -74,12 +92,20 @@
     .card p{color:#aaa;font-size:.92rem;line-height:1.55}
     .card .destaca{color:var(--gold-light);font-weight:bold}
     .card h3{color:#fff;font-size:1.1rem;margin-bottom:6px}
-    .precio{color:var(--gold-light);font-weight:bold;font-size:1.15rem}
     .badge{
       display:inline-block;padding:4px 12px;border-radius:999px;font-size:.78rem;
       background:rgba(201,168,76,.14);color:var(--gold-light);
       border:1px solid rgba(201,168,76,.35);margin-bottom:10px;margin-right:6px;
     }
+
+    /* PRECIOS DE PRODUCTO */
+    .precios-prod{
+      margin:10px 0 4px;padding:12px 14px;border-radius:12px;text-align:center;
+      background:rgba(201,168,76,.1);border:1px dashed rgba(201,168,76,.45);
+    }
+    .precios-prod .tachado{color:#888;text-decoration:line-through;font-size:.95rem}
+    .precios-prod .hoy{color:var(--gold-light);font-weight:bold;font-size:1.35rem}
+    .precios-prod .cuotas{color:#ddd;font-size:.88rem;margin-top:4px;display:block}
 
     /* PROMO */
     .promo{
@@ -93,13 +119,10 @@
 
     /* GALERÍA */
     .galeria{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
+    .galeria.dos{grid-template-columns:1fr 1fr}
     .galeria img{
       width:100%;display:block;border-radius:12px;background:#fff;
       border:1px solid rgba(201,168,76,.25);cursor:pointer;aspect-ratio:1;object-fit:cover;
-    }
-    .foto-full{
-      width:100%;display:block;border-radius:12px;background:#fff;
-      border:1px solid rgba(201,168,76,.25);margin:10px 0;
     }
     .pie-foto{text-align:center;color:#777;font-size:.8rem;margin:-4px 0 12px}
 
@@ -186,7 +209,19 @@
     <h1>Alma Latina Boutique 👠</h1>
     <p class="sub">La tienda de Salsa Soul Studio</p>
     <p class="sub2">Calzado profesional para bailar salsa y bachata ✨</p>
-    <div class="divider"></div>
+  </div>
+
+  <div class="contador-wrap">
+    <div class="contador-box">
+      <p class="tit">⏳ La promo de reserva termina <b>HOY a las 00:00</b></p>
+      <div class="contador" id="contador">
+        <div class="bloque"><div class="num" id="cHor">--</div><div class="lbl">HORAS</div></div>
+        <div class="bloque"><div class="num" id="cMin">--</div><div class="lbl">MIN</div></div>
+        <div class="bloque"><div class="num" id="cSeg">--</div><div class="lbl">SEG</div></div>
+      </div>
+      <p class="contador-fin" id="contadorFin">⏰ La promo terminó — consultá por
+        <a href="#" id="linkWaFin" style="color:var(--gold-light);text-decoration:underline">WhatsApp</a> si seguís a tiempo 💛</p>
+    </div>
   </div>
 
   <div class="wrap">
@@ -194,57 +229,73 @@
     <div class="promo">
       <h3>🌟 Reservá HOY y aprovechá</h3>
       <ul>
-        <li>💛 Seña de <b>50.000 Gs</b> hoy y ¡listo! Tu par queda reservado</li>
-        <li>💳 Pagás en <b>6 cuotas de 100.000 Gs</b> sin intereses</li>
+        <li>💥 Costo: <s style="color:#999">650.000 Gs</s> → reservando hoy <b>550.000 Gs</b></li>
+        <li>💛 Seña de <b>50.000 Gs</b> + <b>5 cuotas de 100.000 Gs</b> sin intereses</li>
         <li>📅 La primera cuota recién el <b>30 de septiembre</b></li>
-        <li>👟 Cuando lleguen los números <b>te los probás y elegís tu calce</b></li>
+        <li>📦 Llegan la <b>primera semana de septiembre</b></li>
+        <li>👟 Cuando llegan, <b>te los probás y elegís tu calce</b></li>
         <li>⭐ <b>Prioridad</b> para quienes reservan — ¡números limitados!</li>
       </ul>
     </div>
 
-    <h2 class="seccion-titulo">Botita de baile 🖤</h2>
-    <p class="seccion-sub">Gamuza negra · taco 7,5 cm · suela de cromo para girar</p>
+    <h2 class="seccion-titulo">Botita de baile negra 🖤</h2>
+    <p class="seccion-sub">Gamuza negra · cordones + cierre atrás · suela de cromo</p>
 
     <div class="card">
-      <span class="badge">Color: Negro</span>
-      <h3>Botita profesional <span class="precio">600.000 Gs</span></h3>
-      <p>Botita alta con cordones y cierre atrás — sujeción total para bachata
-      sensual y salsa. Comodidad de zapatilla, elegancia de tacón 🔥</p>
-      <div class="galeria" style="grid-template-columns:1fr 1fr">
+      <h3>Botita profesional</h3>
+      <p>Sujeción total para bachata sensual y salsa — comodidad de zapatilla,
+      elegancia de tacón 🔥</p>
+      <div class="precios-prod">
+        <span class="tachado">650.000 Gs</span> → <span class="hoy">550.000 Gs</span> reservando HOY
+        <span class="cuotas">Seña 50.000 + 5 cuotas de 100.000 Gs sin intereses</span>
+      </div>
+      <div class="galeria">
         <img src="img/botita-1.jpg" alt="Botita de baile negra — vista lateral">
-        <img src="img/botita-2.jpg" alt="Botita de baile negra — taco 7,5 cm" loading="lazy">
+        <img src="img/botita-2.jpg" alt="Botita de baile negra — frente y cierre trasero" loading="lazy">
+        <img src="img/botita-3.jpg" alt="Botita de baile negra — perfil con cordones" loading="lazy">
       </div>
     </div>
 
-    <h2 class="seccion-titulo">Zapato profesional ✨</h2>
-    <p class="seccion-sub">Satén con brillantes · dorado beige o negro · taco flare</p>
+    <h2 class="seccion-titulo">Zapato beige dorado ✨</h2>
+    <p class="seccion-sub">Satén dorado beige con pedrería completa · taco flare</p>
 
     <div class="card">
-      <span class="badge">Dorado beige</span>
-      <span class="badge">Negro</span>
-      <h3>Zapato con brillantes <span class="precio">600.000 Gs</span></h3>
+      <h3>Zapato profesional con brillantes</h3>
       <p>El clásico de las bailarinas profesionales: correas cruzadas, pedrería
       completa y suela de cromo. Para brillar en la pista y en el escenario 💎</p>
+      <div class="precios-prod">
+        <span class="tachado">650.000 Gs</span> → <span class="hoy">550.000 Gs</span> reservando HOY
+        <span class="cuotas">Seña 50.000 + 5 cuotas de 100.000 Gs sin intereses</span>
+      </div>
+      <div class="galeria dos">
+        <img src="img/beige-1.jpg" alt="Zapato de baile beige dorado con brillantes">
+        <img src="img/beige-2.jpg" alt="Zapato beige dorado — frente y espalda" loading="lazy">
+        <img src="img/beige-3.jpg" alt="Zapato beige dorado — par" loading="lazy">
+        <img src="img/beige-4.jpg" alt="Zapato beige dorado — vista lateral" loading="lazy">
+      </div>
+    </div>
+
+    <h2 class="seccion-titulo">Zapato negro 🖤</h2>
+    <p class="seccion-sub">Satén negro con pedrería completa · taco flare</p>
+
+    <div class="card">
+      <h3>Zapato profesional con brillantes</h3>
+      <p>La misma horma profesional en negro con pedrería tornasolada —
+      elegancia total para la pista 🌙</p>
+      <div class="precios-prod">
+        <span class="tachado">650.000 Gs</span> → <span class="hoy">550.000 Gs</span> reservando HOY
+        <span class="cuotas">Seña 50.000 + 5 cuotas de 100.000 Gs sin intereses</span>
+      </div>
       <div class="galeria">
-        <img src="img/zapato-1.jpg" alt="Zapato de baile dorado beige con brillantes">
-        <img src="img/zapato-8.jpg" alt="Zapato dorado beige — vista lateral" loading="lazy">
-        <img src="img/zapato-3.jpg" alt="Zapato dorado beige — par" loading="lazy">
-        <img src="img/zapato-4.jpg" alt="Zapato de baile negro con brillantes" loading="lazy">
-        <img src="img/zapato-6.jpg" alt="Zapato negro — vista lateral" loading="lazy">
-        <img src="img/zapato-5.jpg" alt="Zapato negro — par" loading="lazy">
-        <img src="img/zapato-2.jpg" alt="Zapato dorado beige — frente y espalda" loading="lazy">
-        <img src="img/zapato-7.jpg" alt="Zapato dorado beige — taco 7,5 cm" loading="lazy">
-        <img src="img/zapato-12.jpg" alt="Zapato dorado beige — taco 8,5 cm" loading="lazy">
-        <img src="img/zapato-9.jpg" alt="Zapato negro — taco 7,5 cm" loading="lazy">
-        <img src="img/zapato-10.jpg" alt="Zapato negro — taco 6 cm" loading="lazy">
-        <img src="img/zapato-11.jpg" alt="Zapato negro — taco 8,5 cm" loading="lazy">
+        <img src="img/negro-1.jpg" alt="Zapato de baile negro con brillantes — vista lateral">
+        <img src="img/negro-2.jpg" alt="Zapato negro con brillantes — perfil" loading="lazy">
+        <img src="img/negro-3.jpg" alt="Zapato negro con brillantes — frente y espalda" loading="lazy">
       </div>
     </div>
 
     <h2 class="seccion-titulo">Talles disponibles 📏</h2>
-    <div class="chips">
-      <span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>9½</span><span>10</span>
-    </div>
+    <p class="seccion-sub">Del 4 al 10, con medios talles</p>
+    <div class="chips" id="chipsTalles"></div>
 
     <h2 class="seccion-titulo" id="reservar">Reservá tu par ✍️</h2>
     <p class="seccion-sub">Completá tus datos, elegí modelo y talle — listo en 20 segundos</p>
@@ -258,15 +309,16 @@
         <input type="tel" id="tel" name="tel" placeholder="0981 123 456" autocomplete="tel" required>
 
         <label>👠 Modelo</label>
-        <div class="opciones" id="opProducto">
-          <input type="radio" name="producto" id="prodBotita" value="BOTITA" required><label for="prodBotita">🖤 Botita</label>
-          <input type="radio" name="producto" id="prodZapato" value="ZAPATO"><label for="prodZapato">✨ Zapato</label>
+        <div class="opciones" id="opModelo">
+          <input type="radio" name="modelo" id="modBotita" value="BOTITA_NEGRO" required><label for="modBotita">🖤 Botita negra</label>
+          <input type="radio" name="modelo" id="modBeige" value="ZAPATO_BEIGE"><label for="modBeige">✨ Zapato beige dorado</label>
+          <input type="radio" name="modelo" id="modNegro" value="ZAPATO_NEGRO"><label for="modNegro">🌙 Zapato negro</label>
         </div>
 
-        <label>🎨 Color</label>
-        <div class="opciones" id="opColor"></div>
-
-        <label>📏 Talle</label>
+        <label>📏 Talle <span style="color:#999;font-size:.8rem;font-weight:normal">(solo como referencia)</span></label>
+        <p style="color:#999;font-size:.82rem;margin:-4px 0 10px;line-height:1.4">
+          El talle que elegís es <b style="color:var(--gold-light)">solo una referencia</b> —
+          cuando lleguen los pares te los probás y te llevás el calce que te quede mejor 😊</p>
         <div class="opciones" id="opTalle"></div>
 
         <button type="submit" class="btn-enviar" id="btnEnviar">Reservar mi par 👠</button>
@@ -284,10 +336,10 @@
 
     <div class="card" style="margin-top:20px">
       <h3>📋 Lo importante</h3>
-      <p>• Precio: <span class="destaca">600.000 Gs</span> — botita y zapato.<br>
-      • Reservás hoy con una <span class="destaca">seña de 50.000 Gs</span> (tarjeta 🔒 Bancard o transferencia).<br>
-      • El resto lo pagás en <span class="destaca">6 cuotas de 100.000 Gs sin intereses</span> — la primera el <span class="destaca">30 de septiembre</span>.<br>
-      • Cuando lleguen los números <span class="destaca">te los probás en el estudio</span> y confirmás tu calce.<br>
+      <p>• Costo: <span class="destaca">650.000 Gs</span> — reservando hoy: <span class="destaca">550.000 Gs</span>.<br>
+      • Reservás con una <span class="destaca">seña de 50.000 Gs</span> (tarjeta 🔒 Bancard o transferencia).<br>
+      • El resto en <span class="destaca">5 cuotas de 100.000 Gs sin intereses</span> — la primera el <span class="destaca">30 de septiembre</span>.<br>
+      • Los pares llegan la <span class="destaca">primera semana de septiembre</span> — te los probás en el estudio y confirmás tu calce.<br>
       • Los números son <span class="destaca">limitados</span> — las reservas tienen prioridad ⭐</p>
     </div>
 
@@ -306,8 +358,34 @@
     // Firma HMAC de la pasarela para monto fijo 50.000 (solo cubre negocio+monto;
     // si cambia la SEÑA hay que recalcular la firma con LINK_SECRET)
     const SIG_SENA = "5353352f4f70b964";
-    const COLORES = { BOTITA: ["NEGRO"], ZAPATO: ["DORADO BEIGE", "NEGRO"] };
-    const TALLES = ["4", "5", "6", "7", "8", "9", "9.5", "10"];
+    const MODELOS = {
+      BOTITA_NEGRO: { producto: "BOTITA", color: "NEGRO", nombre: "Botita negra" },
+      ZAPATO_BEIGE: { producto: "ZAPATO", color: "DORADO BEIGE", nombre: "Zapato beige dorado" },
+      ZAPATO_NEGRO: { producto: "ZAPATO", color: "NEGRO", nombre: "Zapato negro" },
+    };
+    const TALLES = ["4", "4.5", "5", "5.5", "6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10"];
+    const talleBonito = (t) => t.endsWith(".5") ? t.replace(".5", "½") : t;
+
+    // ── Contador hasta la medianoche de HOY (Paraguay, UTC-3) ──
+    // Fecha límite fija: se armó el 21/08/2026 — "hoy a las 00:00" = 22/08 00:00 PY.
+    const DEADLINE = new Date("2026-08-22T00:00:00-03:00").getTime();
+    const elH = document.getElementById("cHor"), elM = document.getElementById("cMin"),
+          elS = document.getElementById("cSeg");
+    function tick() {
+      const dif = DEADLINE - Date.now();
+      if (dif <= 0) {
+        document.getElementById("contador").style.display = "none";
+        document.getElementById("contadorFin").style.display = "block";
+        return;
+      }
+      elH.textContent = String(Math.floor(dif / 3600000)).padStart(2, "0");
+      elM.textContent = String(Math.floor(dif / 60000) % 60).padStart(2, "0");
+      elS.textContent = String(Math.floor(dif / 1000) % 60).padStart(2, "0");
+      setTimeout(tick, 1000);
+    }
+    tick();
+    document.getElementById("linkWaFin").href =
+      `https://wa.me/${WA}?text=${encodeURIComponent("Hola Dorita! 👠 ¿Sigo a tiempo para reservar en Alma Latina?")}`;
 
     // Lightbox de la galería
     const lb = document.getElementById("lightbox");
@@ -317,29 +395,16 @@
     });
     lb.addEventListener("click", () => lb.classList.remove("abierta"));
 
-    // Chips de talle
+    // Chips informativos de talles
+    const chips = document.getElementById("chipsTalles");
+    TALLES.forEach((t) => chips.insertAdjacentHTML("beforeend", `<span>${talleBonito(t)}</span>`));
+
+    // Chips de talle del formulario
     const opTalle = document.getElementById("opTalle");
     TALLES.forEach((t) => {
       const id = `talle${t.replace(".", "_")}`;
       opTalle.insertAdjacentHTML("beforeend",
-        `<input type="radio" name="talle" id="${id}" value="${t}"><label for="${id}">${t === "9.5" ? "9½" : t}</label>`);
-    });
-
-    // Colores según modelo
-    const opColor = document.getElementById("opColor");
-    function pintarColores(producto) {
-      const colores = COLORES[producto] || [];
-      opColor.innerHTML = "";
-      colores.forEach((c, i) => {
-        const id = `color${c.replace(/ /g, "_")}`;
-        const emoji = c === "NEGRO" ? "🖤" : "✨";
-        opColor.insertAdjacentHTML("beforeend",
-          `<input type="radio" name="color" id="${id}" value="${c}" ${colores.length === 1 || i === -1 ? "checked" : ""}><label for="${id}">${emoji} ${c.charAt(0) + c.slice(1).toLowerCase()}</label>`);
-      });
-    }
-    pintarColores("");
-    document.querySelectorAll('input[name="producto"]').forEach((r) => {
-      r.addEventListener("change", () => pintarColores(r.value));
+        `<input type="radio" name="talle" id="${id}" value="${t}"><label for="${id}">${talleBonito(t)}</label>`);
     });
 
     // Envío del formulario → proxy /api/almalatina → Dorita (Railway)
@@ -353,8 +418,8 @@
       resultado.innerHTML = html;
     }
 
-    function armarPago(datos) {
-      const desc = `${datos.producto === "BOTITA" ? "Botita" : "Zapato"} ${datos.color.toLowerCase()} talle ${datos.talle}`;
+    function armarPago(datos, modelo) {
+      const desc = `${modelo.nombre} talle ${datos.talle}`;
       const concepto = `Seña Alma Latina — ${desc} — ${datos.nombre}`;
       // teléfono normalizado 5959... para vincular el pago
       let tel = datos.telefono.replace(/[+\s-]/g, "");
@@ -370,15 +435,17 @@
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      const modeloKey = (form.querySelector('input[name="modelo"]:checked') || {}).value || "";
+      const modelo = MODELOS[modeloKey];
       const datos = {
         nombre: document.getElementById("nombre").value.trim(),
         telefono: document.getElementById("tel").value.trim(),
-        producto: (form.querySelector('input[name="producto"]:checked') || {}).value || "",
-        color: (form.querySelector('input[name="color"]:checked') || {}).value || "",
+        producto: modelo ? modelo.producto : "",
+        color: modelo ? modelo.color : "",
         talle: (form.querySelector('input[name="talle"]:checked') || {}).value || "",
       };
-      if (!datos.producto || !datos.color || !datos.talle) {
-        mostrar("err", "Elegí modelo, color y talle antes de reservar 😊");
+      if (!modelo || !datos.talle) {
+        mostrar("err", "Elegí modelo y talle antes de reservar 😊");
         return;
       }
       if (datos.nombre.split(" ").length < 2) {
@@ -397,9 +464,9 @@
         if (data.ok) {
           mostrar("ok",
             `✅ <b>¡Reserva hecha, ${datos.nombre.split(" ")[0]}!</b> 👠<br>` +
-            `${datos.producto === "BOTITA" ? "Botita" : "Zapato"} ${datos.color.toLowerCase()}, talle <b>${datos.talle === "9.5" ? "9½" : datos.talle}</b><br>` +
-            `Ahora confirmala con la seña 👇`);
-          armarPago(datos);
+            `${modelo.nombre}, talle <b>${talleBonito(datos.talle)}</b><br>` +
+            `Llegan la primera semana de septiembre 📦 Ahora confirmala con la seña 👇`);
+          armarPago(datos, modelo);
           form.querySelectorAll("input,button").forEach((el) => (el.disabled = true));
           document.getElementById("pagoOpciones").scrollIntoView({ behavior: "smooth", block: "center" });
           return;
@@ -407,8 +474,8 @@
         if (data.motivo === "ya_reservada") {
           mostrar("warn",
             `👠 Ya tenés una reserva de ese modelo y talle (estado: <b>${(data.reserva?.estado || "").toLowerCase()}</b>) ✅<br>` +
-            `Si falta tu seña, pagala acá abajo 👇 Para cambios, <a href="https://wa.me/${WA}?text=${encodeURIComponent("Hola Dorita! 👠 Quiero cambiar mi reserva de Alma Latina")}" target="_blank" rel="noopener">habla con Dorita</a> 💛`);
-          armarPago(datos);
+            `Si falta tu seña, pagala acá abajo 👇 Para cambios, <a href="https://wa.me/${WA}?text=${encodeURIComponent("Hola Dorita! 👠 Quiero cambiar mi reserva de Alma Latina")}" target="_blank" rel="noopener">hablá con Dorita</a> 💛`);
+          armarPago(datos, modelo);
         } else if (data.motivo === "datos_invalidos") {
           mostrar("err", "Revisá tus datos — nombre y apellido, y el número tipo 0981 123 456 😊");
         } else {

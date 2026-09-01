@@ -62,6 +62,25 @@
   </script>
 
   <link rel="stylesheet" href="style.css?v=20260812">
+
+  <!-- PROMO PRIMAVERA — estilos propios de la seccion (2026).
+       Van aca y no en style.css para no tocar el CSS del resto del sitio. -->
+  <style>
+    #promo-primavera { background: linear-gradient(160deg, #1a0d16 0%, #22101c 55%, #150b12 100%); }
+    #promo-primavera .badge { background: #e84c8a !important; color: #fff !important; }
+    #promo-primavera .fecha { color: #ff8fb8 !important; }
+    #promo-primavera .btn-festival { background: linear-gradient(135deg, #e84c8a, #ff9ec4); color: #2a0d1c; }
+    #promo-primavera .promo-2x1 {
+      display: inline-block; margin: 14px 0 4px; padding: 10px 20px; border-radius: 12px;
+      background: linear-gradient(135deg, #e84c8a, #c0306a); color: #fff;
+      font-weight: 800; font-size: 1.15rem; letter-spacing: .5px;
+    }
+    #promo-primavera .promo-2x1 span { display: block; font-size: .82rem; font-weight: 600; opacity: .92; }
+    #promo-primavera .promo-limite { margin-top: 14px; font-size: .95rem; color: #ffd7e6; }
+    #promo-primavera .btn-festival { margin-top: 18px; }
+    /* la grilla vive fuera de .festival-inner: le damos su propio ancho */
+    #promo-primavera .afiches-grid { max-width: 980px; margin: 0 auto; padding: 0 24px 60px; }
+  </style>
   <noscript><style>.hero-overlay,.level-card,.afiche-card,.pensum-card,.price-card,.promo-banner,.classes-note,.festival-poster,.festival-info,.contact-info,.illustration,.buttons{opacity:1!important;transform:none!important;}</style></noscript>
 </head>
 <body>
@@ -76,6 +95,7 @@
     </button>
     <ul class="nav-links" id="navLinks">
       <li><a href="#hero">🏠 Inicio</a></li>
+      <li><a href="#promo-primavera" style="color:#ff8fb8;font-weight:700">🌸 Promo Primavera</a></li>
       <li><a href="#clases">Clases</a></li>
       <li><a href="#pensum">Pensum</a></li>
       <li><a href="examenes-salsa.html">Exámenes</a></li>
@@ -106,6 +126,39 @@
   <!-- LOGO SECTION -->
   <div class="logo-section">
     <img class="logo-big" src="logo-dorado.png" alt="Salsa Soul Studio">
+  </div>
+
+  <!-- PROMO PRIMAVERA — curso nuevo de salsa para principiantes (septiembre 2026).
+       Seccion agregada sin modificar el resto del home. -->
+  <div class="festival-wrapper" id="promo-primavera">
+    <div class="festival-inner">
+      <div class="festival-poster" onclick="openLightbox(this)">
+        <img src="promo-primavera-inicio.jpg" alt="Promo Primavera — nuevo curso de salsa para principiantes, inicio jueves 3 de septiembre" loading="lazy">
+      </div>
+      <div class="festival-info">
+        <span class="badge">🌸 Promo Primavera</span>
+        <h2>Nuevo curso de Salsa para principiantes</h2>
+        <p class="fecha">Inicio: jueves 3 de septiembre</p>
+        <div class="detalles">
+          Empezá de cero, sin experiencia y sin pareja 💃🕺<br>
+          🕓 <strong>Lunes y jueves 19:30</strong> · <strong>Sábados 18:30</strong><br>
+          Con los profes <strong>Ivan Lafuente e Ingrid González</strong>
+        </div>
+        <div class="promo-2x1">PROMO 2x1 <span>Dos meses por el precio de uno</span></div>
+        <p class="promo-limite">📅 Reservá antes del <strong>lunes 7 de septiembre</strong></p>
+        <a class="btn-festival" target="_blank" rel="noopener"
+           href="https://wa.me/595971889475?text=Hola%20Dorita!%20Quiero%20la%20PROMO%20PRIMAVERA%20%F0%9F%8C%B8%20del%20curso%20de%20salsa%20para%20principiantes">🌸 Quiero la Promo Primavera</a>
+      </div>
+    </div>
+
+    <div class="afiches-grid">
+      <div class="afiche-card" onclick="openLightbox(this)">
+        <img src="promo-primavera-horarios.jpg" alt="Promo Primavera — horarios y precios del curso de principiantes" loading="lazy">
+      </div>
+      <div class="afiche-card" onclick="openLightbox(this)">
+        <img src="promo-primavera-precios.jpg" alt="Promo Primavera — precios, promo 2x1 y horarios" loading="lazy">
+      </div>
+    </div>
   </div>
 
   <!-- CLASES -->

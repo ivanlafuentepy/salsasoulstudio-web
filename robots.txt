@@ -11,6 +11,10 @@ Disallow: /checkin/
 Disallow: /checkin-social/
 Disallow: /entradas/
 
+# Guion del espectaculo del festival — material de trabajo con los alumnos.
+# Si Google lo indexa, se spoilea el show entero antes de la funcion.
+Disallow: /las-elegidas
+
 # Redirecciones a las apps en Railway: son otra aplicacion, no contenido del sitio.
 Disallow: /miapp
 Disallow: /ronda

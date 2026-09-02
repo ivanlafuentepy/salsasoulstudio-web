@@ -78,6 +78,15 @@
     #promo-primavera .promo-2x1 span { display: block; font-size: .82rem; font-weight: 600; opacity: .92; }
     #promo-primavera .promo-limite { margin-top: 14px; font-size: .95rem; color: #ffd7e6; }
     #promo-primavera .btn-festival { margin-top: 18px; }
+    /* Pago de entradas con tarjeta */
+    .sr-solo { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+    .pago-entrada { margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(201,168,76,0.28); }
+    .pago-entrada-lbl { display:block; color:#9a9a9a; font-size:0.86rem; margin-bottom:10px; }
+    .pago-entrada-fila { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .pago-entrada select { background:#1a1a1a; color:#fff; border:1px solid #3a3a3a; border-radius:6px; padding:12px 12px; font-family:inherit; font-size:0.95rem; cursor:pointer; }
+    .pago-entrada select:focus { outline:none; border-color:#c9a84c; }
+    .pago-entrada .btn-pago { margin:0; flex:1; min-width:170px; text-align:center; }
+    .pago-entrada-nota { display:block; color:#6d6d6d; font-size:0.8rem; font-style:italic; margin-top:10px; }
     #promo-primavera .promo-detalle { margin-top: 10px; font-size: .9rem; color: #e9c7d6; }
     /* la grilla vive fuera de .festival-inner: le damos su propio ancho */
     #promo-primavera .afiches-grid { max-width: 980px; margin: 0 auto; padding: 0 24px 60px; }
@@ -331,7 +340,24 @@
           <strong style="color:var(--gold-light)">Entradas en venta</strong> · <span id="precioEntrada">80.000 Gs</span>
           <span id="subeEntrada" style="display:block;font-size:0.9em;opacity:0.85"></span>
         </div>
-        <a class="btn-festival" id="btnEntradaFestival" href="#" target="_blank" rel="noopener">🎟️ Comprar mi entrada</a>
+        <a class="btn-festival" id="btnEntradaFestival" href="#" target="_blank" rel="noopener">🎟️ Comprar por WhatsApp</a>
+
+        <div class="pago-entrada">
+          <span class="pago-entrada-lbl">O pagá ahora con tarjeta 🔒</span>
+          <div class="pago-entrada-fila">
+            <label for="cantEntradas" class="sr-solo">Cantidad de entradas</label>
+            <select id="cantEntradas" aria-label="Cantidad de entradas">
+              <option value="1">1 entrada</option>
+              <option value="2">2 entradas</option>
+              <option value="3">3 entradas</option>
+              <option value="4">4 entradas</option>
+              <option value="5">5 entradas</option>
+              <option value="6">6 entradas</option>
+            </select>
+            <a class="btn-festival btn-pago" id="btnPagarTarjeta" href="#" target="_blank" rel="noopener">💳 Pagar</a>
+          </div>
+          <span class="pago-entrada-nota">Recibís tus QR por WhatsApp apenas se acredita 💛</span>
+        </div>
       </div>
     </div>
   </div>
@@ -355,6 +381,28 @@
       var MSG = '¡Hola Dorita! 🎟️ Quiero comprar mi entrada para Las Elegidas, el festival del 16 de diciembre';
       document.getElementById('btnEntradaFestival').href =
         'https://wa.me/595971889475?text=' + encodeURIComponent(MSG);
+
+      // Links de pago YA firmados (la firma cubre el monto, por eso hay una por
+      // cada precio x cantidad). Sin la firma correcta la pasarela rechaza el link.
+      var FIRMAS = {
+        80000:  {1:'01ffa459c3158c4c',2:'9a86770c4cf3b4d6',3:'767d0a0ed81694fb',4:'20d6734681a6bc68',5:'130da362307b7367',6:'d834b79632cd5424'},
+        90000:  {1:'caf9e3ab65272467',2:'40b167f9cb64016c',3:'7163e7ad917320b2',4:'775fc7b32600825d',5:'7c8aea8abf85c388',6:'cca39d6ae948fe9d'},
+        100000: {1:'1371e6f4e5acb57e',2:'d8b6205cd186734f',3:'d44a1343b4199523',4:'130da362307b7367',5:'64fca4c406c71cf3',6:'3c32dc46e0b586b8'}
+      };
+      var sel = document.getElementById('cantEntradas');
+      var btnPagar = document.getElementById('btnPagarTarjeta');
+
+      function armarLinkPago() {
+        var n = parseInt(sel.value, 10) || 1;
+        var sig = (FIRMAS[e.precio] || {})[n];
+        var total = e.precio * n;
+        if (!sig) { btnPagar.style.display = 'none'; return; }
+        btnPagar.textContent = '💳 Pagar ' + gs(total);
+        btnPagar.href = 'https://pago.ivanlafuente.com/pagar/salsa?monto=' + total +
+                        '&sig=' + sig + '&concepto=' + encodeURIComponent('Entrada Festival 2026');
+      }
+      sel.addEventListener('change', armarLinkPago);
+      armarLinkPago();
     })();
   </script>
 

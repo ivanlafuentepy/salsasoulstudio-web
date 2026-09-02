@@ -65,16 +65,17 @@ export async function onRequestPost(context) {
   }
 
   // Aviso a Ivan. Best-effort: si Telegram falla, el aporte YA quedo guardado
-  // en Airtable y el alumno no tiene por que enterarse.
-  await avisarTelegram(context.env, { escena, nombre, aporte, fecha });
+  // en Airtable y el alumno no tiene por que enterarse. El flag `tg` queda en
+  // la respuesta para poder verificar el aviso sin adivinar.
+  const tg = await avisarTelegram(context.env, { escena, nombre, aporte, fecha });
 
-  return json({ ok: true });
+  return json({ ok: true, tg });
 }
 
 async function avisarTelegram(env, { escena, nombre, aporte, fecha }) {
   const token = env.TELEGRAM_BOT_TOKEN;
   const chatId = env.TELEGRAM_GROUP_ID;
-  if (!token || !chatId) return;
+  if (!token || !chatId) return 'sin-credenciales';
 
   const texto =
     `📝 *APORTE AL GUION*\n\n` +
@@ -83,7 +84,7 @@ async function avisarTelegram(env, { escena, nombre, aporte, fecha }) {
     `${escapeMd(aporte)}`;
 
   try {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -92,8 +93,9 @@ async function avisarTelegram(env, { escena, nombre, aporte, fecha }) {
         parse_mode: 'Markdown',
       }),
     });
+    return res.ok ? 'ok' : 'telegram-' + res.status;
   } catch (e) {
-    // silencioso a proposito
+    return 'error';
   }
 }
 

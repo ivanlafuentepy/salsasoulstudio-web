@@ -170,6 +170,27 @@
     details.nota.ojo summary::after { color: var(--rosa); }
     details.nota.ojo .cuerpo p { color: #e0bcc6; }
 
+    /* ==================== SUMATE AL ELENCO ==================== */
+    .sumate { background: linear-gradient(180deg, rgba(201,168,76,0.10), rgba(201,168,76,0.03)); border: 1px solid var(--gold-dark); border-radius: 14px; padding: 30px 26px; margin: 50px 0 10px; scroll-margin-top: 80px; }
+    @media (max-width: 520px) { .sumate { padding: 26px 18px; } }
+    .sumate .invita { color: var(--gold); font-size: 1.3rem; letter-spacing: 1px; text-align: center; line-height: 1.45; }
+    @media (max-width: 520px) { .sumate .invita { font-size: 1.1rem; } }
+    .sumate .bajada { color: #c4c4c4; text-align: center; margin-top: 12px; font-size: 0.98rem; }
+    .sumate .bajada strong { color: var(--gold-light); }
+    .req { margin-top: 26px; }
+    .req-item { display: flex; gap: 15px; padding: 17px 0; border-top: 1px solid rgba(201,168,76,0.22); }
+    .req-item:first-child { border-top: none; }
+    .req-item .ico { font-size: 1.25rem; line-height: 1.3; flex-shrink: 0; }
+    .req-item .txt { min-width: 0; }
+    .req-item h4 { color: var(--gold-light); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+    .req-item p { color: #cfcfcf; font-size: 0.95rem; margin: 5px 0; }
+    .req-item p strong { color: #fff; }
+    .req-item .ojo { color: var(--rosa-light); font-size: 0.92rem; }
+    .sumate .cta { text-align: center; margin-top: 28px; }
+    .sumate .cta a { display: inline-flex; align-items: center; gap: 10px; background: var(--gold); color: #000; font-weight: bold; text-decoration: none; font-size: 0.92rem; letter-spacing: 1.5px; text-transform: uppercase; padding: 15px 30px; border-radius: 7px; transition: filter 0.15s; }
+    .sumate .cta a:hover { filter: brightness(1.1); }
+    .sumate .cta .quien { display: block; color: #6d6d6d; font-size: 0.8rem; font-style: italic; margin-top: 11px; }
+
     /* ==================== CIERRE ==================== */
     .cierre { text-align: center; padding: 44px 20px 10px; }
     .cierre .frase { color: var(--gold-light); font-style: italic; font-size: 1.08rem; line-height: 1.75; }
@@ -205,6 +226,9 @@
       <a href="#e6" data-e="e6"><span class="n">6</span> Vos no. Vení conmigo</a>
       <a href="#e7" data-e="e7"><span class="n">7</span> Coreo de varones <span class="pt es-baile">Baile</span></a>
       <a href="#e8" data-e="e8"><span class="n">8</span> Los ensayos</a>
+
+      <div class="nav-grupo">Para bailar en el festival</div>
+      <a href="#sumate"><span class="n">🎭</span> Sumate al elenco</a>
     </nav>
 
   </aside>
@@ -656,6 +680,62 @@
         </div>
       </section>
 
+      <!-- ============ INVITACION AL ELENCO ============ -->
+      <section class="sumate" id="sumate">
+        <p class="invita">¿Te gustaría participar de nuestro festival de fin de año? 🎭</p>
+        <p class="bajada">Todavía estás a tiempo de <strong>inscribirte</strong> y subir al escenario del Teatro del Hotel Guaraní.</p>
+
+        <div class="req">
+          <div class="req-item">
+            <span class="ico">💳</span>
+            <div class="txt">
+              <h4>Inscripción</h4>
+              <p><strong>350.000 Gs</strong> — en un solo pago o en <strong>2 cuotas de 175.000 Gs</strong>.</p>
+              <p>👕 Incluye tu <strong>remera exclusiva del festival</strong>, que sale solamente para los que participan.</p>
+            </div>
+          </div>
+
+          <div class="req-item">
+            <span class="ico">⭐</span>
+            <div class="txt">
+              <h4>Nivel mínimo</h4>
+              <p>Estar por lo menos en nivel <strong>Básico 3</strong>.</p>
+            </div>
+          </div>
+
+          <div class="req-item">
+            <span class="ico">💃</span>
+            <div class="txt">
+              <h4>Asistencia a clases</h4>
+              <p>Venir a clases regulares los meses que quedan —<strong>septiembre, octubre y noviembre</strong>— asistiendo como mínimo <strong>una vez por semana</strong>.</p>
+            </div>
+          </div>
+
+          <div class="req-item">
+            <span class="ico">🗓️</span>
+            <div class="txt">
+              <h4>Ensayos</h4>
+              <p>Los ensayos son los <strong>días miércoles</strong>.</p>
+              <p class="ojo">No son obligatorios: si algún miércoles no podés venir, alcanza con avisar 😊</p>
+            </div>
+          </div>
+
+          <div class="req-item">
+            <span class="ico">🎟️</span>
+            <div class="txt">
+              <h4>Venta de entradas</h4>
+              <p>Cada participante vende <strong>tres entradas</strong>: una en septiembre, una en octubre y una en noviembre.</p>
+              <p>La entrada vale <strong>80.000 Gs</strong> en septiembre, <strong>90.000</strong> en octubre y <strong>100.000</strong> en noviembre.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="cta">
+          <a id="btnSumarme" href="#" target="_blank" rel="noopener">🎭 Quiero inscribirme</a>
+          <span class="quien">Te va a atender Dorita por WhatsApp 💛</span>
+        </div>
+      </section>
+
       <div class="cierre">
         <p class="frase">El festival es pasado mañana.<br>Mañana se elige al grupo.<br>Les queda hoy.</p>
         <div class="estado">Partes 01 · 02 · 03 — Oficiales</div>
@@ -689,7 +769,13 @@
 
   /* ---------- Marcar la escena que se esta leyendo ---------- */
   var links = {};
-  [].slice.call(document.querySelectorAll('#nav a')).forEach(function (a) { links[a.dataset.e] = a; });
+  // Solo los links de escena entran al resaltado; "Sumate al elenco" no es una escena
+  [].slice.call(document.querySelectorAll('#nav a[data-e]')).forEach(function (a) { links[a.dataset.e] = a; });
+
+  // WhatsApp de Dorita — el mismo flujo de inscripcion que usa /festival
+  var WA = '595971889475';
+  var MSG = '¡Hola Dorita! 🎭 Quiero inscribirme al Festival Salsa Soul Studio 2026';
+  document.getElementById('btnSumarme').href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(MSG);
 
   function marcarEscena(sec) {
     if (!sec || sec === escenaActual) return;

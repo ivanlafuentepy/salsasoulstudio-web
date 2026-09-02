@@ -101,7 +101,7 @@
       <li><a href="#pensum">Pensum</a></li>
       <li><a href="examenes-salsa.html">Exámenes</a></li>
       <li><a href="ladies.html">Ladies</a></li>
-      <li><a href="/festival">Festival</a></li>
+      <li><a href="#festival">Festival</a></li>
       <li><a href="#sociales">Sociales</a></li>
       <li><a href="/almalatina/">👠 Tienda</a></li>
       <li><a href="/fotos">Fotos</a></li>
@@ -315,25 +315,48 @@
     </div>
   </div>
 
-  <!-- FESTIVAL 2026 -->
+  <!-- FESTIVAL 2026 — LAS ELEGIDAS · ENTRADAS EN VENTA -->
   <div class="festival-wrapper" id="festival">
     <div class="festival-inner">
-      <div class="festival-poster">
-        <a href="/festival"><img src="/festival/flyer.png" alt="Festival Salsa Soul Studio 2026 — 16 de diciembre" loading="lazy"></a>
+      <div class="festival-poster" onclick="openLightbox(this)">
+        <img src="/afiche-entradas-festival.jpg" alt="Las Elegidas — Festival Salsa Soul Studio 2026 · Entradas en venta" loading="lazy">
       </div>
       <div class="festival-info">
-        <span class="badge">16 de diciembre</span>
-        <h2>Festival Salsa Soul Studio 2026</h2>
+        <span class="badge">Miércoles 16 de diciembre</span>
+        <h2>Las Elegidas</h2>
         <p class="fecha">Teatro del Hotel Guaraní · el más grandioso del país 🎭</p>
         <div class="detalles">
-          Viví la experiencia de bailar en el escenario más lindo del país ✨<br>
-          Mostrá tu talento frente a todo el público 💃🕺<br>
-          Conocé los requisitos e inscribite ahora 🌟
+          La batalla por un lugar en el gran escenario ✨<br>
+          Una historia de desafíos, ensayos y pasión 💃🕺<br>
+          <strong style="color:var(--gold-light)">Entradas en venta</strong> · <span id="precioEntrada">80.000 Gs</span>
+          <span id="subeEntrada" style="display:block;font-size:0.9em;opacity:0.85"></span>
         </div>
-        <a class="btn-festival" href="/festival">🎭 Ver requisitos e inscribirme</a>
+        <a class="btn-festival" id="btnEntradaFestival" href="#" target="_blank" rel="noopener">🎟️ Comprar mi entrada</a>
       </div>
     </div>
   </div>
+
+  <script>
+    // El precio de la entrada sube por mes. Se calcula acá para que el texto no
+    // envejezca solo el 1° de octubre — el afiche sí hay que cambiarlo a mano.
+    (function () {
+      var ESCALONES = [
+        { hasta: new Date(2026, 9, 1), precio: 80000, sigue: 90000, mes: 'octubre' },   // hasta el 30/09
+        { hasta: new Date(2026, 10, 1), precio: 90000, sigue: 100000, mes: 'noviembre' }, // hasta el 31/10
+        { hasta: new Date(2026, 11, 17), precio: 100000, sigue: null, mes: null }         // hasta el festival
+      ];
+      var hoy = new Date();
+      var e = ESCALONES.find(function (x) { return hoy < x.hasta; }) || ESCALONES[ESCALONES.length - 1];
+      var gs = function (n) { return n.toLocaleString('es-PY').replace(/,/g, '.') + ' Gs'; };
+      document.getElementById('precioEntrada').textContent = gs(e.precio);
+      if (e.sigue) {
+        document.getElementById('subeEntrada').textContent = '⏰ En ' + e.mes + ' pasa a ' + gs(e.sigue);
+      }
+      var MSG = '¡Hola Dorita! 🎟️ Quiero comprar mi entrada para Las Elegidas, el festival del 16 de diciembre';
+      document.getElementById('btnEntradaFestival').href =
+        'https://wa.me/595971889475?text=' + encodeURIComponent(MSG);
+    })();
+  </script>
 
   <!-- SOCIALES -->
   <div class="festival-wrapper" id="sociales">

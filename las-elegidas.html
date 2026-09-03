@@ -184,40 +184,6 @@
     details.nota.ojo summary::after { color: var(--rosa); }
     details.nota.ojo .cuerpo p { color: #e0bcc6; }
 
-    /* ==================== VESTUARIOS ==================== */
-    .vestuarios { margin: 50px 0 10px; scroll-margin-top: 80px; }
-    .vest-cab { text-align: center; margin-bottom: 24px; }
-    .vest-cab h2 { color: var(--gold); font-size: 1.4rem; letter-spacing: 4px; text-transform: uppercase; }
-    .vest-cab p { color: var(--gris); font-style: italic; margin-top: 8px; font-size: 0.95rem; }
-    .vest-como { background: var(--card); border: 1px solid var(--linea); border-radius: 14px; padding: 22px 24px; }
-    @media (max-width: 520px) { .vest-como { padding: 20px 18px; } }
-    .vest-paso { display: flex; gap: 14px; padding: 13px 0; border-top: 1px solid var(--linea); }
-    .vest-paso:first-child { border-top: none; padding-top: 0; }
-    .vest-paso .ico { font-size: 1.2rem; line-height: 1.4; flex-shrink: 0; }
-    .vest-paso h4 { color: var(--gold-light); font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
-    .vest-paso p { color: #cfcfcf; font-size: 0.95rem; }
-    .vest-paso p strong { color: #fff; }
-
-    .vest-titulo { color: var(--gold-light); font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; text-align: center; margin: 34px 0 16px; }
-    .vest-base { max-width: 340px; margin: 0 auto; }
-    /* Columnas fluidas en vez de grilla: las fotos vienen con proporciones
-       distintas y una grilla de filas iguales deja huecos debajo de las bajas. */
-    .vest-grid { columns: 2; column-gap: 14px; }
-    @media (min-width: 720px) { .vest-grid { columns: 3; } }
-    .vest-item { background: var(--card); border: 1px solid var(--linea); border-radius: 12px; overflow: hidden; cursor: zoom-in; transition: border-color 0.15s; break-inside: avoid; margin-bottom: 14px; }
-    .vest-item:hover { border-color: var(--gold-dark); }
-    .vest-item img { width: 100%; display: block; background: #0d0d0d; }
-    .vest-item .pie { padding: 9px 12px; color: #cfcfcf; font-size: 0.82rem; text-align: center; }
-    .vest-base .vest-item .pie { color: var(--gold-light); letter-spacing: 1.5px; text-transform: uppercase; font-size: 0.78rem; }
-
-    .vest-costo { background: rgba(229,72,111,0.09); border: 1px solid rgba(229,72,111,0.4); border-radius: 12px; padding: 16px 18px; margin-top: 26px; text-align: center; color: var(--rosa-light); font-size: 0.93rem; }
-
-    /* Ver una prenda en grande */
-    .zoom { position: fixed; inset: 0; z-index: 130; background: rgba(0,0,0,0.93); display: flex; align-items: center; justify-content: center; padding: 20px; cursor: zoom-out; }
-    .zoom[hidden] { display: none; }
-    .zoom img { max-width: 100%; max-height: 88vh; border-radius: 10px; }
-    .zoom .cerrar { position: absolute; top: 16px; right: 20px; color: var(--gold); font-size: 2rem; line-height: 1; }
-
     /* ==================== SUMATE AL ELENCO ==================== */
     .sumate { background: linear-gradient(180deg, rgba(201,168,76,0.10), rgba(201,168,76,0.03)); border: 1px solid var(--gold-dark); border-radius: 14px; padding: 30px 26px; margin: 50px 0 10px; scroll-margin-top: 80px; }
     @media (max-width: 520px) { .sumate { padding: 26px 18px; } }
@@ -276,7 +242,7 @@
       <a href="#e8" data-e="e8"><span class="n">8</span> Los ensayos</a>
 
       <div class="nav-grupo">Para bailar en el festival</div>
-      <a href="#vestuarios"><span class="n">👗</span> Vestuarios</a>
+      <a href="/vestuarios"><span class="n">👗</span> Vestuarios</a>
       <a href="#sumate"><span class="n">🎭</span> Sumate al elenco</a>
     </nav>
 
@@ -729,82 +695,6 @@
         </div>
       </section>
 
-      <!-- ============ VESTUARIOS ============ -->
-      <section class="vestuarios" id="vestuarios">
-        <div class="vest-cab">
-          <h2>Vestuarios</h2>
-          <p>Así nos vamos a ver arriba del escenario ✨</p>
-        </div>
-
-        <div class="vest-como">
-          <div class="vest-paso">
-            <span class="ico">🖤</span>
-            <div>
-              <h4>Una sola malla para todas</h4>
-              <p>La base es <strong>la misma malla negra</strong> para todo el elenco. Esa no cambia.</p>
-            </div>
-          </div>
-          <div class="vest-paso">
-            <span class="ico">✨</span>
-            <div>
-              <h4>Los accesorios hacen la diferencia</h4>
-              <p>Sobre esa malla van los <strong>accesorios</strong>: faldas, guantes, flores. Son ellos los que cambian el look de cada número.</p>
-            </div>
-          </div>
-          <div class="vest-paso">
-            <span class="ico">💃</span>
-            <div>
-              <h4>Según la coreo que te toque</h4>
-              <p>A medida que se definan las coreografías, <strong>cada una va a usar los accesorios de su número</strong>. Por eso todavía no sabemos quién lleva qué.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="vest-titulo">La malla base</div>
-        <div class="vest-base">
-          <div class="vest-item" onclick="verPrenda('/vestuarios/malla-base.jpg', 'Malla base')">
-            <img src="/vestuarios/malla-base.jpg" alt="Malla base negra — frente y espalda" loading="lazy">
-            <div class="pie">Malla base · frente y espalda</div>
-          </div>
-        </div>
-
-        <div class="vest-titulo">Los accesorios</div>
-        <div class="vest-grid">
-          <div class="vest-item" onclick="verPrenda('/vestuarios/falda-estampada.jpg', 'Falda estampada')">
-            <img src="/vestuarios/falda-estampada.jpg" alt="Falda estampada" loading="lazy">
-            <div class="pie">Falda estampada</div>
-          </div>
-          <div class="vest-item" onclick="verPrenda('/vestuarios/falda-naranja.jpg', 'Falda naranja')">
-            <img src="/vestuarios/falda-naranja.jpg" alt="Falda naranja" loading="lazy">
-            <div class="pie">Falda naranja</div>
-          </div>
-          <div class="vest-item" onclick="verPrenda('/vestuarios/falda-fucsia.jpg', 'Falda fucsia')">
-            <img src="/vestuarios/falda-fucsia.jpg" alt="Falda fucsia" loading="lazy">
-            <div class="pie">Falda fucsia</div>
-          </div>
-          <div class="vest-item" onclick="verPrenda('/vestuarios/falda-verde.jpg', 'Falda verde')">
-            <img src="/vestuarios/falda-verde.jpg" alt="Falda verde" loading="lazy">
-            <div class="pie">Falda verde</div>
-          </div>
-          <div class="vest-item" onclick="verPrenda('/vestuarios/falda-roja.jpg', 'Falda y pantalón rojo')">
-            <img src="/vestuarios/falda-roja.jpg" alt="Falda y pantalón rojo" loading="lazy">
-            <div class="pie">Falda y pantalón rojo</div>
-          </div>
-          <div class="vest-item" onclick="verPrenda('/vestuarios/falda-flecos.jpg', 'Falda con flecos')">
-            <img src="/vestuarios/falda-flecos.jpg" alt="Falda con flecos" loading="lazy">
-            <div class="pie">Falda con flecos</div>
-          </div>
-          <div class="vest-item" onclick="verPrenda('/vestuarios/falda-lila.jpg', 'Falda lila')">
-            <img src="/vestuarios/falda-lila.jpg" alt="Falda lila" loading="lazy">
-            <div class="pie">Falda lila</div>
-          </div>
-        </div>
-
-        <div class="vest-costo">
-          💰 <strong>El costo se los avisamos próximamente.</strong> Todavía lo estamos cerrando.
-        </div>
-      </section>
-
       <!-- ============ INVITACION AL ELENCO ============ -->
       <section class="sumate" id="sumate">
         <p class="invita">¿Te gustaría participar de nuestro festival de fin de año? 🎭</p>
@@ -876,11 +766,6 @@
   </main>
 </div>
 
-<div class="zoom" id="zoom" hidden onclick="cerrarPrenda()">
-  <span class="cerrar">&times;</span>
-  <img id="zoomImg" src="" alt="">
-</div>
-
 <script>
   var sidebar = document.getElementById('sidebar');
   var backdrop = document.getElementById('backdrop');
@@ -894,23 +779,8 @@
     if (e.target.closest('a')) cerrarMenu();
   });
   document.addEventListener('keydown', function (e) {
-    if (e.key !== 'Escape') return;
-    if (!document.getElementById('zoom').hidden) cerrarPrenda();
-    else if (sidebar.classList.contains('abierto')) cerrarMenu();
+    if (e.key === 'Escape' && sidebar.classList.contains('abierto')) cerrarMenu();
   });
-
-  /* ---------- Ver una prenda en grande ---------- */
-  function verPrenda(src, alt) {
-    var z = document.getElementById('zoom');
-    var img = document.getElementById('zoomImg');
-    img.src = src; img.alt = alt || '';
-    z.hidden = false;
-    document.body.style.overflow = 'hidden';
-  }
-  function cerrarPrenda() {
-    document.getElementById('zoom').hidden = true;
-    if (!sidebar.classList.contains('abierto')) document.body.style.overflow = '';
-  }
 
   /* ---------- Marcar la escena que se esta leyendo ---------- */
   var links = {};

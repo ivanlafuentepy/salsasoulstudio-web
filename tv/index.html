@@ -179,16 +179,21 @@ const CONFIG_DEFAULT = {
   segundos_afiche: 13,     // el afiche tiene texto: necesita más tiempo para leerse
   segundos_noticia: 11,
   max_video: 210,          // corte de seguridad: ningún video ocupa más de 3:30
-  fechas_galeria: 6,       // cuántas fechas de clase recientes entran a la rotación
-  patron: ["video","foto","foto","foto","afiche","video","foto","foto","noticia"],
+  fechas_galeria: 10,      // cuántas fechas de clase recientes entran a la rotación
+  volumen_musica: 0.38,    // la música es fondo, no protagonista
+  patron: ["video","foto","foto","foto","foto","foto","afiche",
+           "video","foto","foto","foto","foto","noticia"],
   refresco_min: 10,        // cada cuánto se relee el playlist (sin cortar lo que suena)
   recarga_horas: 6         // recarga completa de la página, por si queda muchas horas viva
 };
 
 let CFG = {...CONFIG_DEFAULT};
-let POOL = {video:[], foto:[], afiche:[], noticia:[]};   // inventario por tipo
-let CURSOR = {video:0, foto:0, afiche:0, noticia:0};     // rotación circular por tipo
+// "fijo" y "musica" no son tipos del patrón: el fijo sale después de CADA video y la
+// música corre por abajo, en paralelo a lo que se ve.
+let POOL = {video:[], foto:[], afiche:[], noticia:[], fijo:[], musica:[]};
+let CURSOR = {video:0, foto:0, afiche:0, noticia:0, fijo:0};
 let patronIdx = 0;
+let ultimoFueVideo = false;
 let capaActual = null;
 let sonidoOk = true;
 let fallosSeguidos = 0;
@@ -260,8 +265,13 @@ async function cargarPlaylist(){
   CFG = {...CONFIG_DEFAULT, ...(pl.config || {})};
 
   const items = (pl.items || []).filter(vigente);
-  const nuevo = {video:[], foto:[], afiche:[], noticia:[]};
-  items.forEach(it => { if(nuevo[it.tipo]) nuevo[it.tipo].push(it); });
+  const nuevo = {video:[], foto:[], afiche:[], noticia:[], fijo:[], musica:[]};
+  items.forEach(it => {
+    // El afiche marcado "fijo" sale de la rotación normal y pasa a salir después de
+    // CADA video: es lo que se está vendiendo ahora y no puede quedar librado al azar.
+    if(it.fijo && it.tipo === "afiche") nuevo.fijo.push(it);
+    else if(nuevo[it.tipo]) nuevo[it.tipo].push(it);
+  });
 
   // Las fotos de las clases se suman a las históricas de la carpeta
   const clases = await fotosDeClases();
@@ -269,12 +279,16 @@ async function cargarPlaylist(){
   nuevo.video = mezclar(nuevo.video);
   // Afiches y noticias NO se mezclan: van en el orden que Iván puso en la carpeta
 
-  const total = nuevo.video.length + nuevo.foto.length + nuevo.afiche.length + nuevo.noticia.length;
+  nuevo.musica = mezclar(nuevo.musica);
+
+  const total = nuevo.video.length + nuevo.foto.length + nuevo.afiche.length +
+                nuevo.noticia.length + nuevo.fijo.length;
   if(!total){ console.warn("[TV] no hay contenido vigente"); return false; }
 
   POOL = nuevo;
   console.log("[TV] contenido: " + POOL.video.length + " videos · " + POOL.foto.length +
-              " fotos · " + POOL.afiche.length + " afiches · " + POOL.noticia.length + " noticias");
+              " fotos · " + POOL.afiche.length + " afiches (+" + POOL.fijo.length + " fijo) · " +
+              POOL.noticia.length + " noticias · " + POOL.musica.length + " temas");
   return true;
 }
 
@@ -283,6 +297,17 @@ async function cargarPlaylist(){
 // Recorre el patrón; si un tipo está vacío (todavía no hay videos, por ejemplo),
 // salta al siguiente en vez de dejar la pantalla en negro.
 function siguienteItem(){
+  // Después de cada video sale el afiche fijo (el festival). Va antes que el patrón:
+  // es el único bloque que no se negocia con la rotación.
+  if(ultimoFueVideo){
+    ultimoFueVideo = false;
+    if(POOL.fijo.length){
+      const f = POOL.fijo[CURSOR.fijo % POOL.fijo.length];
+      CURSOR.fijo++;
+      if(vigente(f)) return f;
+    }
+  }
+
   for(let intento=0; intento<CFG.patron.length*2; intento++){
     const tipo = CFG.patron[patronIdx % CFG.patron.length];
     patronIdx++;
@@ -292,9 +317,83 @@ function siguienteItem(){
     CURSOR[tipo]++;
     // Al completar la vuelta a las fotos se remezclan: nunca la misma secuencia
     if(tipo === "foto" && CURSOR[tipo] % lista.length === 0) POOL.foto = mezclar(lista);
-    if(vigente(item)) return item;
+    if(vigente(item)){
+      if(tipo === "video") ultimoFueVideo = true;
+      return item;
+    }
   }
   return null;
+}
+
+/* ── Música de fondo ───────────────────────────────────────────────────────────
+   Suena mientras hay fotos, afiches y noticias; se desvanece y PAUSA cuando entra
+   un video (que trae la música real de la coreografía) y retoma donde quedó.
+   Un solo elemento <audio> para todo: así la música corre como una radio y no se
+   reinicia con cada foto. */
+
+let audioFondo = null;
+let musicaIdx = 0;
+let fadeTimer = null;
+
+function volumenMusica(){
+  const v = CFG.volumen_musica;
+  return (typeof v === "number" && v >= 0 && v <= 1) ? v : 0.38;
+}
+
+function siguienteTema(){
+  if(!POOL.musica.length) return;
+  const t = POOL.musica[musicaIdx % POOL.musica.length];
+  musicaIdx++;
+  if(musicaIdx % POOL.musica.length === 0) POOL.musica = mezclar(POOL.musica);
+  audioFondo.src = t.url;
+  audioFondo.play().catch(e => {
+    // Mismo bloqueo de autoplay que el video: seguimos sin música hasta que
+    // alguien toque un botón del control.
+    console.warn("[TV] música bloqueada por autoplay:", e.message);
+    sonidoOk = false;
+    document.getElementById("avisoSonido").classList.add("on");
+  });
+}
+
+function prepararMusica(){
+  if(audioFondo || !POOL.musica.length) return;
+  audioFondo = new Audio();
+  audioFondo.volume = 0;
+  audioFondo.preload = "auto";
+  // Un tema roto no puede callar la radio para siempre: se pasa al siguiente.
+  audioFondo.addEventListener("ended", siguienteTema);
+  audioFondo.addEventListener("error", () => {
+    console.warn("[TV] tema sin cargar, paso al siguiente");
+    setTimeout(siguienteTema, 500);
+  });
+}
+
+function fundir(destino, ms){
+  clearInterval(fadeTimer);
+  return new Promise(res => {
+    if(!audioFondo) return res();
+    const paso = 40, desde = audioFondo.volume, saltos = Math.max(1, Math.round(ms/paso));
+    let i = 0;
+    fadeTimer = setInterval(() => {
+      i++;
+      audioFondo.volume = Math.min(1, Math.max(0, desde + (destino - desde) * (i/saltos)));
+      if(i >= saltos){ clearInterval(fadeTimer); res(); }
+    }, paso);
+  });
+}
+
+async function musicaOn(){
+  if(!POOL.musica.length || !sonidoOk) return;
+  prepararMusica();
+  if(!audioFondo.src) siguienteTema();
+  else if(audioFondo.paused) audioFondo.play().catch(()=>{});
+  await fundir(volumenMusica(), 900);
+}
+
+async function musicaOff(){
+  if(!audioFondo || audioFondo.paused) return;
+  await fundir(0, 600);
+  audioFondo.pause();          // pausa, no para: el tema retoma donde quedó
 }
 
 /* ── Pintar cada tipo de item ──────────────────────────────────────────────── */
@@ -494,6 +593,9 @@ async function loop(){
     }
     let ok = 0;
     try{
+      // El video trae su propia música: la de fondo se aparta antes de que arranque.
+      if(item.tipo === "video") await musicaOff(); else musicaOn();
+
       if(item.tipo === "video")        ok = await pintarVideo(item);
       else if(item.tipo === "foto")    ok = await pintarFoto(item);
       else if(item.tipo === "afiche")  ok = await pintarAfiche(item);
@@ -527,6 +629,8 @@ function desbloquearSonido(){
     v.muted = false;
     if(v.paused) v.play().catch(()=>{});
   });
+  // Si no hay video en pantalla, lo que tiene que volver es la música de fondo
+  if(!document.querySelector(".capa.visible video")) musicaOn();
   console.log("[TV] sonido desbloqueado");
 }
 ["click", "keydown", "touchstart", "pointerdown"].forEach(

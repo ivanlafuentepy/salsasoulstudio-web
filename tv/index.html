@@ -49,6 +49,17 @@
   }
   .capa .foto.kb{animation:kenburns var(--kb,10s) ease-out forwards}
 
+  /* ══ Modo liviano (/tv?liviano=1) ══
+     Para la Smart TV: el desenfoque a pantalla completa y el Ken Burns son lo
+     más caro que hace la página, y en un panel 4K con GPU modesta se entrecorta.
+     Sin ellos la pantalla se ve igual de prolija y va fluida: el fondo del
+     afiche pasa a ser un degradado (cuesta cero) y la foto queda quieta. */
+  body.liviano .capa .fondoBlur{display:none}
+  body.liviano .capa.conAfiche{
+    background:radial-gradient(ellipse at 50% 35%, #241d10 0%, #12100b 55%, var(--black) 100%);
+  }
+  body.liviano .capa .foto.kb{animation:none}
+
   /* ══ Tarjeta de noticia ══ */
   .noticia{
     position:relative; width:100%;height:100%;
@@ -129,7 +140,7 @@
 </div>
 <div id="progreso"></div>
 
-<div id="avisoSonido">🔇 Tocá la pantalla para activar el sonido</div>
+<div id="avisoSonido">🔇 Apretá cualquier botón del control para el sonido</div>
 
 <div id="estado">
   <img src="logo-tv.png" alt="">
@@ -155,6 +166,11 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const R2 = "https://pub-1fc0fb1ac8244995981fc724066bf71c.r2.dev";
+
+/* Modo liviano para la Smart TV: /tv?liviano=1 — apaga el desenfoque de fondo y
+   el movimiento de las fotos, que es lo que hace sufrir a una GPU de TV en 4K. */
+const LIVIANO = new URLSearchParams(location.search).has("liviano");
+if(LIVIANO) document.body.classList.add("liviano");
 
 const CONFIG_DEFAULT = {
   segundos_foto: 9,        // cuánto dura cada foto en pantalla
@@ -394,8 +410,7 @@ async function pintarFoto(item){
 
 async function pintarAfiche(item){
   const capa = nuevaCapa();
-  const blur = document.createElement("img");
-  blur.className = "fondoBlur"; blur.src = item.url;
+  capa.classList.add("conAfiche");
   const img = document.createElement("img");
   img.className = "afiche"; img.src = item.url;
 
@@ -406,7 +421,14 @@ async function pintarAfiche(item){
   });
   if(!ok){ console.warn("[TV] afiche sin cargar, lo salteo:", item.url); capa.remove(); return 0; }
 
-  capa.appendChild(blur); capa.appendChild(img);
+  if(!LIVIANO){
+    // Fondo borroso con el propio afiche: sin esto quedan dos barras negras
+    // enormes a los costados (los afiches son verticales).
+    const blur = document.createElement("img");
+    blur.className = "fondoBlur"; blur.src = item.url;
+    capa.appendChild(blur);
+  }
+  capa.appendChild(img);
   mostrarCapa(capa);
 
   pie(item.titulo || "Salsa Soul Studio", item.subtitulo || "salsasoulstudio.com");
@@ -482,14 +504,23 @@ async function mostrarEstado(msg, sub){
 }
 function ocultarEstado(){ document.getElementById("estado").classList.add("oculto"); }
 
-/* Un toque en la pantalla desbloquea el sonido si el navegador lo había frenado */
-document.addEventListener("click", ()=>{
-  if(!sonidoOk){
-    sonidoOk = true;
-    document.getElementById("avisoSonido").classList.remove("on");
-    document.querySelectorAll("video").forEach(v=>{ v.muted = false; });
-  }
-});
+/* Desbloqueo del sonido cuando el navegador lo frenó por la política de autoplay.
+   En la Smart TV no hay dedo ni mouse: el control remoto manda teclas (OK, flechas),
+   por eso escuchamos también teclado. Un botón cualquiera y queda con audio para
+   el resto de la noche. */
+function desbloquearSonido(){
+  if(sonidoOk) return;
+  sonidoOk = true;
+  document.getElementById("avisoSonido").classList.remove("on");
+  document.querySelectorAll("video").forEach(v=>{
+    v.muted = false;
+    if(v.paused) v.play().catch(()=>{});
+  });
+  console.log("[TV] sonido desbloqueado");
+}
+["click", "keydown", "touchstart", "pointerdown"].forEach(
+  ev => document.addEventListener(ev, desbloquearSonido)
+);
 
 /* Refresco del playlist en caliente: el item que está en pantalla no se corta,
    el cambio entra en el siguiente. Iván actualiza la carpeta y en <10 min está. */

@@ -463,8 +463,9 @@ function fundir(destino, ms){
 async function musicaOn(){
   if(!POOL.musica.length || !sonidoOk) return;
   prepararMusica();
-  if(!audioFondo.src) siguienteTema();
-  else if(audioFondo.paused) audioFondo.play().catch(()=>{});
+  // Cada tramo estrena tema Y fragmento: si retomara donde quedó, en toda la noche
+  // se escucharía una sola canción avanzando de a 40 segundos.
+  if(audioFondo.paused) siguienteTema();
   await fundir(volumenMusica(), 900);
 }
 

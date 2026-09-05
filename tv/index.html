@@ -97,6 +97,7 @@
   #pie{
     text-align:right; font-family:var(--serif); line-height:1.35;
     text-shadow:0 2px 14px rgba(0,0,0,.95);
+    transition:opacity .42s ease;
   }
   #pieTitulo{font-size:2.9vh; color:#fff; opacity:.97}
   #pieSub{font-size:2.1vh; color:var(--gold-light); opacity:.9; letter-spacing:.06em}
@@ -152,7 +153,8 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    TV Salsa Soul — cartelera de la academia
    ---------------------------------------------------------------------------
-   Corre en la notebook conectada por HDMI (Chrome en modo kiosk), ~19:30 a 22:00.
+   Corre en la Smart TV de la cantina (Tokyo 65" Android TV, Fully Kiosk Browser),
+   ~19:30 a 22:00. Tambien sirve en una notebook por HDMI con Chrome en kiosk.
 
    Fuentes de contenido (todas remotas, se releen solas):
      1. R2 /tv/playlist.json  → videos, fotos históricas, afiches y noticias que
@@ -318,9 +320,18 @@ function mostrarCapa(capa){
   }
 }
 
+// El pie se cambia A MITAD del fundido de la imagen: si se cambia de una, durante
+// casi un segundo la pantalla muestra la foto vieja con el titulo del item nuevo.
+let _pieTimer = null;
 function pie(titulo, sub){
-  document.getElementById("pieTitulo").textContent = titulo || "Salsa Soul Studio";
-  document.getElementById("pieSub").textContent   = sub || "Disfruta la vida bailando";
+  const p = document.getElementById("pie");
+  p.style.opacity = "0";
+  clearTimeout(_pieTimer);
+  _pieTimer = setTimeout(()=>{
+    document.getElementById("pieTitulo").textContent = titulo || "Salsa Soul Studio";
+    document.getElementById("pieSub").textContent   = sub || "Disfruta la vida bailando";
+    p.style.opacity = "1";
+  }, 450);
 }
 
 function correrProgreso(segundos){

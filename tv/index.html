@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="robots" content="noindex, nofollow">
+<title>TV Salsa Soul Studio</title>
+<link rel="icon" href="/logo-dorado.png">
+<style>
+  /* ══ Paleta Salsa Soul (la misma de /fotos y la home) ══ */
+  :root{
+    --gold:#c9a84c; --gold-light:#e8c96a; --gold-dark:#8a6820;
+    --black:#0a0a0a; --dark:#111; --dark2:#1a1a1a;
+    --serif:Georgia,"Times New Roman",serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{
+    height:100%; overflow:hidden; background:var(--black); color:#fff;
+    font-family:var(--sans); user-select:none; cursor:none;
+  }
+
+  /* ══ Escenario: capas apiladas que hacen cross-fade ══ */
+  #escenario{position:fixed;inset:0;z-index:1;background:var(--black)}
+  .capa{
+    position:absolute;inset:0; opacity:0; transition:opacity .9s ease;
+    display:flex;align-items:center;justify-content:center; overflow:hidden;
+  }
+  .capa.visible{opacity:1}
+
+  /* Video y foto a pantalla completa */
+  .capa video, .capa .foto{width:100%;height:100%;object-fit:cover;display:block}
+
+  /* Afiche: contain + fondo borroso de la misma imagen (los afiches son
+     verticales; sin esto quedan dos barras negras enormes a los costados) */
+  .capa .fondoBlur{
+    position:absolute;inset:-6%; width:112%;height:112%; object-fit:cover;
+    filter:blur(38px) brightness(.35) saturate(1.2); transform:scale(1.06);
+  }
+  .capa .afiche{
+    position:relative; max-width:94%; max-height:94%; object-fit:contain;
+    border-radius:10px; box-shadow:0 24px 80px rgba(0,0,0,.75), 0 0 0 1px rgba(201,168,76,.22);
+  }
+
+  /* Ken Burns: la foto respira, no se queda estática como un cuadro muerto */
+  @keyframes kenburns{
+    0%  {transform:scale(1.02) translate(0,0)}
+    100%{transform:scale(1.14) translate(-1.2%, -1.6%)}
+  }
+  .capa .foto.kb{animation:kenburns var(--kb,10s) ease-out forwards}
+
+  /* ══ Tarjeta de noticia ══ */
+  .noticia{
+    position:relative; width:100%;height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:3.2vh; padding:6vh 9vw; text-align:center;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(201,168,76,.16) 0%, transparent 62%),
+      linear-gradient(160deg, #12100b 0%, var(--black) 55%, #0d0b07 100%);
+  }
+  .noticia .kicker{
+    font-family:var(--sans); font-size:2.1vh; letter-spacing:.42em; text-transform:uppercase;
+    color:var(--gold); opacity:.95;
+  }
+  .noticia h1{
+    font-family:var(--serif); font-weight:normal; line-height:1.06;
+    font-size:min(9.6vh, 7.4vw);
+    background:linear-gradient(180deg,#fff 30%,var(--gold-light) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 0 60px rgba(201,168,76,.10);
+  }
+  .noticia p{
+    font-family:var(--serif); font-size:min(4.4vh,3.6vw); line-height:1.45;
+    color:#e9e3d4; max-width:24ch;
+  }
+  .noticia .linea{width:16vh;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+
+  /* ══ Marca fija abajo (logo + pie) ══ */
+  #marca{
+    position:fixed; z-index:3; left:0;right:0;bottom:0; height:13vh;
+    display:flex;align-items:flex-end;justify-content:space-between;
+    padding:0 3.4vw 2.6vh; pointer-events:none;
+    background:linear-gradient(to top, rgba(0,0,0,.82) 0%, rgba(0,0,0,.42) 45%, transparent 100%);
+  }
+  #marca img{height:6.2vh; filter:drop-shadow(0 3px 12px rgba(0,0,0,.9)); opacity:.96}
+  #pie{
+    text-align:right; font-family:var(--serif); line-height:1.35;
+    text-shadow:0 2px 14px rgba(0,0,0,.95);
+  }
+  #pieTitulo{font-size:2.9vh; color:#fff; opacity:.97}
+  #pieSub{font-size:2.1vh; color:var(--gold-light); opacity:.9; letter-spacing:.06em}
+
+  /* ══ Barra de progreso del item (hilo dorado, discreto) ══ */
+  #progreso{position:fixed;z-index:4;left:0;bottom:0;height:3px;width:0;
+    background:linear-gradient(90deg,var(--gold-dark),var(--gold-light));
+    box-shadow:0 0 10px rgba(201,168,76,.6)}
+
+  /* ══ Pantalla de arranque / errores ══ */
+  #estado{
+    position:fixed;inset:0;z-index:9; display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:2.4vh; background:var(--black);
+    transition:opacity .8s ease;
+  }
+  #estado.oculto{opacity:0;pointer-events:none}
+  #estado img{height:14vh;opacity:.92}
+  #estado .msg{font-family:var(--serif);font-size:2.8vh;color:var(--gold-light);opacity:.85}
+  #estado .sub{font-family:var(--sans);font-size:1.9vh;color:#8a8478}
+
+  /* Aviso de sonido bloqueado: solo aparece si el navegador rechaza el audio */
+  #avisoSonido{
+    position:fixed;z-index:8;top:3vh;left:50%;transform:translateX(-50%);
+    padding:1.4vh 3vw; border-radius:999px; background:rgba(10,10,10,.88);
+    border:1px solid rgba(201,168,76,.5); color:var(--gold-light);
+    font-family:var(--sans); font-size:2.1vh; display:none;
+  }
+  #avisoSonido.on{display:block}
+</style>
+</head>
+<body>
+
+<div id="escenario"></div>
+
+<div id="marca">
+  <img src="/logo-dorado.png" alt="Salsa Soul Studio">
+  <div id="pie">
+    <div id="pieTitulo">Salsa Soul Studio</div>
+    <div id="pieSub">Disfruta la vida bailando</div>
+  </div>
+</div>
+<div id="progreso"></div>
+
+<div id="avisoSonido">🔇 Tocá la pantalla para activar el sonido</div>
+
+<div id="estado">
+  <img src="/logo-dorado.png" alt="">
+  <div class="msg">Preparando la pantalla…</div>
+  <div class="sub" id="estadoSub"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   TV Salsa Soul — cartelera de la academia
+   ---------------------------------------------------------------------------
+   Corre en la notebook conectada por HDMI (Chrome en modo kiosk), ~19:30 a 22:00.
+
+   Fuentes de contenido (todas remotas, se releen solas):
+     1. R2 /tv/playlist.json  → videos, fotos históricas, afiches y noticias que
+        Iván carga en la carpeta TV-ACADEMIA y sincroniza con tools/tv_sync.py
+     2. R2 /manifest.json     → las fotos de las clases (el MISMO índice que usa
+        salsasoulstudio.com/fotos: si subís fotos por WhatsApp, entran acá solas)
+     3. /tv/playlist.json     → copia de respaldo en el repo, por si R2 no responde
+
+   La página NO recibe un orden: recibe un inventario por tipo y arma la rotación
+   acá (CFG.patron). Así Iván solo tira archivos en la carpeta, sin ordenar nada.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const R2 = "https://pub-1fc0fb1ac8244995981fc724066bf71c.r2.dev";
+
+const CONFIG_DEFAULT = {
+  segundos_foto: 9,        // cuánto dura cada foto en pantalla
+  segundos_afiche: 13,     // el afiche tiene texto: necesita más tiempo para leerse
+  segundos_noticia: 11,
+  max_video: 210,          // corte de seguridad: ningún video ocupa más de 3:30
+  fechas_galeria: 6,       // cuántas fechas de clase recientes entran a la rotación
+  patron: ["video","foto","foto","foto","afiche","video","foto","foto","noticia"],
+  refresco_min: 10,        // cada cuánto se relee el playlist (sin cortar lo que suena)
+  recarga_horas: 6         // recarga completa de la página, por si queda muchas horas viva
+};
+
+let CFG = {...CONFIG_DEFAULT};
+let POOL = {video:[], foto:[], afiche:[], noticia:[]};   // inventario por tipo
+let CURSOR = {video:0, foto:0, afiche:0, noticia:0};     // rotación circular por tipo
+let patronIdx = 0;
+let capaActual = null;
+let sonidoOk = true;
+let fallosSeguidos = 0;
+
+/* ── Utilidades ────────────────────────────────────────────────────────────── */
+
+const dormir = ms => new Promise(r => setTimeout(r, ms));
+
+function hoyISO(){
+  // Fecha de Paraguay, no la del sistema (la notebook puede tener otro huso)
+  return new Intl.DateTimeFormat("en-CA", {timeZone:"America/Asuncion"}).format(new Date());
+}
+
+// Un item vencido no se muestra más: el afiche del festival pasado no puede
+// seguir girando en la tele. La fecha sale del nombre del archivo (tv_sync.py).
+function vigente(item){
+  if(!item || !item.hasta) return true;
+  return item.hasta >= hoyISO();
+}
+
+function mezclar(a){
+  const x = a.slice();
+  for(let i=x.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [x[i],x[j]]=[x[j],x[i]]; }
+  return x;
+}
+
+/* ── Carga del contenido ───────────────────────────────────────────────────── */
+
+async function traerJSON(url, ms=12000){
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), ms);
+  try{
+    const r = await fetch(url + (url.includes("?")?"&":"?") + "t=" + Date.now(), {signal:ctrl.signal});
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+
+// Fotos de las clases: mismas URLs que ve el alumno en /fotos, limitadas a las
+// últimas N fechas (lo viejo se archiva solo, sin tocar nada).
+async function fotosDeClases(){
+  try{
+    const man = await traerJSON(R2 + "/manifest.json");
+    const fechas = Object.keys(man.fechas || {}).sort().reverse().slice(0, CFG.fechas_galeria);
+    const out = [];
+    fechas.forEach(f=>{
+      (man.fechas[f].fotos || []).forEach(u => out.push({
+        tipo:"foto", url:u, fecha:f, titulo: man.fechas[f].titulo || ""
+      }));
+    });
+    return out;
+  }catch(e){
+    console.warn("[TV] manifest de fotos no disponible:", e.message);
+    return [];
+  }
+}
+
+async function cargarPlaylist(){
+  let pl = null;
+  try{
+    pl = await traerJSON(R2 + "/tv/playlist.json");
+  }catch(e){
+    console.warn("[TV] playlist de R2 no disponible, uso la copia del repo:", e.message);
+    try{ pl = await traerJSON("/tv/playlist.json"); }
+    catch(e2){ console.error("[TV] tampoco hay copia local:", e2.message); pl = null; }
+  }
+  if(!pl) return false;
+
+  CFG = {...CONFIG_DEFAULT, ...(pl.config || {})};
+
+  const items = (pl.items || []).filter(vigente);
+  const nuevo = {video:[], foto:[], afiche:[], noticia:[]};
+  items.forEach(it => { if(nuevo[it.tipo]) nuevo[it.tipo].push(it); });
+
+  // Las fotos de las clases se suman a las históricas de la carpeta
+  const clases = await fotosDeClases();
+  nuevo.foto = mezclar(nuevo.foto.concat(clases));
+  nuevo.video = mezclar(nuevo.video);
+  // Afiches y noticias NO se mezclan: van en el orden que Iván puso en la carpeta
+
+  const total = nuevo.video.length + nuevo.foto.length + nuevo.afiche.length + nuevo.noticia.length;
+  if(!total){ console.warn("[TV] no hay contenido vigente"); return false; }
+
+  POOL = nuevo;
+  console.log("[TV] contenido: " + POOL.video.length + " videos · " + POOL.foto.length +
+              " fotos · " + POOL.afiche.length + " afiches · " + POOL.noticia.length + " noticias");
+  return true;
+}
+
+/* ── Elegir el próximo item ────────────────────────────────────────────────── */
+
+// Recorre el patrón; si un tipo está vacío (todavía no hay videos, por ejemplo),
+// salta al siguiente en vez de dejar la pantalla en negro.
+function siguienteItem(){
+  for(let intento=0; intento<CFG.patron.length*2; intento++){
+    const tipo = CFG.patron[patronIdx % CFG.patron.length];
+    patronIdx++;
+    const lista = POOL[tipo] || [];
+    if(!lista.length) continue;
+    const item = lista[CURSOR[tipo] % lista.length];
+    CURSOR[tipo]++;
+    // Al completar la vuelta a las fotos se remezclan: nunca la misma secuencia
+    if(tipo === "foto" && CURSOR[tipo] % lista.length === 0) POOL.foto = mezclar(lista);
+    if(vigente(item)) return item;
+  }
+  return null;
+}
+
+/* ── Pintar cada tipo de item ──────────────────────────────────────────────── */
+
+function nuevaCapa(){
+  const d = document.createElement("div");
+  d.className = "capa";
+  document.getElementById("escenario").appendChild(d);
+  return d;
+}
+
+function mostrarCapa(capa){
+  requestAnimationFrame(()=>{ capa.classList.add("visible"); });
+  const vieja = capaActual;
+  capaActual = capa;
+  if(vieja){
+    vieja.classList.remove("visible");
+    // se saca recién cuando terminó el fundido, para que no parpadee
+    setTimeout(()=>{
+      vieja.querySelectorAll("video").forEach(v=>{ v.pause(); v.removeAttribute("src"); v.load(); });
+      vieja.remove();
+    }, 1100);
+  }
+}
+
+function pie(titulo, sub){
+  document.getElementById("pieTitulo").textContent = titulo || "Salsa Soul Studio";
+  document.getElementById("pieSub").textContent   = sub || "Disfruta la vida bailando";
+}
+
+function correrProgreso(segundos){
+  const p = document.getElementById("progreso");
+  p.style.transition = "none"; p.style.width = "0";
+  requestAnimationFrame(()=>{
+    p.style.transition = "width " + segundos + "s linear";
+    p.style.width = "100%";
+  });
+}
+
+async function pintarVideo(item){
+  const capa = nuevaCapa();
+  const v = document.createElement("video");
+  v.src = item.url;
+  v.autoplay = true; v.muted = !sonidoOk; v.preload = "auto";
+  v.setAttribute("playsinline", "");
+  capa.appendChild(v);
+
+  // Espera a que haya imagen antes de fundir (nada de fundir a negro)
+  await new Promise(res=>{
+    let listo = false;
+    const ok = ()=>{ if(!listo){ listo = true; res(); } };
+    v.addEventListener("loadeddata", ok, {once:true});
+    v.addEventListener("error", ok, {once:true});
+    setTimeout(ok, 8000);   // si el video no carga en 8s, seguimos igual
+  });
+
+  if(v.error || v.readyState === 0){
+    console.warn("[TV] video sin cargar, lo salteo:", item.url);
+    capa.remove();
+    return 0;
+  }
+
+  mostrarCapa(capa);
+  pie(item.titulo || "Salsa Soul Studio", item.subtitulo || "Disfruta la vida bailando");
+
+  try{
+    await v.play();
+  }catch(e){
+    // Política de autoplay: el navegador no deja audio sin gesto del usuario.
+    // Con Chrome en kiosk (--autoplay-policy=no-user-gesture-required) esto no
+    // pasa; si igual pasa, seguimos MUDOS antes que quedarnos sin video.
+    console.warn("[TV] autoplay con sonido rechazado, sigo en mudo");
+    sonidoOk = false;
+    document.getElementById("avisoSonido").classList.add("on");
+    v.muted = true;
+    try{ await v.play(); }catch(e2){ capa.remove(); return 0; }
+  }
+
+  const dur = Math.min(isFinite(v.duration) && v.duration > 1 ? v.duration : 30, CFG.max_video);
+  correrProgreso(dur);
+
+  await new Promise(res=>{
+    let fin = false;
+    const cerrar = ()=>{ if(!fin){ fin = true; res(); } };
+    v.addEventListener("ended", cerrar, {once:true});
+    setTimeout(cerrar, dur*1000 + 800);   // corte duro por si "ended" nunca llega
+  });
+  return 1;
+}
+
+async function pintarFoto(item){
+  const capa = nuevaCapa();
+  const img = document.createElement("img");
+  img.className = "foto";
+  img.src = item.url;
+
+  const ok = await new Promise(res=>{
+    img.addEventListener("load", ()=>res(true), {once:true});
+    img.addEventListener("error", ()=>res(false), {once:true});
+    setTimeout(()=>res(false), 9000);
+  });
+  if(!ok){ console.warn("[TV] foto sin cargar, la salteo:", item.url); capa.remove(); return 0; }
+
+  const seg = item.segundos || CFG.segundos_foto;
+  img.style.setProperty("--kb", (seg + 1.2) + "s");
+  img.classList.add("kb");
+  capa.appendChild(img);
+  mostrarCapa(capa);
+
+  pie(item.titulo || "Nuestras clases", item.fecha ? fmtFechaPie(item.fecha) : "Salsa Soul Studio");
+  correrProgreso(seg);
+  await dormir(seg*1000);
+  return 1;
+}
+
+async function pintarAfiche(item){
+  const capa = nuevaCapa();
+  const blur = document.createElement("img");
+  blur.className = "fondoBlur"; blur.src = item.url;
+  const img = document.createElement("img");
+  img.className = "afiche"; img.src = item.url;
+
+  const ok = await new Promise(res=>{
+    img.addEventListener("load", ()=>res(true), {once:true});
+    img.addEventListener("error", ()=>res(false), {once:true});
+    setTimeout(()=>res(false), 9000);
+  });
+  if(!ok){ console.warn("[TV] afiche sin cargar, lo salteo:", item.url); capa.remove(); return 0; }
+
+  capa.appendChild(blur); capa.appendChild(img);
+  mostrarCapa(capa);
+
+  pie(item.titulo || "Salsa Soul Studio", item.subtitulo || "salsasoulstudio.com");
+  const seg = item.segundos || CFG.segundos_afiche;
+  correrProgreso(seg);
+  await dormir(seg*1000);
+  return 1;
+}
+
+async function pintarNoticia(item){
+  const capa = nuevaCapa();
+  const div = document.createElement("div");
+  div.className = "noticia";
+  div.innerHTML =
+    '<div class="kicker">' + escapar(item.kicker || "Novedades") + "</div>" +
+    "<h1>" + escapar(item.titulo || "") + "</h1>" +
+    '<div class="linea"></div>' +
+    (item.texto ? "<p>" + escapar(item.texto) + "</p>" : "");
+  capa.appendChild(div);
+  mostrarCapa(capa);
+
+  pie("Salsa Soul Studio", "salsasoulstudio.com");
+  const seg = item.segundos || CFG.segundos_noticia;
+  correrProgreso(seg);
+  await dormir(seg*1000);
+  return 1;
+}
+
+function escapar(s){
+  return String(s).replace(/[&<>"']/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto",
+               "septiembre","octubre","noviembre","diciembre"];
+function fmtFechaPie(iso){
+  const p = iso.split("-").map(Number);
+  return p[2] + " de " + MESES[p[1]-1] + " de " + p[0];
+}
+
+/* ── El loop ───────────────────────────────────────────────────────────────── */
+
+async function loop(){
+  while(true){
+    const item = siguienteItem();
+    if(!item){
+      // Sin contenido: esperar y reintentar, nunca dejar la pantalla muerta
+      await mostrarEstado("Sin contenido para mostrar", "Reintentando…");
+      await dormir(30000);
+      if(await cargarPlaylist()) ocultarEstado();
+      continue;
+    }
+    let ok = 0;
+    try{
+      if(item.tipo === "video")        ok = await pintarVideo(item);
+      else if(item.tipo === "foto")    ok = await pintarFoto(item);
+      else if(item.tipo === "afiche")  ok = await pintarAfiche(item);
+      else if(item.tipo === "noticia") ok = await pintarNoticia(item);
+    }catch(e){
+      console.error("[TV] error mostrando item:", e);
+    }
+    // Si falla todo seguido (se cortó internet), frenamos un poco para no
+    // quemar CPU pidiendo archivos que no llegan.
+    fallosSeguidos = ok ? 0 : fallosSeguidos + 1;
+    if(fallosSeguidos >= 6){ await dormir(15000); fallosSeguidos = 0; }
+  }
+}
+
+async function mostrarEstado(msg, sub){
+  document.querySelector("#estado .msg").textContent = msg;
+  document.getElementById("estadoSub").textContent = sub || "";
+  document.getElementById("estado").classList.remove("oculto");
+}
+function ocultarEstado(){ document.getElementById("estado").classList.add("oculto"); }
+
+/* Un toque en la pantalla desbloquea el sonido si el navegador lo había frenado */
+document.addEventListener("click", ()=>{
+  if(!sonidoOk){
+    sonidoOk = true;
+    document.getElementById("avisoSonido").classList.remove("on");
+    document.querySelectorAll("video").forEach(v=>{ v.muted = false; });
+  }
+});
+
+/* Refresco del playlist en caliente: el item que está en pantalla no se corta,
+   el cambio entra en el siguiente. Iván actualiza la carpeta y en <10 min está. */
+setInterval(async ()=>{
+  try{ await cargarPlaylist(); }catch(e){ console.warn("[TV] refresco falló:", e.message); }
+}, CONFIG_DEFAULT.refresco_min * 60 * 1000);
+
+/* Recarga completa cada tantas horas: limpia cualquier fuga de memoria si la
+   notebook queda encendida más de lo previsto. */
+setTimeout(()=>location.reload(), CONFIG_DEFAULT.recarga_horas * 3600 * 1000);
+
+/* ── Arranque ──────────────────────────────────────────────────────────────── */
+
+(async function arrancar(){
+  await mostrarEstado("Preparando la pantalla…", "");
+  let intentos = 0;
+  while(!(await cargarPlaylist())){
+    intentos++;
+    await mostrarEstado("Esperando conexión…", "Intento " + intentos);
+    await dormir(Math.min(10000 * intentos, 60000));
+  }
+  ocultarEstado();
+  loop();
+})();
+</script>
+</body>
+</html>

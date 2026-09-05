@@ -1,0 +1,24 @@
+{
+  "_comentario": "COPIA DE RESPALDO. El playlist de verdad lo genera tools/tv_sync.py desde la carpeta TV-ACADEMIA y vive en R2 (/tv/playlist.json). Este archivo solo se usa si R2 no responde, para que la tele NUNCA quede en negro. Solo referencia imagenes que ya viven en este repo.",
+  "generado": "2026-09-05",
+  "config": {
+    "segundos_foto": 9,
+    "segundos_afiche": 13,
+    "segundos_noticia": 11,
+    "fechas_galeria": 6,
+    "patron": ["video", "foto", "foto", "foto", "afiche", "video", "foto", "foto", "noticia"]
+  },
+  "items": [
+    { "tipo": "afiche", "url": "/afiche-horarios-p1.png",         "titulo": "Horarios · Principiante 1" },
+    { "tipo": "afiche", "url": "/afiche-horarios-basico2.png",    "titulo": "Horarios · Básico 2" },
+    { "tipo": "afiche", "url": "/afiche-horarios-basico3.png",    "titulo": "Horarios · Básico 3" },
+    { "tipo": "afiche", "url": "/afiche-horarios-intermedio.png", "titulo": "Horarios · Intermedio" },
+    { "tipo": "afiche", "url": "/promo-primavera-inicio.jpg",     "titulo": "Promo Primavera" },
+    { "tipo": "afiche", "url": "/afiche-festival.png",            "titulo": "Festival Salsa Soul" },
+
+    { "tipo": "noticia", "kicker": "Fotos de las clases", "titulo": "Mirá tus fotos",
+      "texto": "salsasoulstudio.com/fotos — todas las fotos de las clases, para ver y descargar." },
+    { "tipo": "noticia", "kicker": "Salsa Soul Studio", "titulo": "Salsa · Bachata · Ladies Style",
+      "texto": "Disfruta la vida bailando." }
+  ]
+}

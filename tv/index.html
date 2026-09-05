@@ -175,14 +175,16 @@ const LIVIANO = new URLSearchParams(location.search).has("liviano");
 if(LIVIANO) document.body.classList.add("liviano");
 
 const CONFIG_DEFAULT = {
-  segundos_foto: 9,        // cuánto dura cada foto en pantalla
+  segundos_foto: 8,        // cuánto dura cada foto en pantalla
   segundos_afiche: 13,     // el afiche tiene texto: necesita más tiempo para leerse
   segundos_noticia: 11,
   max_video: 210,          // corte de seguridad: ningún video ocupa más de 3:30
-  fechas_galeria: 10,      // cuántas fechas de clase recientes entran a la rotación
+  semanas_galeria: 8,      // ventana de fotos de clase que entra a la rotación
   volumen_musica: 0.38,    // la música es fondo, no protagonista
-  patron: ["video","foto","foto","foto","foto","foto","afiche",
-           "video","foto","foto","foto","foto","noticia"],
+  // Cada tramo entre videos son ~40s con música: el afiche fijo (13s) + 3 o 4 fotos.
+  patron: ["video","foto","foto","foto","foto",
+           "video","foto","foto","afiche",
+           "video","foto","foto","foto","noticia"],
   refresco_min: 10,        // cada cuánto se relee el playlist (sin cortar lo que suena)
   recarga_horas: 6         // recarga completa de la página, por si queda muchas horas viva
 };
@@ -214,6 +216,35 @@ function vigente(item){
   return item.hasta >= hoyISO();
 }
 
+/* ── Fotos ya vistas hoy ───────────────────────────────────────────────────────
+   La tele repite el loop 2 horas y media: sin registro, las primeras fotos salían
+   varias veces por noche y las últimas no salían nunca. El registro vive en el
+   navegador de la tele (localStorage), así que sobrevive a la recarga de las 6 h y
+   al apagón de la noche. Se guarda solo el nombre del archivo, no la URL entera. */
+
+const LS_VISTAS = "tv_fotos_vistas";
+let vistasHoy = new Set();
+
+function _claveFoto(item){
+  return (item.url || "").split("/").pop();
+}
+
+function cargarVistas(){
+  try{
+    const crudo = localStorage.getItem(LS_VISTAS);
+    if(!crudo) return;
+    const d = JSON.parse(crudo);
+    // Es de otro día: arranca de cero (para eso es "no repetir EN EL DÍA")
+    if(d && d.dia === hoyISO() && Array.isArray(d.fotos)) vistasHoy = new Set(d.fotos);
+  }catch(e){ console.warn("[TV] no pude leer las fotos vistas:", e.message); }
+}
+
+function guardarVistas(){
+  try{
+    localStorage.setItem(LS_VISTAS, JSON.stringify({dia: hoyISO(), fotos: [...vistasHoy]}));
+  }catch(e){ /* modo privado o storage lleno: la tele sigue igual, solo repite */ }
+}
+
 function mezclar(a){
   const x = a.slice();
   for(let i=x.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [x[i],x[j]]=[x[j],x[i]]; }
@@ -232,12 +263,20 @@ async function traerJSON(url, ms=12000){
   } finally { clearTimeout(t); }
 }
 
-// Fotos de las clases: mismas URLs que ve el alumno en /fotos, limitadas a las
-// últimas N fechas (lo viejo se archiva solo, sin tocar nada).
+// Fotos de las clases: mismas URLs que ve el alumno en /fotos, de las últimas N
+// semanas. Es una ventana de TIEMPO, no un número de fechas: si una semana hubo
+// clases todos los días entran todas, y lo viejo sale solo sin tocar nada.
+function desdeISO(semanas){
+  const d = new Date();
+  d.setDate(d.getDate() - semanas * 7);
+  return new Intl.DateTimeFormat("en-CA", {timeZone:"America/Asuncion"}).format(d);
+}
+
 async function fotosDeClases(){
   try{
     const man = await traerJSON(R2 + "/manifest.json");
-    const fechas = Object.keys(man.fechas || {}).sort().reverse().slice(0, CFG.fechas_galeria);
+    const limite = desdeISO(CFG.semanas_galeria || 8);
+    const fechas = Object.keys(man.fechas || {}).filter(f => f >= limite).sort().reverse();
     const out = [];
     fechas.forEach(f=>{
       (man.fechas[f].fotos || []).forEach(u => out.push({
@@ -296,6 +335,25 @@ async function cargarPlaylist(){
 
 // Recorre el patrón; si un tipo está vacío (todavía no hay videos, por ejemplo),
 // salta al siguiente en vez de dejar la pantalla en negro.
+// Devuelve una foto que hoy todavía no salió. Si ya salieron TODAS (noche larga o
+// pocas fotos cargadas), limpia el registro y vuelve a empezar: es mejor repetir
+// que quedarse sin fotos y dejar la pantalla en los afiches.
+function fotoNoVista(lista){
+  for(let i = 0; i < lista.length; i++){
+    const cand = lista[(CURSOR.foto + i) % lista.length];
+    if(!vistasHoy.has(_claveFoto(cand))){
+      CURSOR.foto = (CURSOR.foto + i + 1) % lista.length;
+      return cand;
+    }
+  }
+  console.log("[TV] ya salieron las " + lista.length + " fotos de hoy, arranca otra vuelta");
+  vistasHoy.clear();
+  guardarVistas();
+  POOL.foto = mezclar(lista);
+  CURSOR.foto = 1;
+  return POOL.foto[0];
+}
+
 function siguienteItem(){
   // Después de cada video sale el afiche fijo (el festival). Va antes que el patrón:
   // es el único bloque que no se negocia con la rotación.
@@ -313,10 +371,18 @@ function siguienteItem(){
     patronIdx++;
     const lista = POOL[tipo] || [];
     if(!lista.length) continue;
-    const item = lista[CURSOR[tipo] % lista.length];
-    CURSOR[tipo]++;
-    // Al completar la vuelta a las fotos se remezclan: nunca la misma secuencia
-    if(tipo === "foto" && CURSOR[tipo] % lista.length === 0) POOL.foto = mezclar(lista);
+
+    let item;
+    if(tipo === "foto"){
+      item = fotoNoVista(lista);
+      if(!item) continue;
+      vistasHoy.add(_claveFoto(item));
+      guardarVistas();
+    }else{
+      item = lista[CURSOR[tipo] % lista.length];
+      CURSOR[tipo]++;
+    }
+
     if(vigente(item)){
       if(tipo === "video") ultimoFueVideo = true;
       return item;
@@ -346,6 +412,18 @@ function siguienteTema(){
   musicaIdx++;
   if(musicaIdx % POOL.musica.length === 0) POOL.musica = mezclar(POOL.musica);
   audioFondo.src = t.url;
+
+  // Cada vez que un tema entra, arranca en un punto distinto. Los tramos de música
+  // duran ~40s y las canciones 4-5 minutos: si empezaran siempre en el segundo 0,
+  // en toda la noche se escucharía una y otra vez la misma intro.
+  audioFondo.addEventListener("loadedmetadata", () => {
+    const d = audioFondo.duration;
+    if(isFinite(d) && d > 90){
+      // Del primer 70%: nunca tan sobre el final que se corte a los pocos segundos.
+      try{ audioFondo.currentTime = Math.random() * d * 0.7; }catch(e){}
+    }
+  }, {once:true});
+
   audioFondo.play().catch(e => {
     // Mismo bloqueo de autoplay que el video: seguimos sin música hasta que
     // alguien toque un botón del control.
@@ -650,6 +728,8 @@ setTimeout(()=>location.reload(), CONFIG_DEFAULT.recarga_horas * 3600 * 1000);
 /* ── Arranque ──────────────────────────────────────────────────────────────── */
 
 (async function arrancar(){
+  cargarVistas();
+  if(vistasHoy.size) console.log("[TV] hoy ya salieron " + vistasHoy.size + " fotos");
   await mostrarEstado("Preparando la pantalla…", "");
   let intentos = 0;
   while(!(await cargarPlaylist())){

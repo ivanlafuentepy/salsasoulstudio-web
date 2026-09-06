@@ -441,14 +441,21 @@ function* guion(){
 
       const cuantas = CFG.fotos_por_festival || 20;
       const cada = CFG.afiche_cada || 5;
-      for(let i = 0; i < cuantas; i++){
-        const f = fotoNoVista(col);
-        if(f) yield {...f, segundos: CFG.segundos_foto_festival || 4};
-        // El afiche del festival vuelve cada N fotos, no una sola vez al principio
-        if((i + 1) % cada === 0 && POOL.fijo.length){
-          const a = POOL.fijo[CURSOR.fijo++ % POOL.fijo.length];
-          if(vigente(a)) yield a;
+      if(col.fotos.length){
+        for(let i = 0; i < cuantas; i++){
+          const f = fotoNoVista(col);
+          if(f) yield {...f, segundos: CFG.segundos_foto_festival || 4};
+          // El afiche del festival vuelve cada N fotos, no una sola vez al principio
+          if((i + 1) % cada === 0 && POOL.fijo.length){
+            const a = POOL.fijo[CURSOR.fijo++ % POOL.fijo.length];
+            if(vigente(a)) yield a;
+          }
         }
+      }else if(POOL.fijo.length){
+        // Colección de puros videos (shows, reels): sin este corte se emitían los
+        // 4 afiches del bloque seguidos, uno atrás del otro, sin una sola foto.
+        const a = POOL.fijo[CURSOR.fijo++ % POOL.fijo.length];
+        if(vigente(a)) yield a;
       }
     }else if(POOL.video.length){
       // Video suelto (los del canal): no tiene fotos propias, pero el afiche del

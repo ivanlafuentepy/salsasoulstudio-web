@@ -31,6 +31,18 @@
   /* Video y foto a pantalla completa */
   .capa video, .capa .foto{width:100%;height:100%;object-fit:cover;display:block}
 
+  /* Video VERTICAL (grabado con el celular): con `cover` se vería una franja del
+     centro y se pierde medio cuadro. Va centrado y completo. */
+  .capa.vertical video{
+    position:relative; width:auto; height:100%; max-width:100%; object-fit:contain;
+    box-shadow:0 24px 80px rgba(0,0,0,.75);
+  }
+  /* Fondo de degradado y no una copia borrosa del video: reproducir DOS videos a la
+     vez (uno con blur a pantalla completa) es lo que entrecorta a una TV modesta. */
+  .capa.vertical{
+    background:radial-gradient(ellipse at 50% 40%, #241d10 0%, #12100b 55%, var(--black) 100%);
+  }
+
   /* Afiche: contain + fondo borroso de la misma imagen (los afiches son
      verticales; sin esto quedan dos barras negras enormes a los costados) */
   .capa .fondoBlur{
@@ -621,6 +633,10 @@ async function pintarVideo(item){
     capa.remove();
     return 0;
   }
+
+  // Vertical = grabado con el celular: se muestra ENTERO sobre un fondo de
+  // degradado, en vez de recortarle media imagen para llenar la pantalla.
+  if(v.videoHeight > v.videoWidth) capa.classList.add("vertical");
 
   mostrarCapa(capa);
   pie(item.titulo || "Salsa Soul Studio", item.subtitulo || "Disfruta la vida bailando");

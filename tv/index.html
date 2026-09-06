@@ -282,6 +282,13 @@ async function traerJSON(url, ms=12000){
 // Fotos de las clases: mismas URLs que ve el alumno en /fotos, de las últimas N
 // semanas. Es una ventana de TIEMPO, no un número de fechas: si una semana hubo
 // clases todos los días entran todas, y lo viejo sale solo sin tocar nada.
+// Día de la semana en Paraguay (0 = domingo), no el del reloj de la tele: si la
+// Android TV quedó en otro huso, el TBT saldría el día equivocado.
+function diaDeHoy(){
+  const p = hoyISO().split("-").map(Number);
+  return new Date(p[0], p[1]-1, p[2]).getDay();
+}
+
 function desdeISO(semanas){
   const d = new Date();
   d.setDate(d.getDate() - semanas * 7);
@@ -334,6 +341,9 @@ async function cargarPlaylist(){
     // Un video o una foto con colección pertenece a un evento: no van al pool suelto,
     // van a su festival, para que el video y SUS fotos salgan juntos.
     if(it.coleccion && (it.tipo === "video" || it.tipo === "foto")){
+      // Una colección puede tener día propio: el TBT sale los jueves y nada más.
+      if(typeof it.dia === "number" && it.dia !== diaDeHoy()) return;
+
       if(!cols.has(it.coleccion)) cols.set(it.coleccion, {nombre: it.coleccion, videos: [], fotos: []});
       const c = cols.get(it.coleccion);
       // Se lee el NOMBRE DEL ARCHIVO arriba y la marca del evento debajo. Si el

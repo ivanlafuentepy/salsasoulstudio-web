@@ -665,9 +665,10 @@ async function pintarVideo(item){
     return 0;
   }
 
-  // Vertical = grabado con el celular: se muestra ENTERO sobre un fondo de
-  // degradado, en vez de recortarle media imagen para llenar la pantalla.
-  if(v.videoHeight > v.videoWidth) capa.classList.add("vertical");
+  // Todo lo que no sea panorámico se muestra ENTERO sobre un fondo de degradado,
+  // en vez de recortarle media imagen para llenar la pantalla: el vertical del
+  // celular y también el CUADRADO de Instagram, al que el recorte le comía el 44%.
+  if(v.videoWidth / v.videoHeight < 1.5) capa.classList.add("vertical");
 
   mostrarCapa(capa);
   pie(item.titulo || "Salsa Soul Studio", item.subtitulo || "Disfruta la vida bailando");

@@ -439,17 +439,25 @@ function* guion(){
     if(col && col.videos.length){
       yield {...col.videos[col.curV++ % col.videos.length]};
 
-      const cuantas = CFG.fotos_por_festival || 20;
+      // Nunca más fotos de las que tiene el evento: con 4 fotos y un bloque de 20,
+      // se veían las mismas cuatro cinco veces seguidas.
+      const cuantas = Math.min(CFG.fotos_por_festival || 20, col.fotos.length);
       const cada = CFG.afiche_cada || 5;
       if(col.fotos.length){
+        let afiches = 0;
         for(let i = 0; i < cuantas; i++){
           const f = fotoNoVista(col);
           if(f) yield {...f, segundos: CFG.segundos_foto_festival || 4};
           // El afiche del festival vuelve cada N fotos, no una sola vez al principio
           if((i + 1) % cada === 0 && POOL.fijo.length){
             const a = POOL.fijo[CURSOR.fijo++ % POOL.fijo.length];
-            if(vigente(a)) yield a;
+            if(vigente(a)){ yield a; afiches++; }
           }
+        }
+        // Un evento con menos fotos que el corte no llegaría a mostrarlo nunca
+        if(!afiches && POOL.fijo.length){
+          const a = POOL.fijo[CURSOR.fijo++ % POOL.fijo.length];
+          if(vigente(a)) yield a;
         }
       }else if(POOL.fijo.length){
         // Colección de puros videos (shows, reels): sin este corte se emitían los

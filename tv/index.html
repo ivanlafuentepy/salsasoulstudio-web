@@ -336,8 +336,14 @@ async function cargarPlaylist(){
     if(it.coleccion && (it.tipo === "video" || it.tipo === "foto")){
       if(!cols.has(it.coleccion)) cols.set(it.coleccion, {nombre: it.coleccion, videos: [], fotos: []});
       const c = cols.get(it.coleccion);
-      if(it.tipo === "video") c.videos.push({...it, subtitulo: it.coleccion});
-      else c.fotos.push({...it, titulo: it.coleccion, subtitulo: "", segundos: null});
+      // Se lee el NOMBRE DEL ARCHIVO arriba y la marca del evento debajo. Si el
+      // archivo trae el nombre que le puso la cámara ("IMG_7468", "5B7A1173"), no
+      // hay nada que leer: se muestra el evento y listo.
+      const et = it.titulo_generico
+        ? {titulo: it.coleccion, subtitulo: ""}
+        : {titulo: it.titulo, subtitulo: it.coleccion};
+      if(it.tipo === "video") c.videos.push({...it, ...et});
+      else c.fotos.push({...it, ...et, segundos: null});
       return;
     }
     if(nuevo[it.tipo]) nuevo[it.tipo].push(it);

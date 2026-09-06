@@ -192,7 +192,10 @@ const CONFIG_DEFAULT = {
   segundos_foto_festival: 4,    // las del bloque del festival, más ágiles
   segundos_afiche: 13,          // el afiche tiene texto: hay que poder leerlo
   segundos_noticia: 11,
-  max_video: 210,               // corte de seguridad: ningún video pasa de 3:30
+  // Corte de seguridad. Estaba en 3:30 de cuando la tele solo tenía los videos del
+  // canal: con las coreografías reales de los festivales cortaba 21 de 131 videos a
+  // mitad de baile. A 5:00 solo queda uno afuera (LEVANTATE Y BAILA, 6:11).
+  max_video: 300,
   fotos_por_festival: 20,       // cuántas fotos van después del video de un festival
   afiche_cada: 5,               // cada cuántas de esas fotos vuelve el afiche del festival
   semanas_galeria: 8,           // ventana de fotos de clase que entra a la rotación

@@ -261,6 +261,48 @@ function guardarVistas(){
   }catch(e){ /* modo privado o storage lleno: la tele sigue igual, solo repite */ }
 }
 
+/* ── El orden del día ──────────────────────────────────────────────────────────
+   Dos cosas que pidió Iván el 06/09:
+
+   1. "que cada día se vea algo diferente por semanas" — el orden de los eventos se
+      baraja con la FECHA como semilla: cambia todos los días, pero se mantiene
+      estable durante la noche (y sobrevive a la recarga de las 6 h).
+   2. "el TBT hay que ir tirándolo todos los días también, y los jueves full" — la
+      colección con día propio NO se esconde el resto de la semana: entra como una
+      más. El día que le toca se intercala entre cada uno de los otros eventos, o
+      sea que sale una de cada dos veces. */
+
+function _semilla(txt){
+  let h = 0;
+  for(let i = 0; i < txt.length; i++) h = (h * 31 + txt.charCodeAt(i)) | 0;
+  return Math.abs(h) || 1;
+}
+
+function mezclarConSemilla(a, txt){
+  const x = a.slice();
+  let s = _semilla(txt);
+  const rnd = () => (s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+  for(let i = x.length - 1; i > 0; i--){
+    const j = Math.floor(rnd() * (i + 1));
+    [x[i], x[j]] = [x[j], x[i]];
+  }
+  return x;
+}
+
+function ordenDelDia(lista){
+  const hoy = diaDeHoy();
+  const barajadas = mezclarConSemilla(lista, hoyISO());
+  const delDia = barajadas.filter(c => c.dia === hoy);
+  const resto  = barajadas.filter(c => c.dia !== hoy);
+  if(!delDia.length) return barajadas;
+  if(!resto.length) return delDia;
+  // Su día: una del día entre cada una de las otras
+  const out = [];
+  resto.forEach((c, i) => { out.push(delDia[i % delDia.length]); out.push(c); });
+  console.log("[TV] hoy manda: " + delDia.map(c => c.nombre).join(", "));
+  return out;
+}
+
 function mezclar(a){
   const x = a.slice();
   for(let i=x.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [x[i],x[j]]=[x[j],x[i]]; }
@@ -341,10 +383,9 @@ async function cargarPlaylist(){
     // Un video o una foto con colección pertenece a un evento: no van al pool suelto,
     // van a su festival, para que el video y SUS fotos salgan juntos.
     if(it.coleccion && (it.tipo === "video" || it.tipo === "foto")){
-      // Una colección puede tener día propio: el TBT sale los jueves y nada más.
-      if(typeof it.dia === "number" && it.dia !== diaDeHoy()) return;
-
-      if(!cols.has(it.coleccion)) cols.set(it.coleccion, {nombre: it.coleccion, videos: [], fotos: []});
+      if(!cols.has(it.coleccion))
+        cols.set(it.coleccion, {nombre: it.coleccion, videos: [], fotos: [],
+                                dia: (typeof it.dia === "number" ? it.dia : null)});
       const c = cols.get(it.coleccion);
       // Se lee el NOMBRE DEL ARCHIVO arriba y la marca del evento debajo. Si el
       // archivo trae el nombre que le puso la cámara ("IMG_7468", "5B7A1173"), no
@@ -364,9 +405,9 @@ async function cargarPlaylist(){
   nuevo.musica = mezclar(nuevo.musica);
   // Afiches y noticias NO se mezclan: van en el orden que Iván puso en la carpeta
 
-  COLECCIONES = [...cols.values()].map(c => ({
+  COLECCIONES = ordenDelDia([...cols.values()].map(c => ({
     ...c, videos: mezclar(c.videos), fotos: mezclar(c.fotos), curV: 0, curF: 0
-  }));
+  })));
   DIAS_CLASE = await fotosDeClases();
 
   const total = nuevo.video.length + nuevo.foto.length + nuevo.afiche.length +

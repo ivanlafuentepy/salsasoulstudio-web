@@ -248,7 +248,10 @@
       document.getElementById("dias").innerHTML = (d.dias || [])
         .map(x => `<div class="chip" data-v="${x.id}">${x.etiqueta}</div>`).join("");
       if (d.vence_texto)
-        document.getElementById("vence").textContent = "⏳ Vale hasta el lunes " + d.vence_texto;
+        // El día de la semana lo manda Dorita (vence_dia): el 07/09 esta línea
+        // decía "lunes" fijo y con la promo estirada mostró "lunes 12" (era sábado).
+        document.getElementById("vence").textContent =
+          "⏳ Vale hasta el " + (d.vence_dia ? d.vence_dia + " " : "") + d.vence_texto;
     } catch (e) {
       document.getElementById("dias").innerHTML =
         '<p style="color:#999">No pude cargar los días. Escribinos por WhatsApp 🙏</p>';

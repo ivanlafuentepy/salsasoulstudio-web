@@ -155,7 +155,16 @@
           Con los profes <strong>Ivan Lafuente e Ingrid González</strong>
         </div>
         <div class="promo-2x1">PROMO 2x1 <span>Dos meses por el precio de uno</span></div>
-        <p class="promo-limite">📅 Reservá antes del <strong>lunes 7 de septiembre</strong></p>
+        <p class="promo-limite">📅 Reservá antes del <strong id="promo-vence">sábado 12 de septiembre</strong></p>
+        <script>
+          // La fecha de cierre la calcula Dorita (/promo/dias, vía functions/api/promo.js):
+          // el 07/09 acá quedó "lunes 7" escrito a mano después de estirar la promo al sábado 12.
+          fetch("/api/promo?dias=1").then(r => r.json()).then(d => {
+            if (d && d.vence_texto)
+              document.getElementById("promo-vence").textContent =
+                (d.vence_dia ? d.vence_dia + " " : "") + d.vence_texto;
+          }).catch(() => {});
+        </script>
         <a class="btn-festival" target="_blank" rel="noopener"
            href="https://wa.me/595971889475?text=Hola%20Dorita!%20Quiero%20la%20PROMO%20PRIMAVERA%20%F0%9F%8C%B8%20del%20curso%20de%20salsa%20para%20principiantes">🌸 Quiero la Promo Primavera</a>
         <br>

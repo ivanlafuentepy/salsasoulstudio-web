@@ -650,6 +650,20 @@ function nuevaCapa(){
   return d;
 }
 
+/* Soltar un <video> no es sacarlo del DOM: mientras conserve el src, el navegador
+   sigue bajando el archivo entero (preload="auto", y acá hay videos de 90 MB) y no
+   libera el buffer hasta que pase el recolector. En una Android TV con poca RAM eso
+   se acumula noche tras noche. Hay que cortarle el src y hacerle load(). */
+function soltarVideo(v){
+  try{ v.pause(); v.removeAttribute("src"); v.load(); }catch(e){}
+}
+
+// Descartar una capa que nunca llegó a mostrarse (el archivo no cargó).
+function descartarCapa(capa){
+  capa.querySelectorAll("video").forEach(soltarVideo);
+  capa.remove();
+}
+
 function mostrarCapa(capa){
   requestAnimationFrame(()=>{ capa.classList.add("visible"); });
   const vieja = capaActual;
@@ -658,7 +672,7 @@ function mostrarCapa(capa){
     vieja.classList.remove("visible");
     // se saca recién cuando terminó el fundido, para que no parpadee
     setTimeout(()=>{
-      vieja.querySelectorAll("video").forEach(v=>{ v.pause(); v.removeAttribute("src"); v.load(); });
+      vieja.querySelectorAll("video").forEach(soltarVideo);
       vieja.remove();
     }, 1100);
   }
@@ -704,9 +718,13 @@ async function pintarVideo(item){
     setTimeout(ok, 8000);   // si el video no carga en 8s, seguimos igual
   });
 
-  if(v.error || v.readyState === 0){
-    console.warn("[TV] video sin cargar, lo salteo:", item.url);
-    capa.remove();
+  // El corte es readyState < 2 (HAVE_CURRENT_DATA), no === 0: cuando la red se corta
+  // a mitad el video queda en 1 (bajó los metadatos, no la imagen). Con el guard viejo
+  // ese caso PASABA, fundía a una capa sin un solo frame y la pantalla quedaba NEGRA
+  // hasta max_video —7 minutos— sin que nada avisara. Es lo que pasó el 08/09/2026.
+  if(v.error || v.readyState < 2){
+    console.warn("[TV] video sin imagen (readyState " + v.readyState + "), lo salteo:", item.url);
+    descartarCapa(capa);
     return 0;
   }
 
@@ -728,7 +746,7 @@ async function pintarVideo(item){
     sonidoOk = false;
     document.getElementById("avisoSonido").classList.add("on");
     v.muted = true;
-    try{ await v.play(); }catch(e2){ capa.remove(); return 0; }
+    try{ await v.play(); }catch(e2){ descartarCapa(capa); return 0; }
   }
 
   const dur = Math.min(isFinite(v.duration) && v.duration > 1 ? v.duration : 30, CFG.max_video);

@@ -944,23 +944,35 @@ async function loop(){
     /* UN item que falla puede ser un archivo roto; TRES seguidos casi siempre es la red.
        La diferencia importa: por un archivo roto no hay que tapar la pantalla, pero por
        una caída SÍ hay que avisar. El 08/09/2026 la tele perdió el WiFi y se quedó en
-       negro con la música sonando: desde afuera parecía rota y nadie sabía por qué.
-       `cargarPlaylist()` sirve de prueba de conexión (si R2 y la copia del repo fallan,
-       no hay red) y de paso refresca el contenido apenas vuelve. */
+       negro con la música sonando: desde afuera parecía rota y nadie sabía por qué. */
+    /* `navigator.onLine === false` es el aviso del sistema de que se cayó la interfaz de
+       red: sirve para no esperar tres fallos (con videos, cada uno cuesta espera_video y
+       el cartel tardaba más de dos minutos en salir). Como positivo no vale nada —puede
+       decir que hay red sin que haya internet— así que quien decide sigue siendo
+       hayInternet(): si onLine miente, el chequeo real lo desmiente y no pasa nada. */
     fallosSeguidos++;
-    if(fallosSeguidos >= 3){
-      const hayRed = await cargarPlaylist();
-      if(hayRed){
-        if(sinConexion){ sinConexion = false; ocultarEstado(); }
+    if(fallosSeguidos >= 3 || !navigator.onLine){
+      if(await hayInternet()){
         fallosSeguidos = 0;          // había red: eran archivos rotos, seguimos
+        if(sinConexion){ sinConexion = false; ocultarEstado(); }
       }else{
         sinConexion = true;
         await mostrarEstado("Sin conexión", "La pantalla vuelve sola al restablecerse");
         fallosSeguidos = 3;          // seguir chequeando en cada vuelta, sin apurarse
+        await dormir(15000);
       }
-      await dormir(15000);
     }
   }
+}
+
+/* Prueba de conexión: le pide a R2 el índice de fotos (36 KB, el mismo que ya usa la
+   página). NO se usa `cargarPlaylist()` a propósito: cuando R2 no contesta, esa función
+   cae a la copia de respaldo del repo y REEMPLAZA todo el contenido por los 6 afiches
+   de esa copia — un parpadeo de R2 dejaba la tele sin videos ni fotos hasta el próximo
+   refresco. Preguntar si hay red no puede tener el efecto de vaciar la cartelera. */
+async function hayInternet(){
+  try{ await traerJSON(R2 + "/manifest.json", 8000); return true; }
+  catch(e){ return false; }
 }
 
 async function mostrarEstado(msg, sub){

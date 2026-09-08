@@ -197,6 +197,12 @@ const CONFIG_DEFAULT = {
   // del canal— y cortaba 21 de los 131 videos. Sigue siendo un tope: un video roto o de
   // media hora no puede quedarse con la pantalla toda la noche.
   max_video: 420,
+  // Cuánto se espera a que el video tenga buffer ANTES de fundir a él. Arrancaba con
+  // el primer frame (`loadeddata`) y en la tele se trababa a los pocos segundos.
+  espera_video: 12,
+  // Si el video deja de avanzar este tiempo, se lo abandona y sigue la cartelera. Sin
+  // esto, un video que nunca termina de bufferear se queda con la pantalla para siempre.
+  tranque_video: 25,
   fotos_por_festival: 20,       // cuántas fotos van después del video de un festival
   afiche_cada: 5,               // cada cuántas de esas fotos vuelve el afiche del festival
   semanas_galeria: 8,           // ventana de fotos de clase que entra a la rotación
@@ -701,6 +707,22 @@ function correrProgreso(segundos){
   });
 }
 
+/* La barra del VIDEO no puede ir con una transición de CSS: esa corre con el reloj y
+   el video puede estar trabado. Se mueve con lo efectivamente reproducido, así que si
+   la imagen se congela la barra también se frena — se ve que está esperando, no rota. */
+function progresoEn(frac){
+  const p = document.getElementById("progreso");
+  p.style.transition = "width .4s linear";
+  p.style.width = Math.max(0, Math.min(1, frac)) * 100 + "%";
+}
+
+// Vuelve la barra a cero SIN animar: si no, al entrar un video se la ve retroceder
+// desde el 100% que dejó el item anterior.
+function reiniciarProgreso(){
+  const p = document.getElementById("progreso");
+  p.style.transition = "none"; p.style.width = "0";
+}
+
 async function pintarVideo(item){
   const capa = nuevaCapa();
   const v = document.createElement("video");
@@ -709,13 +731,18 @@ async function pintarVideo(item){
   v.setAttribute("playsinline", "");
   capa.appendChild(v);
 
-  // Espera a que haya imagen antes de fundir (nada de fundir a negro)
+  // Espera a que el video se pueda REPRODUCIR, no a que haya un frame. Con `loadeddata`
+  // (un solo frame) arrancaba con el buffer casi vacío y se trababa a los segundos:
+  // "varios videos se ven trancados" era esto. `canplay` es readyState 3, el navegador
+  // ya calculó que tiene con qué seguir. Si en espera_video no llegó, seguimos igual con
+  // lo que haya — el guard de abajo decide si sirve.
   await new Promise(res=>{
     let listo = false;
     const ok = ()=>{ if(!listo){ listo = true; res(); } };
-    v.addEventListener("loadeddata", ok, {once:true});
+    if(v.readyState >= 3) return ok();
+    v.addEventListener("canplay", ok, {once:true});
     v.addEventListener("error", ok, {once:true});
-    setTimeout(ok, 8000);   // si el video no carga en 8s, seguimos igual
+    setTimeout(ok, CFG.espera_video * 1000);
   });
 
   // El corte es readyState < 2 (HAVE_CURRENT_DATA), no === 0: cuando la red se corta
@@ -750,13 +777,35 @@ async function pintarVideo(item){
   }
 
   const dur = Math.min(isFinite(v.duration) && v.duration > 1 ? v.duration : 30, CFG.max_video);
-  correrProgreso(dur);
 
+  /* El video se sigue por lo REPRODUCIDO, no por el reloj. Antes se cerraba con
+     `setTimeout(dur*1000+800)`: cada segundo que el video pasaba trabado se le comía
+     del final y la coreografía se cortaba a mitad de baile. Ahora hay tres salidas:
+       · terminó (`ended`)
+       · llegó al tope de max_video
+       · se trabó: currentTime no avanza hace tranque_video segundos → se abandona,
+         porque si no un video que nunca termina de bufferear se queda con la pantalla. */
+  reiniciarProgreso();
   await new Promise(res=>{
-    let fin = false;
-    const cerrar = ()=>{ if(!fin){ fin = true; res(); } };
-    v.addEventListener("ended", cerrar, {once:true});
-    setTimeout(cerrar, dur*1000 + 800);   // corte duro por si "ended" nunca llega
+    let fin = false, ultimoT = -1, quieto = 0, tic = null;
+    const cerrar = motivo => {
+      if(fin) return;
+      fin = true;
+      clearInterval(tic);
+      if(motivo) console.warn("[TV] " + motivo + ":", item.url);
+      res();
+    };
+    v.addEventListener("ended", ()=>cerrar(null), {once:true});
+    v.addEventListener("error", ()=>cerrar("error de reproducción"), {once:true});
+
+    tic = setInterval(()=>{
+      const t = v.currentTime;
+      progresoEn(t / dur);
+      if(t >= dur) return cerrar(null);            // tope de max_video
+      quieto = (t > ultimoT + 0.05) ? 0 : quieto + 1;
+      ultimoT = Math.max(ultimoT, t);
+      if(quieto >= CFG.tranque_video) cerrar("video trabado, lo abandono");
+    }, 1000);
   });
   return 1;
 }

@@ -225,6 +225,7 @@ let colIdx = 0, diaIdx = 0;
 let capaActual = null;
 let sonidoOk = true;
 let fallosSeguidos = 0;
+let sinConexion = false;   // el cartel de "sin conexión" está puesto
 
 /* ── Utilidades ────────────────────────────────────────────────────────────── */
 
@@ -930,10 +931,35 @@ async function loop(){
     }catch(e){
       console.error("[TV] error mostrando item:", e);
     }
-    // Si falla todo seguido (se cortó internet), frenamos un poco para no
-    // quemar CPU pidiendo archivos que no llegan.
-    fallosSeguidos = ok ? 0 : fallosSeguidos + 1;
-    if(fallosSeguidos >= 6){ await dormir(15000); fallosSeguidos = 0; }
+    if(ok){
+      fallosSeguidos = 0;
+      if(sinConexion){
+        sinConexion = false;
+        ocultarEstado();
+        console.log("[TV] volvió la conexión");
+      }
+      continue;
+    }
+
+    /* UN item que falla puede ser un archivo roto; TRES seguidos casi siempre es la red.
+       La diferencia importa: por un archivo roto no hay que tapar la pantalla, pero por
+       una caída SÍ hay que avisar. El 08/09/2026 la tele perdió el WiFi y se quedó en
+       negro con la música sonando: desde afuera parecía rota y nadie sabía por qué.
+       `cargarPlaylist()` sirve de prueba de conexión (si R2 y la copia del repo fallan,
+       no hay red) y de paso refresca el contenido apenas vuelve. */
+    fallosSeguidos++;
+    if(fallosSeguidos >= 3){
+      const hayRed = await cargarPlaylist();
+      if(hayRed){
+        if(sinConexion){ sinConexion = false; ocultarEstado(); }
+        fallosSeguidos = 0;          // había red: eran archivos rotos, seguimos
+      }else{
+        sinConexion = true;
+        await mostrarEstado("Sin conexión", "La pantalla vuelve sola al restablecerse");
+        fallosSeguidos = 3;          // seguir chequeando en cada vuelta, sin apurarse
+      }
+      await dormir(15000);
+    }
   }
 }
 

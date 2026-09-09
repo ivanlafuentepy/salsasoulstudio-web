@@ -416,6 +416,10 @@ async function cargarPlaylist(){
       else c.fotos.push({...it, ...et, segundos: null});
       return;
     }
+    // Sin colección no hay nombre de evento con qué reemplazar un título que no dice
+    // nada ("video-output-B2A6C816-BBAA-48B1-A5E3-923B13845408"): se lo deja vacío y el
+    // pie cae a la marca. La rama de arriba ya cubre a los que SÍ tienen colección.
+    if(it.titulo_generico) it.titulo = "";
     if(nuevo[it.tipo]) nuevo[it.tipo].push(it);
   });
 

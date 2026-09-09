@@ -280,6 +280,62 @@ function guardarVistas(){
   }catch(e){ /* modo privado o storage lleno: la tele sigue igual, solo repite */ }
 }
 
+/* ── Videos ya emitidos ────────────────────────────────────────────────────────
+   Los videos no tenían registro y se repetían: medido sobre el guion real, en una
+   noche de 3 h salían 36 videos pero solo 25 distintos, y en TRES noches 25 de los
+   78 no habían salido nunca. Son dos causas sumadas: no había memoria de lo ya
+   emitido, y el refresco del playlist (cada 10 min) vuelve a barajar y deja los
+   cursores de cada colección en cero, así que el recorrido no avanzaba nunca.
+
+   A diferencia de las fotos, este registro NO se borra al cambiar el día: con 36
+   videos por noche y más de cien en la nube hacen falta varias noches para verlos
+   todos, que es justo lo que Iván pedía. Se limpia solo cuando se agotaron. */
+
+const LS_VIDEOS = "tv_videos_vistos";
+let videosVistos = new Set();
+
+function cargarVistos(){
+  try{
+    const crudo = localStorage.getItem(LS_VIDEOS);
+    if(crudo){
+      const d = JSON.parse(crudo);
+      if(Array.isArray(d)) videosVistos = new Set(d);
+    }
+  }catch(e){ console.warn("[TV] no pude leer los videos vistos:", e.message); }
+}
+
+function guardarVistos(){
+  try{ localStorage.setItem(LS_VIDEOS, JSON.stringify([...videosVistos])); }
+  catch(e){ /* igual que con las fotos: sin storage la tele sigue, solo repite */ }
+}
+
+// Devuelve el primer video de la lista que todavía no salió. Si ya salieron todos,
+// limpia SOLO los de esa lista y arranca otra vuelta: mejor repetir que quedarse sin
+// video. `grupo` es una colección (usa su curV) o el pool de videos sueltos.
+function videoNoVisto(grupo){
+  const lista = grupo.videos ? grupo.videos : grupo;
+  if(!lista.length) return null;
+  const enColeccion = !!grupo.videos;
+  let cur = enColeccion ? (grupo.curV || 0) : CURSOR.video;
+  for(let i = 0; i < lista.length; i++){
+    const cand = lista[(cur + i) % lista.length];
+    if(!videosVistos.has(_claveFoto(cand))){
+      const prox = (cur + i + 1) % lista.length;
+      if(enColeccion) grupo.curV = prox; else CURSOR.video = prox;
+      videosVistos.add(_claveFoto(cand));
+      guardarVistos();
+      return cand;
+    }
+  }
+  console.log("[TV] ya salieron los " + lista.length + " videos de este grupo, otra vuelta");
+  lista.forEach(v => videosVistos.delete(_claveFoto(v)));
+  const primero = lista[0];
+  videosVistos.add(_claveFoto(primero));
+  guardarVistos();
+  if(enColeccion) grupo.curV = 1; else CURSOR.video = 1;
+  return primero;
+}
+
 /* ── El orden del día ──────────────────────────────────────────────────────────
    Dos cosas que pidió Iván el 06/09:
 
@@ -508,10 +564,26 @@ function* guion(){
     const hayCol = COLECCIONES.some(c => c.videos.length);
     const usarCol = hayCol && (!POOL.video.length || vuelta % 2 === 0);
     vuelta++;
-    const col = usarCol ? COLECCIONES[colIdx++ % COLECCIONES.length] : null;
+    // Round-robin, pero SALTEANDO las colecciones que ya emitieron todos sus videos
+    // mientras quede alguna con material sin ver. Sin esto, una colección de 3 videos
+    // (NUESTROS PROFES, TALLERES CON PACITA) vuelve a empezar cada dos vueltas y se
+    // repite toda la noche, mientras una de 34 (FESTIVAL 2018) no llega a mostrarse
+    // entera: medido, quedaban 17 videos que no salían en tres noches. El ORDEN del día
+    // no cambia — solo se omite lo que ya dio todo.
+    let col = null, respaldo = null;
+    if(usarCol){
+      for(let i = 0; i < COLECCIONES.length; i++){
+        const c = COLECCIONES[colIdx++ % COLECCIONES.length];
+        if(!c.videos.length) continue;
+        if(!respaldo) respaldo = c;
+        if(c.videos.some(v => !videosVistos.has(_claveFoto(v)))){ col = c; break; }
+      }
+      if(!col) col = respaldo;   // están todas agotadas: la que toca, y que reinicie
+    }
 
     if(col && col.videos.length){
-      yield {...col.videos[col.curV++ % col.videos.length]};
+      const v = videoNoVisto(col);
+      if(v) yield {...v};
 
       // Nunca más fotos de las que tiene el evento: con 4 fotos y un bloque de 20,
       // se veían las mismas cuatro cinco veces seguidas.
@@ -542,7 +614,8 @@ function* guion(){
     }else if(POOL.video.length){
       // Video suelto (los del canal): no tiene fotos propias, pero el afiche del
       // festival sale igual detrás — es lo que se está vendiendo.
-      yield POOL.video[CURSOR.video++ % POOL.video.length];
+      const v = videoNoVisto(POOL.video);
+      if(v) yield v;
       if(POOL.fijo.length){
         const a = POOL.fijo[CURSOR.fijo++ % POOL.fijo.length];
         if(vigente(a)) yield a;
@@ -1035,7 +1108,9 @@ setTimeout(()=>location.reload(), CONFIG_DEFAULT.recarga_horas * 3600 * 1000);
 
 (async function arrancar(){
   cargarVistas();
+  cargarVistos();
   if(vistasHoy.size) console.log("[TV] hoy ya salieron " + vistasHoy.size + " fotos");
+  if(videosVistos.size) console.log("[TV] ya se emitieron " + videosVistos.size + " videos de la vuelta");
   await mostrarEstado("Preparando la pantalla…", "");
   let intentos = 0;
   while(!(await cargarPlaylist())){

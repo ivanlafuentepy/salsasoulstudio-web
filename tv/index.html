@@ -97,6 +97,14 @@
     color:#e9e3d4; max-width:24ch;
   }
   .noticia .linea{width:16vh;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+  /* QR de la noticia: se mira desde el otro lado de la cantina, así que va grande y
+     sobre blanco — un QR sobre fondo oscuro no lo lee ninguna cámara. `pixelated`
+     para que al agrandarlo los módulos queden con el borde duro. */
+  .noticia .qr{margin-top:2.2vh;display:flex;flex-direction:column;align-items:center;gap:1.2vh}
+  .noticia .qr img{width:30vh;height:30vh;background:#fff;padding:1.5vh;border-radius:1.2vh;
+    image-rendering:pixelated;box-shadow:0 6px 30px rgba(0,0,0,.55)}
+  .noticia .qr span{font-family:var(--sans);font-size:1.9vh;color:var(--gold-light);
+    opacity:.92;letter-spacing:.05em}
 
   /* ══ Marca fija abajo (logo + pie) ══ */
   #marca{
@@ -875,11 +883,18 @@ async function pintarNoticia(item){
     '<div class="kicker">' + escapar(item.kicker || "Novedades") + "</div>" +
     "<h1>" + escapar(item.titulo || "") + "</h1>" +
     '<div class="linea"></div>' +
-    (item.texto ? "<p>" + escapar(item.texto) + "</p>" : "");
+    (item.texto ? "<p>" + escapar(item.texto) + "</p>" : "") +
+    // El QR viene embebido en el playlist como data URI (lo arma tv_sync.py desde la
+    // etiqueta QR: de noticias.txt). Igual va por escapar(): nada que entre por el
+    // playlist se pega crudo en un atributo.
+    (item.qr ? '<div class="qr"><img src="' + escapar(item.qr) + '" alt="">' +
+               "<span>Escaneá con la cámara del celular</span></div>" : "");
   capa.appendChild(div);
   mostrarCapa(capa);
 
   pie("Salsa Soul Studio", "salsasoulstudio.com");
+  // Una noticia con QR necesita más tiempo: hay que sacar el celular, desbloquearlo,
+  // abrir la cámara y apuntar. Se le puede poner SEGUNDOS: en noticias.txt.
   const seg = item.segundos || CFG.segundos_noticia;
   correrProgreso(seg);
   await dormir(seg*1000);

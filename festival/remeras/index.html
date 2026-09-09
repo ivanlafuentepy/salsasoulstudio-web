@@ -279,6 +279,9 @@
     // Botón WhatsApp — dispara el flujo "Remeras Festival" de Dorita
     const WA = "595971889475";
     const MSG = "¡Hola Dorita! 👕 Quiero elegir mi remera del Festival 2026";
+    // Ojo: este texto lo matchea _DEEP_LINK_CAMBIO_REMERA en alumno.py — si
+    // cambia acá, cambiarlo allá (si no, Dorita abre el catálogo en vez del cambio).
+    const MSG_CAMBIO = "¡Hola Dorita! 📏 Quiero cambiar el talle de mi remera del Festival 2026";
     document.getElementById("btnWhatsapp").href =
       `https://wa.me/${WA}?text=${encodeURIComponent(MSG)}`;
 
@@ -329,7 +332,7 @@
         }
         if (data.motivo === "ya_elegida") {
           mostrar("warn",
-            `👕 Ya tenés tu remera pedida: <b>Básica ${(data.remera?.color || "").toLowerCase()}, talle ${data.remera?.talle || ""}</b> ✅<br>Para cambios, hablá con <a id="linkCambio" href="https://wa.me/${WA}?text=${encodeURIComponent(MSG)}" target="_blank" rel="noopener">Dorita por WhatsApp</a> 💛`);
+            `👕 Ya tenés tu remera pedida: <b>Básica ${(data.remera?.color || "").toLowerCase()}, talle ${data.remera?.talle || ""}</b> ✅<br>¿Te queda otro talle? <a id="linkCambio" href="https://wa.me/${WA}?text=${encodeURIComponent(MSG_CAMBIO)}" target="_blank" rel="noopener">Cambialo con Dorita</a> 💛`);
         } else if (data.motivo === "no_inscripto") {
           mostrar("warn",
             `🎭 Este número no figura entre los inscriptos al festival. Las remeras son exclusivas para inscriptos — <a href="/festival/">inscribite acá</a> 🌟<br>¿Creés que es un error? Escribile a <a href="https://wa.me/${WA}" target="_blank" rel="noopener">Dorita</a> 💛`);

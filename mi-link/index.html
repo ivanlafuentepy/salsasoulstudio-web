@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi link de entradas — Las Elegidas | Salsa Soul Studio</title>
+  <!-- Material de trabajo del elenco, igual que el guion y los vestuarios -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Tu link personal para vender entradas del Festival Las Elegidas por WhatsApp.">
+  <link rel="canonical" href="https://salsasoulstudio.com/mi-link">
+  <link rel="icon" href="/logo-dorado.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://salsasoulstudio.com/mi-link">
+  <meta property="og:title" content="Mi link de entradas — Las Elegidas">
+  <meta property="og:description" content="🎟️ Tu link personal para vender entradas del festival del 16 de diciembre">
+  <meta property="og:image" content="https://salsasoulstudio.com/las-elegidas-og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Salsa Soul Studio">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://salsasoulstudio.com/las-elegidas-og.jpg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --gold: #c9a84c; --gold-light: #e8c96a; --gold-dark: #8a6820;
+      --black: #0a0a0a; --card: #151515; --card2: #1c1c1c; --linea: #262626;
+      --rosa: #e5486f; --rosa-light: #ff7d9c;
+      --texto: #e6e6e6; --gris: #8d8d8d; --wa: #25d366;
+    }
+    body { font-family: 'Georgia', serif; background: var(--black); color: var(--texto); line-height: 1.6; -webkit-text-size-adjust: 100%; }
+
+    .topbar { position: sticky; top: 0; z-index: 40; background: rgba(10,10,10,0.96); backdrop-filter: blur(10px); border-bottom: 1px solid var(--linea); padding: 11px 16px; }
+    .topbar a { color: var(--gold-light); text-decoration: none; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 8px; }
+    .topbar a:hover { color: var(--gold); }
+
+    .portada { text-align: center; padding: 34px 20px 26px; border-bottom: 1px solid var(--linea); background: radial-gradient(ellipse at top, #17110a 0%, var(--black) 70%); }
+    .portada img { width: 150px; margin-bottom: 16px; }
+    .portada .kicker { color: var(--gold-dark); font-size: 0.66rem; letter-spacing: 4px; text-transform: uppercase; }
+    .portada h1 { color: var(--gold); font-size: 1.7rem; letter-spacing: 5px; text-transform: uppercase; margin-top: 8px; }
+    @media (max-width: 520px) { .portada h1 { font-size: 1.3rem; letter-spacing: 2px; } }
+    .portada .sub { color: var(--gris); font-style: italic; margin-top: 10px; font-size: 0.95rem; }
+
+    .contenido { max-width: 620px; margin: 0 auto; padding: 30px 20px 50px; }
+
+    .como { background: var(--card); border: 1px solid var(--linea); border-radius: 14px; padding: 22px 24px; margin-bottom: 26px; }
+    @media (max-width: 520px) { .como { padding: 20px 18px; } }
+    .paso { display: flex; gap: 14px; padding: 13px 0; border-top: 1px solid var(--linea); }
+    .paso:first-child { border-top: none; padding-top: 0; }
+    .paso .ico { font-size: 1.2rem; line-height: 1.4; flex-shrink: 0; }
+    .paso h4 { color: var(--gold-light); font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+    .paso p { color: #cfcfcf; font-size: 0.95rem; }
+    .paso p strong { color: #fff; }
+
+    .buscador { background: linear-gradient(180deg, rgba(229,72,111,0.10), rgba(229,72,111,0.03)); border: 1px solid rgba(229,72,111,0.45); border-radius: 14px; padding: 26px 24px; }
+    @media (max-width: 520px) { .buscador { padding: 22px 18px; } }
+    .buscador h2 { color: var(--rosa-light); font-size: 1.15rem; letter-spacing: 1px; text-align: center; }
+    .buscador label { display: block; color: #ddd; font-size: 0.88rem; margin: 20px 0 7px; }
+    .buscador input { width: 100%; padding: 14px; border-radius: 9px; font-size: 1.05rem; font-family: inherit; background: var(--card2); border: 1px solid rgba(255,255,255,0.16); color: #fff; }
+    .buscador input:focus { outline: none; border-color: var(--rosa); }
+    .estado { min-height: 1.4em; margin-top: 12px; font-size: 0.9rem; color: var(--gris); text-align: center; }
+    .estado.error { color: var(--rosa-light); }
+
+    .resultado { margin-top: 18px; }
+    .hola { color: var(--gold-light); font-size: 1.05rem; text-align: center; margin-bottom: 6px; }
+    .codigo { text-align: center; color: var(--gris); font-size: 0.86rem; margin-bottom: 12px; }
+    .codigo b { color: var(--rosa-light); letter-spacing: 1px; }
+    .caja { background: var(--card); border: 1px solid var(--linea); border-radius: 10px; padding: 13px 14px; word-break: break-all; font-size: 0.78rem; color: #9d9d9d; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .acciones { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+    .acciones a, .acciones button { flex: 1; min-width: 150px; text-align: center; padding: 15px 14px; border-radius: 9px; font-family: inherit; font-size: 0.95rem; font-weight: bold; cursor: pointer; text-decoration: none; border: none; }
+    .b-wa { background: var(--wa); color: #062d16; }
+    .b-copiar { background: transparent; border: 1px solid var(--gold) !important; color: var(--gold-light); }
+    .nota { color: var(--gris); font-size: 0.85rem; text-align: center; margin-top: 14px; line-height: 1.6; }
+
+    .que-vende { margin-top: 26px; background: var(--card); border: 1px solid var(--linea); border-radius: 14px; padding: 22px 24px; }
+    @media (max-width: 520px) { .que-vende { padding: 20px 18px; } }
+    .que-vende h3 { color: var(--gold-light); font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; text-align: center; margin-bottom: 14px; }
+    .que-vende ul { list-style: none; }
+    .que-vende li { padding: 7px 0; font-size: 0.95rem; color: #cfcfcf; display: flex; gap: 10px; }
+    .que-vende li b { color: #fff; font-weight: normal; }
+    .que-vende .ver { display: block; text-align: center; margin-top: 16px; color: var(--gold-light); text-decoration: none; font-size: 0.9rem; }
+
+    footer { text-align: center; color: #5c5c5c; font-size: 0.82rem; padding: 30px 20px 40px; line-height: 1.8; border-top: 1px solid var(--linea); }
+    footer .gold { color: var(--gold-dark); letter-spacing: 2px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/las-elegidas">← Volver al guion</a>
+</div>
+
+<div class="portada">
+  <img src="/logo-dorado.png" alt="Salsa Soul Studio">
+  <div class="kicker">Las Elegidas · 16 de diciembre</div>
+  <h1>Mi link de entradas</h1>
+  <div class="sub">Vendé tus entradas sin explicar nada 🎟️</div>
+</div>
+
+<div class="contenido">
+
+  <div class="como">
+    <div class="paso">
+      <span class="ico">📲</span>
+      <div>
+        <h4>Es tu link, con tu nombre</h4>
+        <p>Se lo mandás a tus amigos y, cuando tocan, <strong>Dorita les vende la entrada por WhatsApp</strong>: precio, taller, menores y forma de pago. Vos no explicás nada.</p>
+      </div>
+    </div>
+    <div class="paso">
+      <span class="ico">✅</span>
+      <div>
+        <h4>La venta queda a tu nombre</h4>
+        <p>Cada entrada que se compra con tu link <strong>queda anotada como tuya</strong>, sin que tengas que avisar ni pasar plata.</p>
+      </div>
+    </div>
+    <div class="paso">
+      <span class="ico">♾️</span>
+      <div>
+        <h4>Todas las que quieras</h4>
+        <p>Mandáselo a <strong>cuantos amigos quieras</strong>. No hay tope.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="buscador">
+    <h2>🎟️ Buscá tu link</h2>
+    <label for="telMiLink">Tu número de WhatsApp</label>
+    <input id="telMiLink" type="tel" inputmode="numeric" autocomplete="tel"
+           placeholder="0981 123 456" aria-describedby="estadoMiLink">
+    <p class="estado" id="estadoMiLink" role="status" aria-live="polite"></p>
+
+    <div class="resultado" id="resultadoMiLink" hidden>
+      <p class="hola" id="holaMiLink"></p>
+      <p class="codigo" id="codigoMiLink"></p>
+      <div class="caja" id="cajaMiLink"></div>
+      <div class="acciones">
+        <a class="b-wa" id="enviarMiLink" href="#" target="_blank" rel="noopener">📲 Enviar por WhatsApp</a>
+        <button class="b-copiar" id="copiarMiLink" type="button">📋 Copiar</button>
+      </div>
+      <p class="nota">
+        "Enviar" abre WhatsApp para que elijas a quién mandárselo 🎭
+      </p>
+    </div>
+  </div>
+
+  <div class="que-vende">
+    <h3>Lo que compra tu amigo</h3>
+    <ul>
+      <li><span>🎭</span><span>Su lugar en <b>Las Elegidas</b>, el 16 de diciembre en el Teatro del Hotel Guaraní</span></li>
+      <li id="li-precio"><span>🎟️</span><span>Entrada de <b>80.000 Gs</b></span></li>
+      <li id="li-taller" hidden><span>💃</span><span><b>Taller de bachata</b> incluido</span></li>
+      <li id="li-menores"><span>🧒</span><span><b>Menores de 20 años gratis</b></span></li>
+      <li id="li-cuotas" hidden><span>💳</span><span>Puede pagarla <b>en cuotas</b></span></li>
+    </ul>
+    <a class="ver" href="/entradas-festival/">Ver la promo completa →</a>
+  </div>
+
+</div>
+
+<footer>
+  <span class="gold">SALSA SOUL STUDIO</span><br>
+  Las Elegidas — Miércoles 16 de diciembre · Teatro del Hotel Guaraní
+</footer>
+
+<script>
+  // El link sale de Dorita (/api/festival/mi-link): la misma fuente que usa ella
+  // cuando le escriben "mi link festival", asi que nunca se desincroniza.
+  (function () {
+    var API = 'https://salsa-soul-dorita-production.up.railway.app';
+    var input = document.getElementById('telMiLink');
+    var estado = document.getElementById('estadoMiLink');
+    var caja = document.getElementById('resultadoMiLink');
+    var pedido = 0;
+
+    function decir(msg, esError) {
+      estado.textContent = msg;
+      estado.classList.toggle('error', !!esError);
+    }
+
+    function mostrar(d) {
+      document.getElementById('holaMiLink').textContent = d.nombre
+        ? '¡Hola ' + d.nombre + '! Este es tu link 👇' : 'Este es tu link 👇';
+      document.getElementById('codigoMiLink').innerHTML = d.codigo
+        ? 'Tu código de vendedora/o: <b>' + d.codigo + '</b>' : '';
+      document.getElementById('cajaMiLink').textContent = d.link;
+
+      var msg = '¡Hola! Te invito al Festival Las Elegidas 🎭 el miércoles 16 de diciembre ' +
+                'en el Teatro del Hotel Guaraní. Tocá mi link y Dorita te vende la entrada ' +
+                'por WhatsApp 💃\n' + d.link;
+      document.getElementById('enviarMiLink').href = 'https://wa.me/?text=' + encodeURIComponent(msg);
+
+      document.getElementById('copiarMiLink').onclick = function () {
+        var btn = this;
+        var listo = function () { btn.textContent = '✅ Copiado'; setTimeout(function () { btn.textContent = '📋 Copiar'; }, 2000); };
+        if (navigator.clipboard) { navigator.clipboard.writeText(d.link).then(listo, listo); }
+        else { var t = document.createElement('textarea'); t.value = d.link; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); listo(); }
+      };
+      caja.hidden = false;
+      decir('');
+    }
+
+    function buscar() {
+      var tel = input.value.replace(/\D/g, '');
+      caja.hidden = true;
+      if (tel.length < 9) { decir(''); return; }
+      var mio = ++pedido;
+      decir('Buscando tu link…');
+      fetch(API + '/api/festival/mi-link?telefono=' + encodeURIComponent(tel))
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (res) {
+          if (mio !== pedido) return;   // llego una respuesta vieja
+          if (res.ok && res.d && res.d.ok) { mostrar(res.d); return; }
+          var err = (res.d && res.d.error) || '';
+          if (err === 'sin_codigo') decir('Todavía no tenés link asignado. Escribile a Dorita y te lo crea 💛', true);
+          else if (err === 'telefono_invalido') decir('Revisá el número: escribilo como 0981123456', true);
+          else decir('No encontramos ese número. Probá con el que usás en WhatsApp, o escribile a Dorita 💛', true);
+        })
+        .catch(function () {
+          if (mio !== pedido) return;
+          decir('No pudimos conectarnos. Probá de nuevo en un minuto 🙏', true);
+        });
+    }
+
+    var timer = null;
+    input.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(buscar, 500); });
+    input.addEventListener('change', buscar);
+  })();
+
+  // Lo que incluye la entrada cambia por mes. Fuente de verdad: agent/utils.py de
+  // Dorita, igual que /entradas-festival/. Los meses de Date() van 0-indexed.
+  (function () {
+    var ESCALONES = [
+      { hasta: new Date(2026, 9, 1),  precio: 80000,  menores: 5, cuotas: true  },
+      { hasta: new Date(2026, 10, 1), precio: 90000,  menores: 3, cuotas: false },
+      { hasta: new Date(2026, 11, 17), precio: 100000, menores: 1, cuotas: false }
+    ];
+    var TALLERES = [
+      { fecha: new Date(2026, 8, 18), texto: 'viernes 18 de septiembre' },
+      { fecha: new Date(2026, 9, 16), texto: 'viernes 16 de octubre' }
+    ];
+    var hoy = new Date();
+    var e = ESCALONES.find(function (x) { return hoy < x.hasta; }) || ESCALONES[ESCALONES.length - 1];
+    var gs = function (n) { return n.toLocaleString('es-PY').replace(/,/g, '.') + ' Gs'; };
+    var plural = function (n, s, p) { return n === 1 ? s : p; };
+
+    document.getElementById('li-precio').querySelector('span:last-child').innerHTML =
+      'Entrada de <b>' + gs(e.precio) + '</b>';
+
+    var pendientes = TALLERES.filter(function (t) { return hoy <= t.fecha; })
+                             .map(function (t) { return t.texto; });
+    if (pendientes.length) {
+      var li = document.getElementById('li-taller');
+      li.hidden = false;
+      li.querySelector('span:last-child').innerHTML =
+        '<b>Taller de bachata</b> el ' + pendientes.join(' y ') + ', 19:30 en Salsa Soul Studio';
+    }
+    document.getElementById('li-menores').querySelector('span:last-child').innerHTML =
+      'Hasta <b>' + e.menores + ' ' + plural(e.menores, 'menor', 'menores') + ' de 20 años gratis</b> con cada entrada';
+    if (e.cuotas) {
+      var liC = document.getElementById('li-cuotas');
+      liC.hidden = false;
+      liC.querySelector('span:last-child').innerHTML = 'Puede pagarla en <b>4 cuotas de 20.000 Gs</b>';
+    }
+  })();
+</script>
+
+</body>
+</html>

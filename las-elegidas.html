@@ -218,7 +218,9 @@
     .milink .estado.error { color: var(--rosa-light); }
     .milink .resultado { margin-top: 18px; }
     .milink .hola { color: var(--gold-light); font-size: 1.05rem; text-align: center; margin-bottom: 12px; }
-    .milink .caja { background: var(--card); border: 1px solid var(--linea); border-radius: 10px; padding: 13px 14px; word-break: break-all; font-size: 0.85rem; color: #bdbdbd; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .milink .codigo { text-align: center; color: var(--gris); font-size: 0.86rem; margin-bottom: 10px; }
+    .milink .codigo b { color: var(--rosa-light); letter-spacing: 1px; }
+    .milink .caja { background: var(--card); border: 1px solid var(--linea); border-radius: 10px; padding: 13px 14px; word-break: break-all; font-size: 0.78rem; color: #9d9d9d; font-family: ui-monospace, Menlo, Consolas, monospace; }
     .milink .acciones { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
     .milink .acciones a, .milink .acciones button { flex: 1; min-width: 150px; text-align: center; padding: 15px 14px; border-radius: 9px; font-family: inherit; font-size: 0.95rem; font-weight: bold; cursor: pointer; text-decoration: none; border: none; }
     .milink .b-wa { background: #25d366; color: #062d16; }
@@ -732,6 +734,7 @@
 
         <div class="resultado" id="resultadoMiLink" hidden>
           <p class="hola" id="holaMiLink"></p>
+          <p class="codigo" id="codigoMiLink"></p>
           <div class="caja" id="cajaMiLink"></div>
           <div class="acciones">
             <a class="b-wa" id="enviarMiLink" href="#" target="_blank" rel="noopener">📲 Enviar por WhatsApp</a>
@@ -859,6 +862,8 @@
     function mostrar(d) {
       document.getElementById('holaMiLink').textContent = d.nombre
         ? '¡Hola ' + d.nombre + '! Este es tu link 👇' : 'Este es tu link 👇';
+      document.getElementById('codigoMiLink').innerHTML = d.codigo
+        ? 'Tu código de vendedora/o: <b>' + d.codigo + '</b>' : '';
       document.getElementById('cajaMiLink').textContent = d.link;
 
       var msg = '¡Hola! Te invito al Festival Las Elegidas 🎭 el miércoles 16 de diciembre ' +

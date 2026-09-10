@@ -32,6 +32,8 @@ input[type=text],input[type=password]{width:100%;padding:12px;border-radius:8px;
 .badge-tipo{display:block;text-align:center;font-weight:bold;border-radius:10px;padding:12px;margin:14px 0;font-size:1.1em;letter-spacing:0.5px}
 .badge-cortesia{background:#fbbf24;color:#dc2626;border:2px solid #dc2626}
 .badge-pagado{background:#10b981;color:#0a0a0a}
+.badge-pendiente{background:#f59e0b;color:#0a0a0a}
+.badge-menor{background:#7c9fd6;color:#0a0a0a}
 </style>
 </head>
 <body>
@@ -92,10 +94,17 @@ function mostrarError(titulo, msg) {
 }
 
 function infoHtml() {
-    const esCortesia = entradaData.tipo === 'CORTESIA';
-    const badge = esCortesia
-        ? '<div class="badge-tipo badge-cortesia">🎁 ENTRADA DE CORTESÍA</div>'
-        : '<div class="badge-tipo badge-pagado">✅ PAGADO</div>';
+    const gs = n => (n || 0).toLocaleString('es-PY').replace(/,/g, '.') + ' Gs';
+    let badge;
+    if (entradaData.tipo === 'CORTESIA') {
+        badge = '<div class="badge-tipo badge-cortesia">🎁 ENTRADA DE CORTESÍA</div>';
+    } else if (entradaData.tipo === 'MENOR') {
+        badge = '<div class="badge-tipo badge-menor">🧒 MENOR DE 20 · GRATIS</div>';
+    } else if (entradaData.estado === 'PENDIENTE') {
+        badge = `<div class="badge-tipo badge-pendiente">⏳ EN CUOTAS · FALTAN ${gs(entradaData.saldo)}</div>`;
+    } else {
+        badge = '<div class="badge-tipo badge-pagado">✅ PAGADO</div>';
+    }
     return `<div class="entrada-num">Entrada #${entradaData.entrada_numero}</div>
             <div class="comprador">Comprador: ${entradaData.comprador}</div>
             ${badge}`;
@@ -116,24 +125,28 @@ function renderChecks() {
     const d = entradaData;
     let html = '';
 
+    // "Clase 1/2" son los talleres de bachata incluidos con la entrada
+    // (18/09 y 16/10). En Airtable siguen siendo CLASE_1 y CLASE_2.
     if (d.clase_1) {
-        html += '<span class="done">✅ Clase 1 — Registrada</span>';
+        html += '<span class="done">✅ Taller 1 — Registrado</span>';
     } else {
-        html += '<button class="btn btn-green" onclick="marcar(\'clase_1\')">💃 Marcar Clase 1</button>';
+        html += '<button class="btn btn-green" onclick="marcar(\'clase_1\')">💃 Marcar Taller 1</button>';
     }
 
     if (d.clase_2) {
-        html += '<span class="done">✅ Clase 2 — Registrada</span>';
+        html += '<span class="done">✅ Taller 2 — Registrado</span>';
     } else {
-        html += '<button class="btn btn-green" onclick="marcar(\'clase_2\')">🕺 Marcar Clase 2</button>';
+        html += '<button class="btn btn-green" onclick="marcar(\'clase_2\')">🕺 Marcar Taller 2</button>';
     }
 
     if (d.festival) {
         html += '<span class="done">✅ Festival — Registrado</span>';
     } else if (d.festival_habilitado) {
         html += '<button class="btn btn-yellow" onclick="marcar(\'festival\')">🎭 Marcar Festival</button>';
+    } else if (d.estado === 'PENDIENTE') {
+        html += '<span class="locked">🔒 Festival — entrada en cuotas sin completar</span>';
     } else {
-        html += '<span class="locked">🔒 Festival (se habilita el 19 de junio)</span>';
+        html += '<span class="locked">🔒 Festival (se habilita el 16 de diciembre)</span>';
     }
 
     document.getElementById('checks').innerHTML = html;

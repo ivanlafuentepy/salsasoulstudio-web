@@ -38,6 +38,10 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#1a1a2e;color:#ff
 .badge-tipo{display:block;text-align:center;font-weight:bold;border-radius:10px;padding:10px;margin:0 0 14px;font-size:1em;letter-spacing:0.5px}
 .badge-cortesia{background:#fbbf24;color:#dc2626;border:2px solid #dc2626}
 .badge-pagado{background:#10b981;color:#0a0a0a}
+.badge-pendiente{background:#f59e0b;color:#0a0a0a}
+.badge-menor{background:#7c9fd6;color:#0a0a0a}
+.nota-cuotas{background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.45);border-radius:12px;padding:14px 16px;margin-bottom:22px;font-size:0.92em;line-height:1.55;color:#fcd9a0}
+.nota-cuotas b{color:#fff}
 </style>
 </head>
 <body>
@@ -78,39 +82,69 @@ async function cargar() {
     }
 }
 
+// Los talleres de bachata incluidos con la entrada. Fuente de verdad:
+// agent/utils.py de Dorita (_FESTIVAL_TALLERES). Los checks CLASE_1/CLASE_2 de
+// Airtable son el check-in de cada uno.
+const TALLERES = [
+    { fecha: new Date(2026, 8, 18), texto: 'viernes 18 de septiembre' },
+    { fecha: new Date(2026, 9, 16), texto: 'viernes 16 de octubre' }
+];
+const gs = n => (n || 0).toLocaleString('es-PY').replace(/,/g, '.') + ' Gs';
+
 function renderizar(data) {
     const content = document.getElementById('content');
     let html = '';
 
     html += `<div class="comprador">Comprador: ${data.comprador} — ${data.total} entrada${data.total > 1 ? 's' : ''}</div>`;
 
-    html += `<div class="promo">
-        <h3>🎁 DOS CLASES GRATIS</h3>
-        <p>Con cada entrada tenes 2 clases gratis en Salsa Soul Studio antes del 15 de junio. Solo presenta tu QR.</p>
-    </div>`;
+    // Compra en cuotas sin completar: el QR sirve para el taller, no para el teatro.
+    const pendientes = data.entradas.filter(e => e.estado === 'PENDIENTE' && (e.monto || 0) > 0);
+    if (pendientes.length) {
+        const saldo = pendientes.reduce((t, e) => t + (e.saldo || 0), 0);
+        html += `<div class="nota-cuotas">
+            ⏳ <b>Te falta pagar ${gs(saldo)}</b> de tu compra en cuotas.
+            Con este QR ya entrás <b>al taller de bachata</b>; el ingreso al festival del
+            16 de diciembre se habilita cuando completás las cuotas 💛
+        </div>`;
+    }
+
+    const talleres = TALLERES.filter(t => new Date() <= t.fecha).map(t => t.texto).join(' y ');
+    if (talleres) {
+        html += `<div class="promo">
+            <h3>💃 TALLER DE BACHATA INCLUIDO</h3>
+            <p>Con tu entrada entrás al taller del ${talleres}, 19:30 en Salsa Soul Studio. Solo mostrá tu QR.</p>
+        </div>`;
+    }
 
     for (const e of data.entradas) {
-        const clase1 = e.clase_1 ? '<span class="check check-done">Clase 1 ✅</span>' : '<span class="check check-pending">Clase 1</span>';
-        const clase2 = e.clase_2 ? '<span class="check check-done">Clase 2 ✅</span>' : '<span class="check check-pending">Clase 2</span>';
+        const taller1 = e.clase_1 ? '<span class="check check-done">Taller 1 ✅</span>' : '<span class="check check-pending">Taller 1</span>';
+        const taller2 = e.clase_2 ? '<span class="check check-done">Taller 2 ✅</span>' : '<span class="check check-pending">Taller 2</span>';
         const fest = e.festival ? '<span class="check check-done">Festival ✅</span>' : '<span class="check check-locked">Festival 🔒</span>';
 
-        const esCortesia = e.tipo === 'CORTESIA';
-        const badgeTipo = esCortesia
-            ? '<div class="badge-tipo badge-cortesia">🎁 ENTRADA DE CORTESÍA</div>'
-            : '<div class="badge-tipo badge-pagado">✅ PAGADO</div>';
+        let badgeTipo;
+        if (e.tipo === 'CORTESIA') {
+            badgeTipo = '<div class="badge-tipo badge-cortesia">🎁 ENTRADA DE CORTESÍA</div>';
+        } else if (e.tipo === 'MENOR') {
+            badgeTipo = '<div class="badge-tipo badge-menor">🧒 MENOR DE 20 · GRATIS</div>';
+        } else if (e.estado === 'PENDIENTE') {
+            badgeTipo = `<div class="badge-tipo badge-pendiente">⏳ EN CUOTAS · FALTAN ${gs(e.saldo)}</div>`;
+        } else {
+            badgeTipo = '<div class="badge-tipo badge-pagado">✅ PAGADO</div>';
+        }
 
         let asistente = '';
         if (e.nombre_asistente) {
             asistente = `<div class="asistente">${e.nombre_asistente} ${e.apellido_asistente || ''}</div>`;
         }
 
-        const shareText = encodeURIComponent(`🎭 Te comparto mi entrada #${e.entrada_numero} para el Salsa Soul & Friends Festival!\n📅 Viernes 19 de Junio, 20:30h\n📍 Teatro Municipal Fernando de la Mora\n\n🎟️ Mostrá este QR en la entrada:\n${e.qr_url}\n\n🎁 Con esta entrada tenés 2 clases gratis en Salsa Soul Studio antes del 15 de junio 💃🕺`);
+        const extraTaller = talleres ? `\n\n💃 Con esta entrada también entrás al taller de bachata del ${talleres}, 19:30 en Salsa Soul Studio` : '';
+        const shareText = encodeURIComponent(`🎭 Te comparto mi entrada #${e.entrada_numero} para Las Elegidas, el Festival Salsa Soul Studio 2026!\n📅 Miércoles 16 de diciembre\n📍 Teatro del Hotel Guaraní\n\n🎟️ Mostrá este QR en la entrada:\n${e.qr_url}${extraTaller}`);
 
         html += `
         <div class="entrada">
             <div class="entrada-header">
                 <div class="entrada-num">Entrada #${e.entrada_numero}</div>
-                <div class="entrada-checks">${clase1}${clase2}${fest}</div>
+                <div class="entrada-checks">${taller1}${taller2}${fest}</div>
             </div>
             ${badgeTipo}
             ${asistente}

@@ -347,7 +347,9 @@
           La batalla por un lugar en el gran escenario ✨<br>
           Una historia de desafíos, ensayos y pasión 💃🕺<br>
           <strong style="color:var(--gold-light)">Entradas en venta</strong> · <span id="precioEntrada">80.000 Gs</span>
+          <span id="incluyeEntrada" style="display:block;font-size:0.92em;margin-top:6px"></span>
           <span id="subeEntrada" style="display:block;font-size:0.9em;opacity:0.85"></span>
+          <a href="/entradas-festival/" style="display:inline-block;margin-top:10px;font-size:0.9em;color:var(--gold-light)">Ver toda la promo →</a>
         </div>
         <a class="btn-festival" id="btnEntradaFestival" href="#" target="_blank" rel="noopener">🎟️ Comprar por WhatsApp</a>
 
@@ -375,17 +377,36 @@
     // El precio de la entrada sube por mes. Se calcula acá para que el texto no
     // envejezca solo el 1° de octubre — el afiche sí hay que cambiarlo a mano.
     (function () {
+      // Lo que incluye la entrada tambien cambia por mes (menores gratis, cuotas).
+      // Fuente de verdad: agent/utils.py de Dorita. La promo completa vive en
+      // /entradas-festival/, que repite este mismo escalonado.
       var ESCALONES = [
-        { hasta: new Date(2026, 9, 1), precio: 80000, sigue: 90000, mes: 'octubre' },   // hasta el 30/09
-        { hasta: new Date(2026, 10, 1), precio: 90000, sigue: 100000, mes: 'noviembre' }, // hasta el 31/10
-        { hasta: new Date(2026, 11, 17), precio: 100000, sigue: null, mes: null }         // hasta el festival
+        { hasta: new Date(2026, 9, 1), precio: 80000, sigue: 90000, mes: 'octubre', menores: 5, menoresSigue: 3, cuotas: true },   // hasta el 30/09
+        { hasta: new Date(2026, 10, 1), precio: 90000, sigue: 100000, mes: 'noviembre', menores: 3, menoresSigue: 1, cuotas: false }, // hasta el 31/10
+        { hasta: new Date(2026, 11, 17), precio: 100000, sigue: null, mes: null, menores: 1, menoresSigue: null, cuotas: false }     // hasta el festival
+      ];
+      var TALLERES = [
+        { fecha: new Date(2026, 8, 18), texto: 'viernes 18 de septiembre' },
+        { fecha: new Date(2026, 9, 16), texto: 'viernes 16 de octubre' }
       ];
       var hoy = new Date();
       var e = ESCALONES.find(function (x) { return hoy < x.hasta; }) || ESCALONES[ESCALONES.length - 1];
       var gs = function (n) { return n.toLocaleString('es-PY').replace(/,/g, '.') + ' Gs'; };
+      var plural = function (n, s, p) { return n === 1 ? s : p; };
       document.getElementById('precioEntrada').textContent = gs(e.precio);
+
+      var incluye = [];
+      var talleres = TALLERES.filter(function (t) { return hoy <= t.fecha; })
+                             .map(function (t) { return t.texto; });
+      if (talleres.length) { incluye.push('💃 Taller de bachata el ' + talleres.join(' y ') + ', 19:30'); }
+      incluye.push('🧒 Hasta ' + e.menores + ' ' + plural(e.menores, 'menor', 'menores') + ' de 20 años gratis');
+      if (e.cuotas) { incluye.push('💳 Podés pagarla en 4 cuotas de 20.000 Gs'); }
+      document.getElementById('incluyeEntrada').innerHTML = incluye.join('<br>');
+
       if (e.sigue) {
-        document.getElementById('subeEntrada').textContent = '⏰ En ' + e.mes + ' pasa a ' + gs(e.sigue);
+        document.getElementById('subeEntrada').textContent =
+          '⏰ En ' + e.mes + ' pasa a ' + gs(e.sigue) +
+          ' y solo ' + e.menoresSigue + ' ' + plural(e.menoresSigue, 'menor', 'menores') + ' gratis';
       }
       var MSG = '¡Hola Dorita! 🎟️ Quiero comprar mi entrada para Las Elegidas, el festival del 16 de diciembre';
       document.getElementById('btnEntradaFestival').href =

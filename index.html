@@ -367,7 +367,7 @@
             </select>
             <a class="btn-festival btn-pago" id="btnPagarTarjeta" href="#" target="_blank" rel="noopener">💳 Pagar</a>
           </div>
-          <span class="pago-entrada-nota">Recibís tus QR por WhatsApp apenas se acredita 💛</span>
+          <span class="pago-entrada-nota">Recibís tus QR por WhatsApp apenas se acredita 💛<span id="notaPagoUnico"></span></span>
         </div>
       </div>
     </div>
@@ -411,6 +411,14 @@
       var MSG = '¡Hola Dorita! 🎟️ Quiero comprar mi entrada para Las Elegidas, el festival del 16 de diciembre';
       document.getElementById('btnEntradaFestival').href =
         'https://wa.me/595971889475?text=' + encodeURIComponent(MSG);
+
+      // Con tarjeta acá se paga el total de una: las cuotas y los menores los
+      // toma Dorita por WhatsApp (ver /entradas-festival/).
+      if (e.cuotas) {
+        document.getElementById('notaPagoUnico').innerHTML =
+          '<br>Con tarjeta es un solo pago. Para las 4 cuotas o para anotar menores, ' +
+          '<a href="/entradas-festival/" style="color:var(--gold-light)">mirá la promo</a>.';
+      }
 
       // Links de pago YA firmados (la firma cubre el monto, por eso hay una por
       // cada precio x cantidad). Sin la firma correcta la pasarela rechaza el link.

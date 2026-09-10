@@ -205,6 +205,26 @@
     .sumate .cta a:hover { filter: brightness(1.1); }
     .sumate .cta .quien { display: block; color: #6d6d6d; font-size: 0.8rem; font-style: italic; margin-top: 11px; }
 
+    /* ==================== MI LINK DE ENTRADAS ==================== */
+    .milink { background: linear-gradient(180deg, rgba(229,72,111,0.10), rgba(229,72,111,0.03)); border: 1px solid rgba(229,72,111,0.45); border-radius: 14px; padding: 30px 26px; margin: 50px 0 10px; scroll-margin-top: 80px; }
+    @media (max-width: 520px) { .milink { padding: 26px 18px; } }
+    .milink h3 { color: var(--rosa-light); font-size: 1.2rem; letter-spacing: 1px; text-align: center; line-height: 1.45; }
+    .milink .bajada { color: #c4c4c4; text-align: center; margin-top: 12px; font-size: 0.96rem; line-height: 1.6; }
+    .milink .bajada strong { color: #fff; }
+    .milink label { display: block; color: #ddd; font-size: 0.88rem; margin: 22px 0 7px; }
+    .milink input { width: 100%; padding: 14px 14px; border-radius: 9px; font-size: 1.05rem; font-family: inherit; background: var(--card2); border: 1px solid rgba(255,255,255,0.16); color: #fff; }
+    .milink input:focus { outline: none; border-color: var(--rosa); }
+    .milink .estado { min-height: 1.4em; margin-top: 12px; font-size: 0.9rem; color: var(--gris); text-align: center; }
+    .milink .estado.error { color: var(--rosa-light); }
+    .milink .resultado { margin-top: 18px; }
+    .milink .hola { color: var(--gold-light); font-size: 1.05rem; text-align: center; margin-bottom: 12px; }
+    .milink .caja { background: var(--card); border: 1px solid var(--linea); border-radius: 10px; padding: 13px 14px; word-break: break-all; font-size: 0.85rem; color: #bdbdbd; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .milink .acciones { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+    .milink .acciones a, .milink .acciones button { flex: 1; min-width: 150px; text-align: center; padding: 15px 14px; border-radius: 9px; font-family: inherit; font-size: 0.95rem; font-weight: bold; cursor: pointer; text-decoration: none; border: none; }
+    .milink .b-wa { background: #25d366; color: #062d16; }
+    .milink .b-copiar { background: transparent; border: 1px solid var(--gold) !important; color: var(--gold-light); }
+    .milink .nota { color: var(--gris); font-size: 0.85rem; text-align: center; margin-top: 14px; line-height: 1.6; }
+
     /* ==================== CIERRE ==================== */
     .cierre { text-align: center; padding: 44px 20px 10px; }
     .cierre .frase { color: var(--gold-light); font-style: italic; font-size: 1.08rem; line-height: 1.75; }
@@ -243,6 +263,7 @@
 
       <div class="nav-grupo">Para bailar en el festival</div>
       <a href="/vestuarios"><span class="n">👗</span> Vestuarios</a>
+      <a href="#mi-link"><span class="n">🎟️</span> Mi link de entradas</a>
       <a href="#sumate"><span class="n">🎭</span> Sumate al elenco</a>
     </nav>
 
@@ -696,6 +717,33 @@
       </section>
 
       <!-- ============ INVITACION AL ELENCO ============ -->
+      <section class="milink" id="mi-link">
+        <h3>🎟️ Tu link para vender entradas</h3>
+        <p class="bajada">
+          Poné tu número y te aparece <strong>tu link personal</strong>. Se lo mandás a tus
+          amigos, Dorita les vende la entrada por WhatsApp y <strong>la venta queda anotada
+          a tu nombre</strong> 💃
+        </p>
+
+        <label for="telMiLink">Tu número de WhatsApp</label>
+        <input id="telMiLink" type="tel" inputmode="numeric" autocomplete="tel"
+               placeholder="0981 123 456" aria-describedby="estadoMiLink">
+        <p class="estado" id="estadoMiLink" role="status" aria-live="polite"></p>
+
+        <div class="resultado" id="resultadoMiLink" hidden>
+          <p class="hola" id="holaMiLink"></p>
+          <div class="caja" id="cajaMiLink"></div>
+          <div class="acciones">
+            <a class="b-wa" id="enviarMiLink" href="#" target="_blank" rel="noopener">📲 Enviar por WhatsApp</a>
+            <button class="b-copiar" id="copiarMiLink" type="button">📋 Copiar</button>
+          </div>
+          <p class="nota">
+            "Enviar" abre WhatsApp para que elijas a quién mandárselo. Podés mandárselo a
+            todos los que quieras 🎭
+          </p>
+        </div>
+      </section>
+
       <section class="sumate" id="sumate">
         <p class="invita">¿Te gustaría participar de nuestro festival de fin de año? 🎭</p>
         <p class="bajada">Todavía estás a tiempo de <strong>inscribirte</strong> y subir al escenario del Teatro del Hotel Guaraní.</p>
@@ -792,6 +840,71 @@
   var WA = '595971889475';
   var MSG = '¡Hola Dorita! 🎭 Quiero inscribirme al Festival Salsa Soul Studio 2026';
   document.getElementById('btnSumarme').href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(MSG);
+
+  /* ---------- Mi link para vender entradas ---------- */
+  // El link sale de Dorita (/api/festival/mi-link): es la misma fuente que usa
+  // ella cuando le escriben "mi link festival", asi que nunca se desincroniza.
+  (function () {
+    var API = 'https://salsa-soul-dorita-production.up.railway.app';
+    var input = document.getElementById('telMiLink');
+    var estado = document.getElementById('estadoMiLink');
+    var caja = document.getElementById('resultadoMiLink');
+    var pedido = 0;
+
+    function decir(msg, esError) {
+      estado.textContent = msg;
+      estado.classList.toggle('error', !!esError);
+    }
+
+    function mostrar(d) {
+      document.getElementById('holaMiLink').textContent = d.nombre
+        ? '¡Hola ' + d.nombre + '! Este es tu link 👇' : 'Este es tu link 👇';
+      document.getElementById('cajaMiLink').textContent = d.link;
+
+      var msg = '¡Hola! Te invito al Festival Las Elegidas 🎭 el miércoles 16 de diciembre ' +
+                'en el Teatro del Hotel Guaraní. Tocá mi link y Dorita te vende la entrada ' +
+                'por WhatsApp 💃\n' + d.link;
+      document.getElementById('enviarMiLink').href = 'https://wa.me/?text=' + encodeURIComponent(msg);
+
+      document.getElementById('copiarMiLink').onclick = function () {
+        var btn = this;
+        var listo = function () { btn.textContent = '✅ Copiado'; setTimeout(function () { btn.textContent = '📋 Copiar'; }, 2000); };
+        if (navigator.clipboard) { navigator.clipboard.writeText(d.link).then(listo, listo); }
+        else { var t = document.createElement('textarea'); t.value = d.link; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); listo(); }
+      };
+      caja.hidden = false;
+      decir('');
+    }
+
+    function buscar() {
+      var tel = input.value.replace(/\D/g, '');
+      caja.hidden = true;
+      if (tel.length < 9) { decir(''); return; }
+      var mio = ++pedido;
+      decir('Buscando tu link…');
+      fetch(API + '/api/festival/mi-link?telefono=' + encodeURIComponent(tel))
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (res) {
+          if (mio !== pedido) return;   // llego una respuesta vieja
+          if (res.ok && res.d && res.d.ok) { mostrar(res.d); return; }
+          var err = (res.d && res.d.error) || '';
+          if (err === 'sin_codigo') decir('Todavía no tenés link asignado. Escribile a Dorita y te lo crea 💛', true);
+          else if (err === 'telefono_invalido') decir('Revisá el número: escribilo como 0981123456', true);
+          else decir('No encontramos ese número. Probá con el que usás en WhatsApp, o escribile a Dorita 💛', true);
+        })
+        .catch(function () {
+          if (mio !== pedido) return;
+          decir('No pudimos conectarnos. Probá de nuevo en un minuto 🙏', true);
+        });
+    }
+
+    var timer = null;
+    input.addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(buscar, 500);
+    });
+    input.addEventListener('change', buscar);
+  })();
 
   function marcarEscena(sec) {
     if (!sec || sec === escenaActual) return;

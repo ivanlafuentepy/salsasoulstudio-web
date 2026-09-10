@@ -98,6 +98,17 @@
       background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));color:#0a0a0a;
     }
 
+    .aviso-tarjeta{
+      margin-top:14px;padding:12px 14px;border-radius:10px;font-size:.88rem;line-height:1.6;
+      background:rgba(232,160,76,.10);border:1px solid rgba(232,160,76,.4);color:#e6c79a;
+    }
+    .aviso-tarjeta b{color:#fff;font-weight:normal}
+    .aviso-tarjeta a{
+      display:block;margin-top:10px;text-align:center;text-decoration:none;font-weight:bold;
+      background:var(--wa);color:#062d16;padding:12px;border-radius:9px;
+    }
+    .aviso-menores{background:rgba(124,159,214,.10);border-color:rgba(124,159,214,.4);color:#c3d5ef}
+
     .pasos{counter-reset:paso;list-style:none}
     .pasos li{
       counter-increment:paso;position:relative;padding:0 0 16px 44px;
@@ -160,7 +171,6 @@
       <h2>💳 O pagá ahora con tarjeta</h2>
       <p class="ayuda">
         Pago seguro procesado por Bancard 🔒 Recibís tus QR por WhatsApp apenas se acredita.
-        Si querés llevar menores o pagar en cuotas, hacelo por WhatsApp 👆
       </p>
       <div class="fila">
         <label for="cantEntradas" style="position:absolute;left:-9999px">Cantidad de entradas</label>
@@ -174,6 +184,14 @@
         </select>
         <a class="btn-pago" id="btnPagarTarjeta" href="#" target="_blank" rel="noopener">💳 Pagar</a>
       </div>
+      <p class="aviso-tarjeta" id="avisoTarjeta" hidden>
+        ⚠️ Acá el pago con tarjeta es <b>uno solo, por el total</b>.
+        Para pagar en <b>4 cuotas de 20.000</b>, escribile a Dorita 👇
+        <a id="btnCuotasWA" href="#" target="_blank" rel="noopener">Quiero pagar en 4 cuotas</a>
+      </p>
+      <p class="aviso-tarjeta aviso-menores">
+        🧒 ¿Llevás menores? Anotalos por WhatsApp así entran gratis con vos.
+      </p>
     </div>
 
     <div class="card">
@@ -245,6 +263,13 @@
           'Podés pagarla en <b>4 cuotas de 20.000 Gs</b>: una ahora y una el 1 de octubre, ' +
           'el 1 de noviembre y el 1 de diciembre';
         document.getElementById('nota-cuotas').textContent = ' y elegís pagar en cuotas';
+        // El pago con tarjeta de acá es de un solo pago: la seña de las cuotas la
+        // cobra Dorita, que es la que sabe cuántas entradas lleva la compra.
+        // Este texto es un deep-link: Dorita lo reconoce EXACTO y arranca la
+        // compra con el plan ya elegido (agent/festival_referidos.py).
+        var MSG_CUOTAS = 'Hola Dorita, quiero mi entrada para Las Elegidas en 4 cuotas 🎭';
+        document.getElementById('btnCuotasWA').href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(MSG_CUOTAS);
+        document.getElementById('avisoTarjeta').hidden = false;
       }
 
       document.getElementById('btnWhatsApp').href =

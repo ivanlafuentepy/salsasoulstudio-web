@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuestra historia | Salsa Soul Studio</title>
+  <link rel="canonical" href="https://salsasoulstudio.com/historia/">
+  <meta name="description" content="El archivo de Salsa Soul Studio: festivales, shows y momentos desde 2008. Fotos y videos para ver y descargar.">
+  <meta property="og:title" content="Nuestra historia | Salsa Soul Studio">
+  <meta property="og:description" content="Festivales, shows y momentos desde 2008.">
+  <meta property="og:image" content="https://salsasoulstudio.com/og-home.jpg">
+  <link rel="icon" href="/logo-dorado.png">
+  <style>
+    :root{
+      --gold:#c9a84c; --gold-light:#e8c96a; --gold-dark:#8a6820;
+      --black:#0a0a0a; --dark:#111; --dark2:#1a1a1a;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family:'Georgia',serif; background:var(--black); color:#fff;
+      min-height:100vh; -webkit-tap-highlight-color:transparent;
+    }
+    a{color:inherit;text-decoration:none}
+
+    .nav{
+      position:sticky;top:0;z-index:50; display:flex;align-items:center;gap:12px;
+      padding:14px 20px; background:rgba(10,10,10,.92); backdrop-filter:blur(8px);
+      border-bottom:1px solid rgba(201,168,76,.25);
+    }
+    .nav img{height:38px}
+    .nav .back{margin-left:auto;font-size:.85rem;color:var(--gold-light);opacity:.9}
+
+    .hero{text-align:center;padding:34px 20px 10px}
+    .hero h1{
+      font-size:1.9rem;letter-spacing:.5px;
+      background:linear-gradient(90deg,var(--gold-dark),var(--gold-light),var(--gold-dark));
+      -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    }
+    .hero p{color:#bbb;margin-top:8px;font-size:.95rem}
+    .divider{
+      width:70px;height:3px;margin:16px auto 6px;border-radius:2px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    }
+
+    .wrap{padding:18px 16px 70px;max-width:1180px;margin:0 auto}
+
+    /* ══ Portada: una tarjeta por colección ══ */
+    .cols{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+    .col{
+      position:relative;border-radius:14px;overflow:hidden;cursor:pointer;
+      background:var(--dark2);border:1px solid rgba(201,168,76,.18);
+      aspect-ratio:4/3; transition:border-color .25s, transform .25s;
+    }
+    .col:hover{border-color:var(--gold);transform:translateY(-3px)}
+    .col img,.col video{width:100%;height:100%;object-fit:cover;display:block;opacity:.62;transition:opacity .3s}
+    .col:hover img,.col:hover video{opacity:.8}
+    .col .cap{
+      position:absolute;inset:auto 0 0 0;padding:34px 14px 14px;
+      background:linear-gradient(to top, rgba(0,0,0,.94) 20%, transparent 100%);
+    }
+    .col .cap h2{font-size:1.02rem;line-height:1.25;color:#fff}
+    .col .cap span{display:block;margin-top:5px;font-size:.8rem;color:var(--gold-light);opacity:.92}
+
+    /* ══ Adentro de una colección ══ */
+    .volver{
+      display:inline-flex;align-items:center;gap:7px;margin-bottom:16px;
+      color:var(--gold-light);font-size:.92rem;cursor:pointer;
+    }
+    .volver:hover{color:var(--gold)}
+    .titulo-col{text-align:center;margin:4px 0 20px}
+    .titulo-col h2{font-size:1.45rem;color:#fff}
+    .titulo-col span{display:block;margin-top:6px;color:#999;font-size:.88rem}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+    @media(min-width:700px){.grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}}
+    .item{
+      position:relative;aspect-ratio:1;overflow:hidden;border-radius:12px;cursor:pointer;
+      background:var(--dark2);border:1px solid rgba(201,168,76,.15);
+      opacity:0;transform:translateY(14px);transition:opacity .5s,transform .5s,border-color .25s;
+    }
+    .item.in{opacity:1;transform:none}
+    .item:hover{border-color:var(--gold)}
+    .item img,.item video{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+    .item:hover img,.item:hover video{transform:scale(1.05)}
+    /* Marca del video: la miniatura es el primer cuadro, así que hay que avisar
+       que eso se reproduce. */
+    .item.video::after{
+      content:"▶";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+      font-size:2.4rem;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.9);pointer-events:none;
+    }
+    .item .dur{
+      position:absolute;right:7px;bottom:7px;padding:2px 7px;border-radius:6px;
+      background:rgba(0,0,0,.78);font-size:.72rem;color:var(--gold-light);font-family:system-ui,sans-serif;
+    }
+
+    .cargando{text-align:center;padding:26px;color:#888;font-size:.9rem}
+
+    /* ══ Visor ══ */
+    .visor{
+      position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
+      background:rgba(0,0,0,.96);padding:20px;
+    }
+    .visor.on{display:flex}
+    .visor img,.visor video{max-width:100%;max-height:86vh;border-radius:10px;display:block}
+    .visor .cerrar{
+      position:absolute;top:16px;right:20px;font-size:2rem;color:var(--gold-light);
+      cursor:pointer;line-height:1;padding:6px 12px;
+    }
+    .visor .flecha{
+      position:absolute;top:50%;transform:translateY(-50%);font-size:2.4rem;
+      color:var(--gold-light);cursor:pointer;padding:16px;user-select:none;opacity:.75;
+    }
+    .visor .flecha:hover{opacity:1}
+    .visor .ant{left:4px} .visor .sig{right:4px}
+    .visor .pie{
+      position:absolute;left:0;right:0;bottom:16px;text-align:center;
+      color:#bbb;font-size:.85rem;padding:0 60px;
+    }
+    .visor .pie a{color:var(--gold-light);border-bottom:1px solid rgba(201,168,76,.5)}
+    @media(max-width:640px){
+      .visor .flecha{font-size:2rem;padding:10px}
+      .visor .pie{font-size:.78rem;padding:0 20px}
+    }
+  </style>
+</head>
+<body>
+
+<div class="nav">
+  <a href="/"><img src="/logo-dorado.png" alt="Salsa Soul Studio"></a>
+  <a class="back" href="/">← Inicio</a>
+</div>
+
+<div class="hero">
+  <h1>Nuestra historia</h1>
+  <div class="divider"></div>
+  <p id="bajada">Festivales, shows y momentos de la academia.</p>
+</div>
+
+<div class="wrap">
+  <div id="vista-colecciones">
+    <div class="cols" id="cols"></div>
+  </div>
+
+  <div id="vista-adentro" hidden>
+    <div class="volver" id="volver">← Volver a las colecciones</div>
+    <div class="titulo-col"><h2 id="col-nombre"></h2><span id="col-sub"></span></div>
+    <div class="grid" id="grid"></div>
+    <div class="cargando" id="cargando" hidden>cargando…</div>
+  </div>
+
+  <div class="cargando" id="estado">cargando el archivo…</div>
+</div>
+
+<div class="visor" id="visor">
+  <span class="cerrar" id="cerrar">×</span>
+  <span class="flecha ant" id="ant">‹</span>
+  <span class="flecha sig" id="sig">›</span>
+  <div id="visor-cuerpo"></div>
+  <div class="pie" id="visor-pie"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   Galería histórica de Salsa Soul Studio
+   ---------------------------------------------------------------------------
+   Lee los índices que genera tools/tv_sync.py en el repo de Dorita:
+     historia/index.json      → las colecciones, con su portada y sus conteos
+     historia/<slug>.json     → las fotos y videos de esa colección
+   Es el MISMO material que la tele de la cantina, y la misma carpeta manda:
+   Projects\TV-ACADEMIA. Acá no se edita nada — la fuente de verdad es la carpeta.
+
+   Por qué un archivo por colección y no el playlist de la tele: el TBT solo tiene
+   2.598 fotos, y bajar medio mega para ver una portada no tiene sentido. Cada
+   colección se baja cuando alguien la abre.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const R2 = "https://pub-1fc0fb1ac8244995981fc724066bf71c.r2.dev";
+const POR_TANDA = 120;   // cuántas miniaturas se agregan por vez (el TBT tiene 2.598)
+
+let COLECCIONES = [];
+let actual = null;       // {nombre, items}
+let mostrados = 0;
+let observador = null;
+
+const $ = id => document.getElementById(id);
+
+async function traer(url){
+  const r = await fetch(url + (url.includes("?") ? "&" : "?") + "t=" + Date.now());
+  if(!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
+
+function escapar(s){
+  return String(s ?? "").replace(/[&<>"']/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* ── Portada ─────────────────────────────────────────────────────────────── */
+
+function pintarColecciones(){
+  const cont = $("cols");
+  cont.innerHTML = "";
+  // Lo que está sin clasificar no se le muestra al visitante: es material en
+  // revisión, no una colección. Sale de la tele y también de acá.
+  const visibles = COLECCIONES.filter(c => c.fotos + c.videos > c.sin_clasificar);
+  visibles.forEach(c => {
+    const d = document.createElement("div");
+    d.className = "col";
+    const cuantos = [c.fotos ? c.fotos + (c.fotos === 1 ? " foto" : " fotos") : "",
+                     c.videos ? c.videos + (c.videos === 1 ? " video" : " videos") : ""]
+                    .filter(Boolean).join(" · ");
+    // Una colección que es solo de videos (los shows, nuestros profes) no tiene foto de
+    // portada: se usa el video, del que el navegador saca el primer cuadro solo.
+    const port = c.portada
+      ? (c.portada_tipo === "video"
+          ? '<video preload="metadata" muted playsinline src="' + escapar(c.portada) + '#t=0.5"></video>'
+          : '<img loading="lazy" src="' + escapar(c.portada) + '" alt="">')
+      : "";
+    d.innerHTML = port +
+      '<div class="cap"><h2>' + escapar(c.nombre) + "</h2><span>" + cuantos + "</span></div>";
+    d.onclick = () => abrirColeccion(c.slug);
+    cont.appendChild(d);
+  });
+  const tf = visibles.reduce((s,c) => s + c.fotos, 0);
+  const tv = visibles.reduce((s,c) => s + c.videos, 0);
+  $("bajada").textContent = `${tf.toLocaleString("es")} fotos y ${tv} videos de la academia.`;
+}
+
+/* ── Adentro de una colección ────────────────────────────────────────────── */
+
+async function abrirColeccion(slug){
+  const c = COLECCIONES.find(x => x.slug === slug);
+  if(!c) return;
+  $("estado").hidden = false;
+  $("estado").textContent = "cargando " + c.nombre + "…";
+  try{
+    const d = await traer(`${R2}/historia/${slug}.json`);
+    // Lo oculto queda afuera: es lo que todavía no se sabe de qué evento es.
+    const items = (d.items || []).filter(i => !i.oculto);
+    // Los videos primero: son lo que más se busca y son pocos.
+    items.sort((a,b) => (a.tipo === b.tipo ? 0 : a.tipo === "video" ? -1 : 1));
+    actual = {nombre: d.coleccion || c.nombre, items};
+    mostrados = 0;
+    $("col-nombre").textContent = actual.nombre;
+    const nf = items.filter(i => i.tipo === "foto").length;
+    const nv = items.length - nf;
+    $("col-sub").textContent = [nf ? nf + " fotos" : "", nv ? nv + " videos" : ""]
+                              .filter(Boolean).join(" · ");
+    $("grid").innerHTML = "";
+    $("vista-colecciones").hidden = true;
+    $("vista-adentro").hidden = false;
+    $("estado").hidden = true;
+    location.hash = slug;
+    window.scrollTo({top: 0});
+    mas();
+  }catch(e){
+    $("estado").textContent = "no pude cargar esta colección — probá de nuevo";
+    console.warn("[historia]", e.message);
+  }
+}
+
+function mas(){
+  if(!actual) return;
+  const hasta = Math.min(mostrados + POR_TANDA, actual.items.length);
+  const frag = document.createDocumentFragment();
+  for(let i = mostrados; i < hasta; i++){
+    const it = actual.items[i];
+    const d = document.createElement("div");
+    d.className = "item" + (it.tipo === "video" ? " video" : "");
+    d.dataset.i = i;
+    if(it.tipo === "video"){
+      // Un póster del video costaría generar 129 miniaturas y subirlas: el
+      // navegador saca el primer cuadro solo con preload="metadata".
+      d.innerHTML = '<video preload="metadata" muted playsinline src="' +
+                    escapar(it.url) + '#t=0.5"></video>';
+    }else{
+      d.innerHTML = '<img loading="lazy" src="' + escapar(it.url) + '" alt="">';
+    }
+    d.onclick = () => abrirVisor(i);
+    frag.appendChild(d);
+  }
+  $("grid").appendChild(frag);
+  mostrados = hasta;
+  $("cargando").hidden = mostrados >= actual.items.length;
+  aparecer();
+}
+
+// Fade al entrar en pantalla + carga de la tanda siguiente cuando se llega al final.
+function aparecer(){
+  if(!observador){
+    observador = new IntersectionObserver(es => {
+      es.forEach(e => { if(e.isIntersecting){ e.target.classList.add("in"); observador.unobserve(e.target); } });
+    }, {rootMargin: "200px"});
+  }
+  document.querySelectorAll(".item:not(.in)").forEach(el => observador.observe(el));
+}
+
+window.addEventListener("scroll", () => {
+  if($("vista-adentro").hidden || !actual || mostrados >= actual.items.length) return;
+  if(window.innerHeight + window.scrollY > document.body.offsetHeight - 600) mas();
+});
+
+$("volver").onclick = () => {
+  $("vista-adentro").hidden = true;
+  $("vista-colecciones").hidden = false;
+  actual = null;
+  history.replaceState(null, "", location.pathname);
+  $("bajada").textContent = $("bajada").dataset.orig || $("bajada").textContent;
+  window.scrollTo({top: 0});
+};
+
+/* ── Visor ───────────────────────────────────────────────────────────────── */
+
+let vIdx = 0;
+
+function abrirVisor(i){
+  vIdx = i;
+  const it = actual.items[i];
+  const cuerpo = $("visor-cuerpo");
+  cuerpo.innerHTML = it.tipo === "video"
+    ? '<video controls autoplay playsinline src="' + escapar(it.url) + '"></video>'
+    : '<img src="' + escapar(it.url) + '" alt="">';
+  $("visor-pie").innerHTML =
+    (it.sin_titulo ? escapar(actual.nombre) : escapar(it.titulo || actual.nombre)) +
+    ' · <a href="' + escapar(it.url) + '" download target="_blank" rel="noopener">descargar</a>';
+  $("visor").classList.add("on");
+  document.body.style.overflow = "hidden";
+}
+
+function cerrarVisor(){
+  $("visor").classList.remove("on");
+  $("visor-cuerpo").innerHTML = "";   // corta el video que estuviera sonando
+  document.body.style.overflow = "";
+}
+
+function mover(paso){
+  if(!actual) return;
+  let i = vIdx + paso;
+  if(i < 0) i = actual.items.length - 1;
+  if(i >= actual.items.length) i = 0;
+  // Si se pasa de lo que hay pintado, se traen más para que la flecha no se frene.
+  while(i >= mostrados && mostrados < actual.items.length) mas();
+  abrirVisor(i);
+}
+
+$("cerrar").onclick = cerrarVisor;
+$("ant").onclick = e => { e.stopPropagation(); mover(-1); };
+$("sig").onclick = e => { e.stopPropagation(); mover(1); };
+$("visor").onclick = e => { if(e.target.id === "visor") cerrarVisor(); };
+document.addEventListener("keydown", e => {
+  if(!$("visor").classList.contains("on")) return;
+  if(e.key === "Escape") cerrarVisor();
+  if(e.key === "ArrowLeft") mover(-1);
+  if(e.key === "ArrowRight") mover(1);
+});
+
+/* ── Arranque ────────────────────────────────────────────────────────────── */
+
+(async function(){
+  $("bajada").dataset.orig = $("bajada").textContent;
+  try{
+    const d = await traer(`${R2}/historia/index.json`);
+    COLECCIONES = d.colecciones || [];
+    pintarColecciones();
+    $("estado").hidden = true;
+    const slug = location.hash.replace("#", "");
+    if(slug) abrirColeccion(slug);
+  }catch(e){
+    $("estado").textContent = "no pude cargar el archivo — probá de nuevo en un rato";
+    console.warn("[historia]", e.message);
+  }
+})();
+</script>
+</body>
+</html>

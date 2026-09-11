@@ -1027,7 +1027,10 @@ async function pintarFoto(item){
   mostrarCapa(capa);
 
   // La foto de clase muestra su día y su fecha; la del festival, la marca del evento.
-  pie(item.titulo || "Nuestras clases", item.subtitulo || "Salsa Soul Studio");
+  // Los respaldos salen de la MARCA: con el nombre de Salsa clavado acá, la pantalla
+  // de Mamba leía "CAMPUS MAMBA 2025 / Salsa Soul Studio" — una foto de básquet
+  // firmada por la academia de baile.
+  pie(item.titulo || M.nombre, item.subtitulo || M.lema);
   correrProgreso(seg);
   await dormir(seg*1000);
   return 1;

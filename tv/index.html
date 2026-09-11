@@ -43,6 +43,18 @@
     background:radial-gradient(ellipse at 50% 40%, #241d10 0%, #12100b 55%, var(--black) 100%);
   }
 
+  /* Video de ARCHIVO (el saludo de Eddie Torres son 320x240, hay varios de 640x352):
+     estirarlo a pantalla completa en un panel de 65" lo convierte en una mancha y le
+     pide a la TV un upscale enorme. Va centrado a una altura razonable, sobre el mismo
+     fondo que los verticales: se ve mejor Y le saca trabajo al panel. */
+  .capa.chico{
+    background:radial-gradient(ellipse at 50% 40%, #241d10 0%, #12100b 55%, var(--black) 100%);
+  }
+  .capa.chico video{
+    position:relative; width:auto; height:78%; max-width:92%; object-fit:contain;
+    box-shadow:0 24px 80px rgba(0,0,0,.75);
+  }
+
   /* Afiche: contain + fondo borroso de la misma imagen (los afiches son
      verticales; sin esto quedan dos barras negras enormes a los costados) */
   .capa .fondoBlur{
@@ -844,7 +856,10 @@ async function pintarVideo(item){
   // Todo lo que no sea panorámico se muestra ENTERO sobre un fondo de degradado,
   // en vez de recortarle media imagen para llenar la pantalla: el vertical del
   // celular y también el CUADRADO de Instagram, al que el recorte le comía el 44%.
+  // Vertical gana: un 608x1080 ya se muestra entero y no hay nada que corregirle.
+  // Si es horizontal pero de poca altura (320x240, 640x352), tampoco se estira.
   if(v.videoWidth / v.videoHeight < 1.5) capa.classList.add("vertical");
+  else if(v.videoHeight < 480) capa.classList.add("chico");
 
   mostrarCapa(capa);
   pie(item.titulo || "Salsa Soul Studio", item.subtitulo || "Disfruta la vida bailando");

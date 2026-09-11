@@ -241,10 +241,34 @@
   // Los días salen del servidor: el ciclo de la promo salta solo el lunes a la
   // noche y una página con fechas escritas a mano miente al día siguiente.
   let TELEFONO = "";
+
+  // La promo terminó (Dorita manda activa:false desde el cierre, sábado 12/09
+  // 18:30): se saca el formulario y queda el aviso con el flujo de siempre.
+  // Con ?terminada=1 se ve esta vista antes del cierre, para revisarla.
+  function mostrarTerminada() {
+    document.querySelector("header .sub").innerHTML =
+      "La promo terminó, pero las clases siguen 💃";
+    document.querySelector(".beneficios").innerHTML =
+      '<li>🌸 La <b>Promo Primavera</b> terminó el sábado 12 de septiembre.</li>' +
+      '<li>💃 Igual te esperamos: podés venir a <b>probar una clase</b> cuando quieras — ' +
+      'lunes y jueves 19:30, sábados 18:30.</li>' +
+      '<li>🎟️ La clase de prueba sale <b>50.000 Gs</b> y se descuenta de la cuota si te inscribís.</li>' +
+      '<li><a href="https://wa.me/595971889475?text=Hola%20Dorita!%20Quiero%20probar%20una%20clase%20de%20salsa" ' +
+      'style="color:var(--gold-light);font-weight:700">📲 Escribile a Dorita por WhatsApp</a></li>';
+    for (const id of ["form1", "paso2"]) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = "none";
+    }
+  }
+
   (async () => {
     try {
       const r = await fetch("/api/promo?dias=1");
       const d = await r.json();
+      if (d.activa === false || new URLSearchParams(location.search).has("terminada")) {
+        mostrarTerminada();
+        return;
+      }
       document.getElementById("dias").innerHTML = (d.dias || [])
         .map(x => `<div class="chip" data-v="${x.id}">${x.etiqueta}</div>`).join("");
       if (d.vence_texto)

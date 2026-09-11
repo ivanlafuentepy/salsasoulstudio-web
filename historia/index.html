@@ -93,6 +93,48 @@
       background:rgba(0,0,0,.78);font-size:.72rem;color:var(--gold-light);font-family:system-ui,sans-serif;
     }
 
+
+    /* ══ El relato: los 16 años, en capítulos ══ */
+    .tabs{display:flex;gap:8px;justify-content:center;margin:6px 0 26px;flex-wrap:wrap}
+    .tab{
+      padding:9px 20px;border-radius:999px;cursor:pointer;font-size:.92rem;
+      border:1px solid rgba(201,168,76,.35);color:var(--gold-light);
+      background:transparent;font-family:inherit;transition:all .25s;
+    }
+    .tab:hover{border-color:var(--gold)}
+    .tab.on{background:var(--gold);color:#14100a;border-color:var(--gold);font-weight:700}
+
+    .relato{max-width:760px;margin:0 auto}
+    .relato .firma{text-align:center;color:#8a8478;font-size:.86rem;margin-bottom:26px}
+    .capitulo{border-top:1px solid rgba(201,168,76,.18)}
+    .capitulo:last-child{border-bottom:1px solid rgba(201,168,76,.18)}
+    .capitulo h3{
+      display:flex;align-items:center;gap:12px;cursor:pointer;
+      padding:18px 4px;font-size:1.06rem;font-weight:normal;color:var(--gold-light);
+      letter-spacing:.06em;transition:color .2s;
+    }
+    .capitulo h3:hover{color:var(--gold)}
+    .capitulo h3 .n{
+      font-size:.78rem;color:var(--gold-dark);min-width:26px;font-family:var(--sans,system-ui);
+    }
+    .capitulo h3 .mas{margin-left:auto;font-size:1.3rem;opacity:.6;transition:transform .25s}
+    .capitulo.abierto h3 .mas{transform:rotate(45deg)}
+    .capitulo .cuerpo{display:none;padding:0 4px 26px}
+    .capitulo.abierto .cuerpo{display:block}
+    .capitulo .cuerpo p{
+      color:#ddd8cc;line-height:1.78;margin-bottom:17px;font-size:1.02rem;
+      /* cada parrafo contiene su propio float: si no, la capitular del primero se
+         derrama sobre el segundo y le mete una sangria que no le corresponde */
+      overflow:hidden;
+    }
+    .capitulo .cuerpo p:first-child::first-letter{
+      float:left;font-size:3.1rem;line-height:.86;padding:4px 10px 0 0;color:var(--gold);
+    }
+    @media(max-width:640px){
+      .capitulo .cuerpo p{font-size:.98rem;line-height:1.72}
+      .tab{padding:8px 15px;font-size:.86rem}
+    }
+
     .cargando{text-align:center;padding:26px;color:#888;font-size:.9rem}
 
     /* ══ Visor ══ */
@@ -137,7 +179,19 @@
 </div>
 
 <div class="wrap">
-  <div id="vista-colecciones">
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-vista="relato">El relato</button>
+    <button class="tab" data-vista="archivo">El archivo</button>
+  </div>
+
+  <div id="vista-relato">
+    <div class="relato">
+      <div class="firma" id="relato-firma"></div>
+      <div id="caps"></div>
+    </div>
+  </div>
+
+  <div id="vista-colecciones" hidden>
     <div class="cols" id="cols"></div>
   </div>
 
@@ -217,7 +271,8 @@ function pintarColecciones(){
           : '<img loading="lazy" src="' + escapar(c.portada) + '" alt="">')
       : "";
     d.innerHTML = port +
-      '<div class="cap"><h2>' + escapar(c.nombre) + "</h2><span>" + cuantos + "</span></div>";
+      '<div class="cap"><h2>' + escapar(c.nombre) + "</h2><span>" +
+      (c.anio ? c.anio + " · " : "") + cuantos + "</span></div>";
     d.onclick = () => abrirColeccion(c.slug);
     cont.appendChild(d);
   });
@@ -248,6 +303,7 @@ async function abrirColeccion(slug){
                               .filter(Boolean).join(" · ");
     $("grid").innerHTML = "";
     $("vista-colecciones").hidden = true;
+    $("vista-relato").hidden = true;
     $("vista-adentro").hidden = false;
     $("estado").hidden = true;
     location.hash = slug;
@@ -303,6 +359,7 @@ window.addEventListener("scroll", () => {
 $("volver").onclick = () => {
   $("vista-adentro").hidden = true;
   $("vista-colecciones").hidden = false;
+  $("vista-relato").hidden = true;
   actual = null;
   history.replaceState(null, "", location.pathname);
   $("bajada").textContent = $("bajada").dataset.orig || $("bajada").textContent;
@@ -354,6 +411,52 @@ document.addEventListener("keydown", e => {
   if(e.key === "ArrowRight") mover(1);
 });
 
+
+/* ── El relato: "16 años construyendo un sueño" ──────────────────────────────
+   Sale del PDF que escribió Iván en septiembre de 2024; lo convierte a JSON
+   tools/relato_historia.py en el repo de Dorita (ahí está el trabajo fino de
+   rehacer los párrafos, que un PDF no guarda). Vive en el mismo origen que la
+   página, así que no necesita CORS ni R2. */
+
+async function cargarRelato(){
+  try{
+    const d = await traer("relato.json");
+    document.getElementById("relato-firma").textContent =
+      `${d.titulo} — ${d.autor}, ${d.fecha}`;
+    const cont = document.getElementById("caps");
+    cont.innerHTML = "";
+    (d.capitulos || []).forEach((c, i) => {
+      const div = document.createElement("div");
+      div.className = "capitulo" + (i === 0 ? " abierto" : "");   // el primero, abierto
+      div.innerHTML =
+        '<h3><span class="n">' + String(i + 1).padStart(2, "0") + "</span>" +
+        escapar(c.titulo) + '<span class="mas">+</span></h3>' +
+        '<div class="cuerpo">' +
+        (c.parrafos || []).map(t => "<p>" + escapar(t) + "</p>").join("") +
+        "</div>";
+      div.querySelector("h3").onclick = () => div.classList.toggle("abierto");
+      cont.appendChild(div);
+    });
+  }catch(e){
+    document.getElementById("relato-firma").textContent =
+      "no pude cargar el relato — probá de nuevo en un rato";
+    console.warn("[historia] relato:", e.message);
+  }
+}
+
+// Pestañas: el relato y el archivo son dos formas de mirar lo mismo.
+document.querySelectorAll("#tabs .tab").forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll("#tabs .tab").forEach(x => x.classList.toggle("on", x === b));
+    const relato = b.dataset.vista === "relato";
+    $("vista-relato").hidden = !relato;
+    $("vista-colecciones").hidden = relato;
+    $("vista-adentro").hidden = true;      // si venía de adentro de una colección
+    history.replaceState(null, "", location.pathname);
+    window.scrollTo({top: 0});
+  };
+});
+
 /* ── Arranque ────────────────────────────────────────────────────────────── */
 
 (async function(){
@@ -363,8 +466,13 @@ document.addEventListener("keydown", e => {
     COLECCIONES = d.colecciones || [];
     pintarColecciones();
     $("estado").hidden = true;
+    cargarRelato();
     const slug = location.hash.replace("#", "");
-    if(slug) abrirColeccion(slug);
+    if(slug){
+      // Un link directo a una colección entra por el archivo, no por el relato.
+      document.querySelector('#tabs .tab[data-vista="archivo"]').click();
+      abrirColeccion(slug);
+    }
   }catch(e){
     $("estado").textContent = "no pude cargar el archivo — probá de nuevo en un rato";
     console.warn("[historia]", e.message);

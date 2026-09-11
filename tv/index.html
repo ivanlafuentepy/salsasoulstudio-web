@@ -165,7 +165,7 @@
 <div id="escenario"></div>
 
 <div id="marca">
-  <img src="logo-tv.png" alt="Salsa Soul Studio">
+  <img class="logoMarca" src="logo-tv.png" alt="Salsa Soul Studio">
   <div id="pie">
     <div id="pieTitulo">Salsa Soul Studio</div>
     <div id="pieSub">Disfruta la vida bailando</div>
@@ -176,7 +176,7 @@
 <div id="avisoSonido">🔇 Apretá cualquier botón del control para el sonido</div>
 
 <div id="estado">
-  <img src="logo-tv.png" alt="">
+  <img class="logoMarca" src="logo-tv.png" alt="">
   <div class="msg">Preparando la pantalla…</div>
   <div class="sub" id="estadoSub"></div>
 </div>
@@ -204,8 +204,52 @@ const R2 = "https://pub-1fc0fb1ac8244995981fc724066bf71c.r2.dev";
 
 /* Modo liviano para la Smart TV: /tv?liviano=1 — apaga el desenfoque de fondo y
    el movimiento de las fotos, que es lo que hace sufrir a una GPU de TV en 4K. */
-const LIVIANO = new URLSearchParams(location.search).has("liviano");
+const PARAMS = new URLSearchParams(location.search);
+const LIVIANO = PARAMS.has("liviano");
 if(LIVIANO) document.body.classList.add("liviano");
+
+/* LA MARCA: /tv?marca=mamba — Salsa Soul y Mamba Basket comparten el local y las
+   pantallas, con horarios distintos. Cada una tiene su propio archivo y su propio
+   prefijo en R2 (ver MARCAS en tools/tv_sync.py); acá se elige de cuál se lee.
+   Sin el parámetro es Salsa Soul, que es la que ya está en el aire: una TV que hoy
+   apunta a /tv sigue mostrando exactamente lo mismo que mostraba ayer. */
+const MARCAS = {
+  salsa: {
+    nombre: "Salsa Soul Studio",
+    lema: "Disfruta la vida bailando",
+    pie_web: "salsasoulstudio.com",
+    playlist: "/tv/playlist.json",
+    logo: "logo-tv.png",
+    // Las fotos de las clases salen del MISMO manifiesto que salsasoulstudio.com/fotos.
+    clases: true,
+    // Los afiches se buscan POR NOMBRE de archivo: son los de Salsa Soul y no existen
+    // en el archivo de Mamba, así que cada marca nombra los suyos.
+    afiches_horarios: ["Horarios Principiante 1", "Horarios Basico 2",
+                       "Horarios Basico 3", "Horarios Intermedio"],
+    afiche_social: "Proximo Social"
+  },
+  mamba: {
+    nombre: "Mamba Basket Academy",
+    lema: "",
+    pie_web: "",
+    playlist: "/tv-mamba/playlist.json",
+    logo: "logo-mamba.png",
+    // Mamba no tiene galería de clases por WhatsApp: pedirle el manifiesto de Salsa
+    // le metería fotos de salsa en la pantalla de básquet.
+    clases: false,
+    afiches_horarios: [],
+    afiche_social: null
+  }
+};
+const MARCA = MARCAS[PARAMS.get("marca")] ? PARAMS.get("marca") : "salsa";
+const M = MARCAS[MARCA];
+
+// El logo y el pie de la marca, antes de que se dibuje el primer item: si se dejaran
+// para después, la pantalla de "Preparando…" arranca con el logo de la otra academia.
+document.querySelectorAll(".logoMarca").forEach(img => { img.src = M.logo; img.alt = M.nombre; });
+document.getElementById("pieTitulo").textContent = M.nombre;
+document.getElementById("pieSub").textContent = M.lema;
+document.title = "TV " + M.nombre;
 
 const CONFIG_DEFAULT = {
   segundos_foto: 8,             // fotos de las clases
@@ -427,6 +471,7 @@ function desdeISO(semanas){
 // Devuelve las clases AGRUPADAS POR DÍA: la tele muestra todas las fotos de una misma
 // clase juntas, con su fecha en pantalla, en vez de fotos sueltas sin contexto.
 async function fotosDeClases(){
+  if(!M.clases) return [];        // Mamba no tiene galería de clases por WhatsApp
   try{
     const man = await traerJSON(R2 + "/manifest.json");
     const limite = desdeISO(CFG.semanas_galeria || 8);
@@ -448,15 +493,20 @@ async function fotosDeClases(){
 async function cargarPlaylist(){
   let pl = null;
   try{
-    pl = await traerJSON(R2 + "/tv/playlist.json");
+    pl = await traerJSON(R2 + M.playlist);
   }catch(e){
     console.warn("[TV] playlist de R2 no disponible, uso la copia del repo:", e.message);
-    try{ pl = await traerJSON("/tv/playlist.json"); }
+    // La copia de respaldo del repo es solo la de Salsa: si la de Mamba no está en R2,
+    // no hay nada que mostrar y es mejor decirlo que mostrar la cartelera equivocada.
+    try{ pl = await traerJSON(M.playlist); }
     catch(e2){ console.error("[TV] tampoco hay copia local:", e2.message); pl = null; }
   }
   if(!pl) return false;
 
-  CFG = {...CONFIG_DEFAULT, ...(pl.config || {})};
+  // La marca va ÚLTIMA: manda sobre lo que traiga el playlist, porque los nombres de
+  // los afiches de Salsa no existen en el archivo de Mamba.
+  CFG = {...CONFIG_DEFAULT, ...(pl.config || {}),
+         afiches_horarios: M.afiches_horarios, afiche_social: M.afiche_social};
 
   const items = (pl.items || []).filter(vigente);
   const nuevo = {video:[], foto:[], afiche:[], noticia:[], fijo:[], musica:[]};
@@ -802,8 +852,8 @@ function pie(titulo, sub){
   p.style.opacity = "0";
   clearTimeout(_pieTimer);
   _pieTimer = setTimeout(()=>{
-    document.getElementById("pieTitulo").textContent = titulo || "Salsa Soul Studio";
-    document.getElementById("pieSub").textContent   = sub || "Disfruta la vida bailando";
+    document.getElementById("pieTitulo").textContent = titulo || M.nombre;
+    document.getElementById("pieSub").textContent   = sub || M.lema;
     p.style.opacity = "1";
   }, 450);
 }
@@ -874,7 +924,7 @@ async function pintarVideo(item){
   else if(v.videoHeight < 480) capa.classList.add("chico");
 
   mostrarCapa(capa);
-  pie(item.titulo || "Salsa Soul Studio", item.subtitulo || "Disfruta la vida bailando");
+  pie(item.titulo || M.nombre, item.subtitulo || M.lema);
 
   try{
     await v.play();
@@ -972,7 +1022,7 @@ async function pintarAfiche(item){
   capa.appendChild(img);
   mostrarCapa(capa);
 
-  pie(item.titulo || "Salsa Soul Studio", item.subtitulo || "salsasoulstudio.com");
+  pie(item.titulo || M.nombre, item.subtitulo || M.pie_web);
   const seg = item.segundos || CFG.segundos_afiche;
   correrProgreso(seg);
   await dormir(seg*1000);
@@ -996,7 +1046,7 @@ async function pintarNoticia(item){
   capa.appendChild(div);
   mostrarCapa(capa);
 
-  pie("Salsa Soul Studio", "salsasoulstudio.com");
+  pie(M.nombre, M.pie_web);
   // Una noticia con QR necesita más tiempo: hay que sacar el celular, desbloquearlo,
   // abrir la cámara y apuntar. Se le puede poner SEGUNDOS: en noticias.txt.
   const seg = item.segundos || CFG.segundos_noticia;

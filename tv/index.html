@@ -630,12 +630,21 @@ function _porTitulo(lista, titulo){
 
 let vuelta = 0;
 
-function* guion(){
-  while(true){
+// UNA vuelta del guion. El `while(true)` vive afuera, en guion(), junto con la
+// guarda que se asegura de que cada vuelta emita algo: acá adentro TODO lo que se
+// emite está condicionado, y una cartelera sin videos, sin afiches de horarios y sin
+// días de clase —Mamba Basket -- recorría la vuelta entera sin un solo yield. Un
+// generador que no cede dentro de un while(true) no "no muestra nada": CUELGA la
+// pestaña, y la TV de la academia se queda congelada hasta que alguien la reinicia.
+function* unaVuelta(){
+  {
     // Turnos alternados: una vuelta le toca a un festival (video + SUS fotos) y la
     // siguiente a un video suelto del canal. Sin esto, con un solo festival cargado
     // los 60 videos del canal no saldrían nunca.
-    const hayCol = COLECCIONES.some(c => c.videos.length);
+    // Una colección SIN videos entra igual: sus fotos son todo lo que tiene, y si se
+    // pide un video para mostrarlas, no salen nunca (le pasaba a GRAN CABARET, 39
+    // fotos y 0 videos, y a las 13 colecciones de Mamba).
+    const hayCol = COLECCIONES.some(c => c.videos.length || c.fotos.length);
     const usarCol = hayCol && (!POOL.video.length || vuelta % 2 === 0);
     vuelta++;
     // Round-robin, pero SALTEANDO las colecciones que ya emitieron todos sus videos
@@ -648,16 +657,22 @@ function* guion(){
     if(usarCol){
       for(let i = 0; i < COLECCIONES.length; i++){
         const c = COLECCIONES[colIdx++ % COLECCIONES.length];
-        if(!c.videos.length) continue;
+        if(!c.videos.length && !c.fotos.length) continue;
         if(!respaldo) respaldo = c;
-        if(c.videos.some(v => !videosVistos.has(_claveFoto(v)))){ col = c; break; }
+        // Con videos, la que tenga alguno sin ver; sin videos, alcanza con que tenga
+        // fotos: es una colección de puras fotos y su turno es igual de válido.
+        if(!c.videos.length || c.videos.some(v => !videosVistos.has(_claveFoto(v)))){
+          col = c; break;
+        }
       }
       if(!col) col = respaldo;   // están todas agotadas: la que toca, y que reinicie
     }
 
-    if(col && col.videos.length){
-      const v = videoNoVisto(col);
-      if(v) yield {...v};
+    if(col){
+      if(col.videos.length){
+        const v = videoNoVisto(col);
+        if(v) yield {...v};
+      }
 
       // Nunca más fotos de las que tiene el evento: con 4 fotos y un bloque de 20,
       // se veían las mismas cuatro cinco veces seguidas.
@@ -713,6 +728,25 @@ function* guion(){
 
     // Una noticia para cerrar la vuelta
     if(POOL.noticia.length) yield POOL.noticia[CURSOR.noticia++ % POOL.noticia.length];
+  }
+}
+
+function* guion(){
+  while(true){
+    let emitio = false;
+    for(const item of unaVuelta()){ emitio = true; yield item; }
+    if(emitio) continue;
+
+    // La vuelta no emitió NADA. Antes esto era un cuelgue silencioso: el while
+    // giraba sin ceder y la pantalla quedaba congelada. Se cae a lo único que
+    // siempre hay en una cartelera —una foto— y si no hay ni eso, el generador
+    // termina y quien llama muestra el aviso de "sin contenido" en vez de colgarse.
+    const suelta = POOL.foto.length ? fotoNoVista(POOL.foto) : null;
+    const deColeccion = COLECCIONES.find(c => c.fotos.length);
+    const f = suelta || (deColeccion ? fotoNoVista(deColeccion) : null)
+              || POOL.afiche[CURSOR.afiche++ % Math.max(1, POOL.afiche.length)];
+    if(!f){ console.error("[TV] no hay NADA para mostrar"); return; }
+    yield f;
   }
 }
 

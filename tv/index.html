@@ -477,9 +477,21 @@ async function cargarPlaylist(){
       // Se lee el NOMBRE DEL ARCHIVO arriba y la marca del evento debajo. Si el
       // archivo trae el nombre que le puso la cámara ("IMG_7468", "5B7A1173"), no
       // hay nada que leer: se muestra el evento y listo.
+      //
+      // Debajo del evento va CUÁNDO y DÓNDE fue, que es lo que lo ata a un recuerdo
+      // y no solo a un nombre de carpeta (pedido de Iván, 11/09/2026):
+      //     Cuchi Cuchi
+      //     FESTIVAL 15 AÑOS SALSA SOUL · Diciembre 2023 · Teatro Latino
+      // Las tres partes son opcionales y se arman filtrando las vacías: de las 16
+      // colecciones solo 9 tienen la ficha cargada, y una sin ficha tiene que
+      // seguir leyéndose igual que hoy, sin un " · " colgado al final. `fecha` es
+      // la escrita a mano ("Diciembre 2023") y `anio` el respaldo — tv_sync manda
+      // una o el otro, nunca los dos.
+      const cuando = [it.fecha || it.anio, it.lugar].filter(Boolean).join(" · ");
       const et = it.titulo_generico
-        ? {titulo: it.coleccion, subtitulo: ""}
-        : {titulo: it.titulo, subtitulo: it.coleccion};
+        ? {titulo: it.coleccion, subtitulo: cuando}
+        : {titulo: it.titulo,
+           subtitulo: [it.coleccion, cuando].filter(Boolean).join(" · ")};
       if(it.tipo === "video") c.videos.push({...it, ...et});
       else c.fotos.push({...it, ...et, segundos: null});
       return;

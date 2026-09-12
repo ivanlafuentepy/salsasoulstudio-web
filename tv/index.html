@@ -628,7 +628,7 @@ function _porTitulo(lista, titulo){
    fotos van atadas al video de su propio evento. Los videos que no pertenecen a
    ningún festival (los 60 del canal) ocupan el paso 1 cuando les toca el turno. */
 
-let vuelta = 0;
+let creditoPool = 0;
 
 // UNA vuelta del guion. El `while(true)` vive afuera, en guion(), junto con la
 // guarda que se asegura de que cada vuelta emita algo: acá adentro TODO lo que se
@@ -644,9 +644,20 @@ function* unaVuelta(){
     // Una colección SIN videos entra igual: sus fotos son todo lo que tiene, y si se
     // pide un video para mostrarlas, no salen nunca (le pasaba a GRAN CABARET, 39
     // fotos y 0 videos, y a las 13 colecciones de Mamba).
-    const hayCol = COLECCIONES.some(c => c.videos.length || c.fotos.length);
-    const usarCol = hayCol && (!POOL.video.length || vuelta % 2 === 0);
-    vuelta++;
+    //
+    // El turno del pool suelto sale PROPORCIONAL a lo que tiene, con tope en la mitad.
+    // Era una vuelta de cada dos, fija, y esa mitad se escribió cuando el pool eran los
+    // 60 videos del canal. El 12/09/2026, con el archivo ya ordenado en colecciones, el
+    // pool quedó con UN video ("El SUEÑO de la SALSA") contra 32 colecciones: se pasó
+    // la jornada entera saliendo una vuelta sí y una no. Un grupo de uno no puede valer
+    // lo que 32. El tope de 0.5 devuelve la alternancia de antes apenas el pool vuelve
+    // a ser grande, que es para lo que se había escrito.
+    const conMaterial = COLECCIONES.filter(c => c.videos.length || c.fotos.length).length;
+    let usarCol = conMaterial > 0;
+    if(usarCol && POOL.video.length){
+      creditoPool += Math.min(0.5, POOL.video.length / (POOL.video.length + conMaterial));
+      if(creditoPool >= 1){ creditoPool -= 1; usarCol = false; }
+    }
     // Round-robin, pero SALTEANDO las colecciones que ya emitieron todos sus videos
     // mientras quede alguna con material sin ver. Sin esto, una colección de 3 videos
     // (NUESTROS PROFES, TALLERES CON PACITA) vuelve a empezar cada dos vueltas y se

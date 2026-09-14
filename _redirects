@@ -13,17 +13,17 @@
 /app https://salsa-soul-dorita-production.up.railway.app/app/ 302
 /app/* https://salsa-soul-dorita-production.up.railway.app/app/:splat 302
 
-# Las TVs del local — una dirección por pantalla (14/09/2026). Son rewrites 200, no
-# redirecciones: la barra sigue diciendo /tv/entrada y la página servida es la misma
-# de /tv, que saca de la ÚLTIMA parte del camino qué tele es. En una Smart TV la
-# dirección se tipea con el control remoto, así que tiene que ser corta y sin ?.
+# Las TVs del local — una dirección por pantalla (14/09/2026). En una Smart TV la
+# dirección se tipea con el control remoto, así que tiene que ser corta: se tipea
+# salsasoulstudio.com/tv/entrada y la barra termina en /tv/?tele=entrada.
 #
-# El destino va SIN query: probado en producción el 14/09, una línea con
-# "/tv/index.html?tele=entrada 200" Pages la descarta entera y /tv/entrada terminaba
-# sirviendo la home del sitio con un 200 bien limpio. Por eso la tele se lee del
-# camino y no del parámetro.
-/tv/entrada /tv/index.html 200
-/tv/cantina /tv/index.html 200
-/tv/gym /tv/index.html 200
-/tv/salon /tv/index.html 200
-/tv/lfm /tv/index.html 200
+# Son 302 y NO rewrites 200. Las dos formas del rewrite se probaron en producción y
+# ninguna sirve: con el destino "/tv/index.html?tele=entrada" Pages descarta la línea
+# y sirve la HOME del sitio con un 200; con "/tv/index.html" a secas canonicaliza el
+# index a su carpeta y devuelve un 308 a /tv/ — se come el "entrada" y las cinco
+# teles vuelven a mostrar lo mismo. El 302 es el que llega con la tele puesta.
+/tv/entrada /tv/?tele=entrada 302
+/tv/cantina /tv/?tele=cantina 302
+/tv/gym /tv/?tele=gym 302
+/tv/salon /tv/?tele=salon 302
+/tv/lfm /tv/?tele=lfm 302

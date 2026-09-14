@@ -165,7 +165,7 @@
 <div id="escenario"></div>
 
 <div id="marca">
-  <img class="logoMarca" src="logo-tv.png" alt="Salsa Soul Studio">
+  <img class="logoMarca" src="/tv/logo-tv.png" alt="Salsa Soul Studio">
   <div id="pie">
     <div id="pieTitulo">Salsa Soul Studio</div>
     <div id="pieSub">Disfruta la vida bailando</div>
@@ -176,7 +176,7 @@
 <div id="avisoSonido">🔇 Apretá cualquier botón del control para el sonido</div>
 
 <div id="estado">
-  <img class="logoMarca" src="logo-tv.png" alt="">
+  <img class="logoMarca" src="/tv/logo-tv.png" alt="">
   <div class="msg">Preparando la pantalla…</div>
   <div class="sub" id="estadoSub"></div>
 </div>
@@ -219,7 +219,7 @@ const MARCAS = {
     lema: "Disfruta la vida bailando",
     pie_web: "salsasoulstudio.com",
     playlist: "/tv/playlist.json",
-    logo: "logo-tv.png",
+    logo: "/tv/logo-tv.png",
     // Las fotos de las clases salen del MISMO manifiesto que salsasoulstudio.com/fotos.
     clases: true,
     // Los afiches se buscan POR NOMBRE de archivo: son los de Salsa Soul y no existen
@@ -233,7 +233,7 @@ const MARCAS = {
     lema: "",
     pie_web: "",
     playlist: "/tv-mamba/playlist.json",
-    logo: "logo-mamba.png",
+    logo: "/tv/logo-mamba.png",
     // Mamba no tiene galería de clases por WhatsApp: pedirle el manifiesto de Salsa
     // le metería fotos de salsa en la pantalla de básquet.
     clases: false,
@@ -241,15 +241,69 @@ const MARCAS = {
     afiche_social: null
   }
 };
-const MARCA = MARCAS[PARAMS.get("marca")] ? PARAMS.get("marca") : "salsa";
+/* LAS TELES: /tv/entrada · /tv/cantina · /tv/gym · /tv/salon · /tv/lfm
+   (las direcciones limpias las arma _redirects; por debajo es /tv/?tele=entrada)
+
+   Cada pantalla del local tiene su propio programa, y lo único que cambia entre
+   ellas es DE QUÉ ARCHIVO leen y A QUÉ HORA cambian de uno al otro (pedido de Iván,
+   14/09/2026). El local lo comparten dos academias: hasta la hora del cambio la
+   pantalla muestra el archivo de Mamba, y a partir de ahí el de Salsa Soul, que es
+   cuando empiezan las clases de baile.
+
+   `turno` reparte las teles a lo largo de la rueda de años (ver armarRuedaDeAnios):
+   es lo que hace que a la misma hora cada pantalla esté mostrando un año distinto.
+
+   SIN el parámetro `tele` la página se comporta EXACTAMENTE como antes del 14/09:
+   Salsa Soul todo el día. Una tele apuntada a /tv a secas sigue andando igual. */
+const TELES = {
+  entrada: {nombre: "Entrada",      cambio: "19:00", turno: 0},
+  cantina: {nombre: "Cantina",      cambio: "19:15", turno: 1},
+  gym:     {nombre: "Gimnasio",     cambio: "19:30", turno: 2},
+  salon:   {nombre: "Salón Salsa",  cambio: null,    turno: 3},   // salsa siempre
+  // La tele de la tienda de ropa: la dirección ya existe, el material todavía no.
+  // Hasta que se defina, pantalla negra con el logo — sin bajar un solo byte de R2.
+  lfm:     {nombre: "LFM",          apagada: true,   turno: 4}
+};
+/* De dónde sale cuál tele es esta: del CAMINO (/tv/entrada) o del parámetro
+   (/tv/?tele=entrada). Las dos formas hacen falta y no es redundancia: el rewrite de
+   Cloudflare (`/tv/entrada /tv/index.html?tele=entrada 200`) sirve el archivo pero la
+   barra del navegador sigue diciendo /tv/entrada SIN el `?`, así que del lado del
+   navegador el parámetro no existe. El que se tipea en la tele es el camino; el
+   parámetro queda para probar desde la notebook sin pasar por Cloudflare. */
+const _SEG = location.pathname.replace(/\/+$/, "").split("/").pop() || "";
+const _TELE_PEDIDA = PARAMS.get("tele") || _SEG;
+const TELE = TELES[_TELE_PEDIDA] ? _TELE_PEDIDA : null;
+const T = TELE ? TELES[TELE] : null;
+const APAGADA = !!(T && T.apagada);
+
+// "HH:MM" en Paraguay. h23 y no hour12:false: algunos navegadores devuelven "24:05"
+// pasada la medianoche con hour12:false, y "24:05" > "19:00" es la comparación al revés.
+function horaPY(){
+  return new Intl.DateTimeFormat("en-GB", {timeZone: "America/Asuncion",
+    hour: "2-digit", minute: "2-digit", hourCycle: "h23"}).format(new Date());
+}
+
+// Qué academia le toca a esta tele AHORA. `?marca=` sigue mandando sobre el horario:
+// sirve para probar el archivo de Mamba a cualquier hora sin esperar al programa.
+function marcaDeAhora(){
+  const forzada = PARAMS.get("marca");
+  if(MARCAS[forzada]) return forzada;
+  if(!T || !T.cambio) return "salsa";
+  return horaPY() < T.cambio ? "mamba" : "salsa";
+}
+
+const MARCA = marcaDeAhora();
 const M = MARCAS[MARCA];
 
 // El logo y el pie de la marca, antes de que se dibuje el primer item: si se dejaran
 // para después, la pantalla de "Preparando…" arranca con el logo de la otra academia.
-document.querySelectorAll(".logoMarca").forEach(img => { img.src = M.logo; img.alt = M.nombre; });
+// La tele apagada es la excepción: muestra el logo de Salsa Soul, no el de la marca
+// que le tocaría por horario.
+const LOGO = APAGADA ? MARCAS.salsa.logo : M.logo;
+document.querySelectorAll(".logoMarca").forEach(img => { img.src = LOGO; img.alt = M.nombre; });
 document.getElementById("pieTitulo").textContent = M.nombre;
 document.getElementById("pieSub").textContent = M.lema;
-document.title = "TV " + M.nombre;
+document.title = "TV " + (T ? T.nombre + " · " : "") + M.nombre;
 
 const CONFIG_DEFAULT = {
   segundos_foto: 8,             // fotos de las clases
@@ -285,7 +339,7 @@ let POOL = {video:[], foto:[], afiche:[], noticia:[], fijo:[], musica:[]};
 let CURSOR = {video:0, foto:0, afiche:0, noticia:0, fijo:0};
 let COLECCIONES = [];   // festivales: cada uno con SUS videos y SUS fotos
 let DIAS_CLASE = [];    // fotos de las clases, agrupadas por día
-let colIdx = 0, diaIdx = 0;
+let diaIdx = 0;   // colIdx murió con la rueda de años (anioIdx / CUR_ANIO)
 let capaActual = null;
 let sonidoOk = true;
 let fallosSeguidos = 0;
@@ -313,7 +367,11 @@ function vigente(item){
    navegador de la tele (localStorage), así que sobrevive a la recarga de las 6 h y
    al apagón de la noche. Se guarda solo el nombre del archivo, no la URL entera. */
 
-const LS_VISTAS = "tv_fotos_vistas";
+/* La clave lleva la MARCA: desde que una tele cambia de academia a mitad de la noche
+   (14/09/2026), un solo registro compartido significaría que las 1.428 fotos de Mamba
+   que salieron antes de las 19 se cuentan como "ya vistas" cuando entra Salsa. Son dos
+   carteleras distintas y cada una lleva su propia cuenta. */
+const LS_VISTAS = "tv_fotos_vistas:" + MARCA;
 let vistasHoy = new Set();
 
 function _claveFoto(item){
@@ -347,7 +405,7 @@ function guardarVistas(){
    videos por noche y más de cien en la nube hacen falta varias noches para verlos
    todos, que es justo lo que Iván pedía. Se limpia solo cuando se agotaron. */
 
-const LS_VIDEOS = "tv_videos_vistos";
+const LS_VIDEOS = "tv_videos_vistos:" + MARCA;   // por marca, igual que las fotos
 let videosVistos = new Set();
 
 function cargarVistos(){
@@ -420,18 +478,93 @@ function mezclarConSemilla(a, txt){
   return x;
 }
 
-function ordenDelDia(lista){
-  const hoy = diaDeHoy();
-  const barajadas = mezclarConSemilla(lista, hoyISO());
-  const delDia = barajadas.filter(c => c.dia === hoy);
-  const resto  = barajadas.filter(c => c.dia !== hoy);
-  if(!delDia.length) return barajadas;
-  if(!resto.length) return delDia;
-  // Su día: una del día entre cada una de las otras
-  const out = [];
-  resto.forEach((c, i) => { out.push(delDia[i % delDia.length]); out.push(c); });
-  console.log("[TV] hoy manda: " + delDia.map(c => c.nombre).join(", "));
-  return out;
+/* ── La rueda de los años ──────────────────────────────────────────────────────
+   Pedido de Iván (14/09/2026), con el archivo ya en 18 años: cada tanda tira un año
+   distinto, y sin orden cronológico — 2008, después 2018, después 2014. La rueda se
+   baraja con la fecha Y CON EL NOMBRE DE LA TELE como semilla: cada pantalla del
+   local recorre los mismos años en otro orden, así que a la misma hora ninguna está
+   mostrando lo mismo que la de al lado. Que alguna vez coincidan no es un problema.
+
+   El `turno` de la tele además la hace arrancar en otro punto de la rueda, para que
+   no salgan todas juntas del mismo año cuando se prenden a la misma hora.
+
+   El punto 2 del orden viejo sigue vivo acá: "el TBT hay que ir tirándolo todos los
+   días también, y los jueves full". El año que contiene una colección con día propio
+   se intercala entre todos los demás, o sea que sale una de cada dos tandas. */
+
+let BOLSAS = new Map();   // año → colecciones de ese año
+let ANIOS = [];           // la rueda barajada de esta tele para hoy
+let anioIdx = 0;          // NO se reinicia en el refresco del playlist: si se reiniciara,
+                          // cada 10 minutos la tele volvería al mismo año de arranque
+const CUR_ANIO = {};      // round-robin dentro de cada año
+
+function armarRuedaDeAnios(lista){
+  const bolsas = new Map();
+  lista.forEach(c => {
+    const k = c.anio ? String(c.anio) : "otros";
+    if(!bolsas.has(k)) bolsas.set(k, []);
+    bolsas.get(k).push(c);
+  });
+  BOLSAS = bolsas;
+
+  const barajados = mezclarConSemilla([...bolsas.keys()], hoyISO() + "|" + (TELE || "tv"));
+  const hoyD = diaDeHoy();
+  const conDia = barajados.filter(a => bolsas.get(a).some(c => c.dia === hoyD));
+  const resto  = barajados.filter(a => !conDia.includes(a));
+  if(conDia.length && resto.length){
+    // Una tanda de cada TRES es del año que manda hoy (el TBT los jueves). Era una de
+    // cada dos, heredado de cuando el orden era por colección y no por año: con la
+    // mitad de las tandas en el mismo año las cuatro teles quedaban de a dos mostrando
+    // 2020 a la misma hora, que es justo lo contrario de lo que se buscaba.
+    const out = [];
+    resto.forEach((a, i) => { out.push(a); if(i % 2 === 1) out.push(conDia[(i >> 1) % conDia.length]); });
+    ANIOS = out;
+    console.log("[TV] hoy manda el año " + conDia.join(", "));
+  }else{
+    ANIOS = barajados;
+  }
+
+  // Solo la primera vez: repartir las teles a lo largo de la rueda.
+  if(!anioIdx && ANIOS.length) anioIdx = ((T ? T.turno : 0) * 5) % ANIOS.length;
+  console.log("[TV] rueda de años (" + (TELE || "tv") + "): " + ANIOS.join(" → "));
+}
+
+// ¿Le queda algo que esta tele no haya visto todavía?
+function _tieneAlgoSinVer(c){
+  return c.videos.some(v => !videosVistos.has(_claveFoto(v))) ||
+         c.fotos.some(f => !vistasHoy.has(_claveFoto(f)));
+}
+
+/* La colección de la próxima tanda: primero el AÑO, después la colección de ese año.
+
+   Un año que ya dio TODO su material se saltea mientras quede otro con algo sin ver
+   —"que en una noche no se repita el mismo material", Iván—: sin esto el 2008, que
+   es una sola colección de 36 fotos y ningún video, volvía cada 17 tandas con
+   exactamente las mismas fotos, mientras al 2024 (5 colecciones, 6.226 fotos) no le
+   alcanzaba la noche. Cuando ya no queda nada sin ver en ningún año se da otra
+   vuelta: mejor repetir que dejar la pantalla vacía. */
+function colDelProximoAnio(){
+  if(!ANIOS.length) return null;
+  const hoyD = diaDeHoy();
+  let respaldo = null;
+  for(let i = 0; i < ANIOS.length; i++){
+    const anio = ANIOS[anioIdx++ % ANIOS.length];
+    const bolsa = (BOLSAS.get(anio) || []).filter(c => c.videos.length || c.fotos.length);
+    if(!bolsa.length) continue;
+    if(!respaldo) respaldo = {anio, bolsa};
+    // Dentro del año, la del día propio primero (el TBT de los jueves)
+    const frescas = bolsa.filter(_tieneAlgoSinVer)
+                         .sort((a, b) => (b.dia === hoyD) - (a.dia === hoyD));
+    if(!frescas.length) continue;        // este año ya salió entero esta noche
+    const n = CUR_ANIO[anio] = (CUR_ANIO[anio] || 0) + 1;
+    const c = frescas[(n - 1) % frescas.length];
+    console.log("[TV] tanda del año " + anio + " → " + c.nombre);
+    return c;
+  }
+  if(!respaldo) return null;
+  console.log("[TV] ya salió todo el archivo esta noche, otra vuelta");
+  const n = CUR_ANIO[respaldo.anio] = (CUR_ANIO[respaldo.anio] || 0) + 1;
+  return respaldo.bolsa[(n - 1) % respaldo.bolsa.length];
 }
 
 function mezclar(a){
@@ -490,6 +623,19 @@ async function fotosDeClases(){
   }
 }
 
+/* El año de una colección, para la rueda de años. Sale del playlist SIN tocar
+   tv_sync.py: el campo `anio` viene solo cuando el nombre de la carpeta no lo trae
+   ya adentro (así "FESTIVAL SALSA SOUL 2017 · 2017" no se lee dos veces), así que
+   cuando falta se lo busca en la fecha escrita a mano y en el nombre del evento.
+   Medido contra el playlist real del 14/09/2026: cubre 54 de las 57 colecciones.
+   Las tres sin año (LADIES STYLE, NY SOCIAL, SHOWS IVAN & INGRID) caen juntas en la
+   bolsa "otros", que gira en la rueda como un año más. */
+function anioDeItem(it){
+  if(typeof it.anio === "number") return it.anio;
+  const m = ((it.fecha || "") + " " + (it.coleccion || "")).match(/(?:19|20)\d\d/);
+  return m ? parseInt(m[0], 10) : null;
+}
+
 async function cargarPlaylist(){
   let pl = null;
   try{
@@ -522,8 +668,10 @@ async function cargarPlaylist(){
     if(it.coleccion && (it.tipo === "video" || it.tipo === "foto")){
       if(!cols.has(it.coleccion))
         cols.set(it.coleccion, {nombre: it.coleccion, videos: [], fotos: [],
-                                dia: (typeof it.dia === "number" ? it.dia : null)});
+                                dia: (typeof it.dia === "number" ? it.dia : null),
+                                anio: null});
       const c = cols.get(it.coleccion);
+      if(c.anio === null) c.anio = anioDeItem(it);
       // Se lee el NOMBRE DEL ARCHIVO arriba y la marca del evento debajo. Si el
       // archivo trae el nombre que le puso la cámara ("IMG_7468", "5B7A1173"), no
       // hay nada que leer: se muestra el evento y listo.
@@ -558,9 +706,10 @@ async function cargarPlaylist(){
   nuevo.musica = mezclar(nuevo.musica);
   // Afiches y noticias NO se mezclan: van en el orden que Iván puso en la carpeta
 
-  COLECCIONES = ordenDelDia([...cols.values()].map(c => ({
+  COLECCIONES = [...cols.values()].map(c => ({
     ...c, videos: mezclar(c.videos), fotos: mezclar(c.fotos), curV: 0, curF: 0
-  })));
+  }));
+  armarRuedaDeAnios(COLECCIONES);
   DIAS_CLASE = await fotosDeClases();
 
   const total = nuevo.video.length + nuevo.foto.length + nuevo.afiche.length +
@@ -658,36 +807,37 @@ function* unaVuelta(){
       creditoPool += Math.min(0.5, POOL.video.length / (POOL.video.length + conMaterial));
       if(creditoPool >= 1){ creditoPool -= 1; usarCol = false; }
     }
-    // Round-robin, pero SALTEANDO las colecciones que ya emitieron todos sus videos
-    // mientras quede alguna con material sin ver. Sin esto, una colección de 3 videos
-    // (NUESTROS PROFES, TALLERES CON PACITA) vuelve a empezar cada dos vueltas y se
-    // repite toda la noche, mientras una de 34 (FESTIVAL 2018) no llega a mostrarse
-    // entera: medido, quedaban 17 videos que no salían en tres noches. El ORDEN del día
-    // no cambia — solo se omite lo que ya dio todo.
-    let col = null, respaldo = null;
-    if(usarCol){
-      for(let i = 0; i < COLECCIONES.length; i++){
-        const c = COLECCIONES[colIdx++ % COLECCIONES.length];
-        if(!c.videos.length && !c.fotos.length) continue;
-        if(!respaldo) respaldo = c;
-        // Con videos, la que tenga alguno sin ver; sin videos, alcanza con que tenga
-        // fotos: es una colección de puras fotos y su turno es igual de válido.
-        if(!c.videos.length || c.videos.some(v => !videosVistos.has(_claveFoto(v)))){
-          col = c; break;
-        }
-      }
-      if(!col) col = respaldo;   // están todas agotadas: la que toca, y que reinicie
-    }
+    // La colección de esta tanda la elige la RUEDA DE AÑOS: un año distinto por
+    // tanda, y dentro del año la colección que todavía tenga material sin ver. El
+    // round-robin plano de antes (colIdx sobre todas las colecciones) salteaba lo ya
+    // agotado pero no miraba de qué año era: quedaba toda la noche en 2024 y 2025,
+    // que es donde está el 80% del archivo.
+    const col = usarCol ? colDelProximoAnio() : null;
 
     if(col){
+      // Si a la colección ya le salieron TODOS sus videos esta noche, la tanda va solo
+      // con sus fotos: repetir el video es lo que Iván pidió que no pasara (14/09).
+      // videoNoVisto() reinicia el registro cuando se acaban —está bien cuando no hay
+      // otra cosa que poner—, y el TBT, con 2 videos y 2.213 fotos, se llevaba 14 de
+      // los videos repetidos de una noche él solo. Solo se repite si tampoco quedan
+      // fotas sin ver: antes que dejar la tanda vacía, mejor repetir.
       if(col.videos.length){
-        const v = videoNoVisto(col);
-        if(v) yield {...v};
+        const quedaVideo = col.videos.some(v => !videosVistos.has(_claveFoto(v)));
+        const quedaFoto  = col.fotos.some(f => !vistasHoy.has(_claveFoto(f)));
+        if(quedaVideo || !quedaFoto){
+          const v = videoNoVisto(col);
+          if(v) yield {...v};
+        }
       }
 
       // Nunca más fotos de las que tiene el evento: con 4 fotos y un bloque de 20,
-      // se veían las mismas cuatro cinco veces seguidas.
-      const cuantas = Math.min(CFG.fotos_por_festival || 20, col.fotos.length);
+      // se veían las mismas cuatro cinco veces seguidas. Y nunca más de las que le
+      // quedan SIN VER esta noche: YOSOYLASALSA tiene 36 fotos y en la segunda tanda
+      // de su año pedía 20 más, así que las 4 últimas volvían a salir (14/09/2026).
+      // Si ya no queda ninguna sin ver, se usa el largo entero y fotoNoVista da otra
+      // vuelta — recién ahí se repite, que es mejor que una tanda sin fotos.
+      const sinVer = col.fotos.filter(f => !vistasHoy.has(_claveFoto(f))).length;
+      const cuantas = Math.min(CFG.fotos_por_festival || 20, sinVer || col.fotos.length);
       const cada = CFG.afiche_cada || 5;
       if(col.fotos.length){
         let afiches = 0;
@@ -1128,6 +1278,13 @@ function fmtDiaFecha(iso){
 
 async function loop(){
   while(true){
+    // La hora del cambio de academia, ejecutada entre un item y el siguiente
+    if(cambioPendiente){
+      console.log("[TV] recargando para " + cambioPendiente);
+      location.reload();
+      await dormir(60000);   // la recarga tarda: no seguir pintando mientras tanto
+      continue;
+    }
     const item = siguienteItem();
     if(!item){
       // Sin contenido: esperar y reintentar, nunca dejar la pantalla muerta
@@ -1219,19 +1376,48 @@ function desbloquearSonido(){
   ev => document.addEventListener(ev, desbloquearSonido)
 );
 
+/* La hora del cambio de academia (19:00 en la entrada, 19:15 en la cantina, 19:30 en
+   el gimnasio). Cambiar de archivo es recargar la página entera —son otro playlist,
+   otro logo y otro registro de lo ya visto—, así que NO se recarga en el acto: se
+   marca el cambio y el loop lo ejecuta cuando termina el item que está en pantalla.
+   De otra forma el reloj cortaría una coreografía a la mitad, que es justo lo que
+   Iván pidió evitar cuando se subió el tope de los videos a 7 minutos. */
+let cambioPendiente = null;
+if(!APAGADA && T && T.cambio){
+  setInterval(()=>{
+    const ahora = marcaDeAhora();
+    if(!cambioPendiente && ahora !== MARCA){
+      cambioPendiente = ahora;
+      console.log("[TV] " + T.nombre + " " + horaPY() + ": pasa a " + ahora +
+                  " al terminar lo que está en pantalla");
+    }
+  }, 30000);
+}
+
 /* Refresco del playlist en caliente: el item que está en pantalla no se corta,
    el cambio entra en el siguiente. Iván actualiza la carpeta y en <10 min está. */
-setInterval(async ()=>{
+if(!APAGADA) setInterval(async ()=>{
   try{ await cargarPlaylist(); }catch(e){ console.warn("[TV] refresco falló:", e.message); }
 }, CONFIG_DEFAULT.refresco_min * 60 * 1000);
 
 /* Recarga completa cada tantas horas: limpia cualquier fuga de memoria si la
    notebook queda encendida más de lo previsto. */
-setTimeout(()=>location.reload(), CONFIG_DEFAULT.recarga_horas * 3600 * 1000);
+if(!APAGADA) setTimeout(()=>location.reload(), CONFIG_DEFAULT.recarga_horas * 3600 * 1000);
 
 /* ── Arranque ──────────────────────────────────────────────────────────────── */
 
 (async function arrancar(){
+  /* La tele de la tienda todavía no tiene material propio: pantalla negra con el
+     logo de Salsa Soul y nada más. Se corta ACÁ, antes de pedirle un solo byte a R2:
+     una pantalla apagada no puede estar bajando 19 GB de archivo toda la noche. */
+  if(APAGADA){
+    document.getElementById("marca").style.display = "none";
+    document.querySelector("#estado .msg").textContent = "";
+    document.getElementById("estadoSub").textContent = "";
+    console.log("[TV] " + T.nombre + ": pantalla apagada (sin material asignado)");
+    return;
+  }
+
   cargarVistas();
   cargarVistos();
   if(vistasHoy.size) console.log("[TV] hoy ya salieron " + vistasHoy.size + " fotos");

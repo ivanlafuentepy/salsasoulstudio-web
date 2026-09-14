@@ -12,3 +12,13 @@
 /miapp/* https://salsa-soul-dorita-production.up.railway.app/app/:splat 302
 /app https://salsa-soul-dorita-production.up.railway.app/app/ 302
 /app/* https://salsa-soul-dorita-production.up.railway.app/app/:splat 302
+
+# Las TVs del local — una dirección por pantalla (14/09/2026). Son rewrites 200, no
+# redirecciones: la barra sigue diciendo /tv/entrada y la página es la misma de /tv,
+# que lee la tele del parámetro. En una Smart TV la dirección se tipea con el control
+# remoto, así que tiene que ser corta y sin signo de pregunta.
+/tv/entrada /tv/index.html?tele=entrada 200
+/tv/cantina /tv/index.html?tele=cantina 200
+/tv/gym /tv/index.html?tele=gym 200
+/tv/salon /tv/index.html?tele=salon 200
+/tv/lfm /tv/index.html?tele=lfm 200

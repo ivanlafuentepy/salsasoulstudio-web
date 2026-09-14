@@ -66,12 +66,40 @@
     border-radius:10px; box-shadow:0 24px 80px rgba(0,0,0,.75), 0 0 0 1px rgba(201,168,76,.22);
   }
 
-  /* Ken Burns: la foto respira, no se queda estática como un cuadro muerto */
+  /* Foto que NO es panorámica: entera, con el mismo fondo borroso del afiche.
+     `cover` a pantalla completa está bien para una 3:2 (pierde 16% del alto) y es
+     una masacre para una vertical: se ve un tercio de la foto y lo primero que se
+     va son las cabezas. Medido el 14/09/2026 sobre el archivo real: el 39% de las
+     fotos de Salsa y el 84% de las de Mamba son verticales, con una mediana de
+     recorte del 58% del alto. Iván: "muchas fotos corta la cabeza".
+     Al 94% del alto, como el afiche: el Ken Burns suave (×1.05) todavía entra en
+     pantalla sin comerse un borde. */
+  .capa .foto.entera{
+    position:relative; width:auto; height:auto;
+    max-width:94%; max-height:94%; object-fit:contain;
+    box-shadow:0 24px 80px rgba(0,0,0,.6);
+  }
+
+  /* Ken Burns: la foto respira, no se queda estática como un cuadro muerto.
+     El zoom NO sube más: terminaba en translate(-1.2%, -1.6%), que corre la imagen
+     hacia arriba y deja ver la parte de abajo — o sea que le comía la cabeza a la
+     gente justo sobre el final del plano, que es cuando más se la mira. */
   @keyframes kenburns{
     0%  {transform:scale(1.02) translate(0,0)}
-    100%{transform:scale(1.14) translate(-1.2%, -1.6%)}
+    100%{transform:scale(1.14) translate(-1.2%, 0)}
+  }
+  /* La entera no puede crecer tanto: pasado el 100% del alto empieza a cortar,
+     que es exactamente lo que vino a evitar. */
+  @keyframes kenburnsEntera{
+    0%  {transform:scale(1)}
+    100%{transform:scale(1.05)}
   }
   .capa .foto.kb{animation:kenburns var(--kb,10s) ease-out forwards}
+  .capa .foto.entera.kb{animation-name:kenburnsEntera}
+  /* Las panorámicas que sí van a pantalla completa se anclan arriba: en una foto de
+     grupo las caras están en el tercio superior, y el recorte de `cover` es el de
+     abajo (piso, piernas), que no lo extraña nadie. */
+  .capa .foto:not(.entera){object-position:center 38%}
 
   /* ══ Modo liviano (/tv?liviano=1) ══
      Para la Smart TV: el desenfoque a pantalla completa y el Ken Burns son lo
@@ -238,7 +266,17 @@ const MARCAS = {
     // le metería fotos de salsa en la pantalla de básquet.
     clases: false,
     afiches_horarios: [],
-    afiche_social: null
+    afiche_social: null,
+    /* Mamba suena al 85% y Salsa al 38%, y es para que suenen IGUAL (Iván,
+       14/09/2026: "la música de mamba está mucho más baja que la de salsa").
+       No era la música: medidos los 12 temas con loudnorm, los de Mamba están
+       1,3 dB MÁS fuertes que los de Salsa (-15,0 contra -16,3 LUFS). Lo que pasa
+       es que el archivo de Mamba no tiene un solo video, y en Salsa lo que se
+       escucha fuerte es el video, que va al 100%. Con la música al 38% la pantalla
+       de Mamba quedaba 8,4 dB por debajo de lo que suena la misma tele después de
+       las 19. El 0.85 iguala esos dos niveles, descontando el 1,3 dB que los temas
+       ya traen de más. */
+    volumen_musica: 0.85
   }
 };
 /* LAS TELES: /tv/entrada · /tv/cantina · /tv/gym · /tv/salon · /tv/lfm
@@ -633,6 +671,9 @@ async function cargarPlaylist(){
   // los afiches de Salsa no existen en el archivo de Mamba.
   CFG = {...CONFIG_DEFAULT, ...(pl.config || {}),
          afiches_horarios: M.afiches_horarios, afiche_social: M.afiche_social};
+  // El volumen propio de la marca, solo si lo define: Salsa no lo define y sigue
+  // tomando el del playlist, que es donde Iván lo puede tocar sin deploy.
+  if(typeof M.volumen_musica === "number") CFG.volumen_musica = M.volumen_musica;
 
   const items = (pl.items || []).filter(vigente);
   const nuevo = {video:[], foto:[], afiche:[], noticia:[], fijo:[], musica:[]};
@@ -1160,6 +1201,24 @@ async function pintarFoto(item){
     setTimeout(()=>res(false), 9000);
   });
   if(!ok){ console.warn("[TV] foto sin cargar, la salteo:", item.url); capa.remove(); return 0; }
+
+  /* Entera o a pantalla completa, según la forma de la foto. El corte está en 1.45
+     (entre una 4:3 y una 3:2): con la pantalla en 16:9, de una 3:2 `cover` se come
+     el 16% del alto y no se lleva ninguna cara; de una 4:3, el 25%, y de una
+     vertical, más de la mitad. Se mide con el tamaño REAL de la imagen, después de
+     que cargó — el playlist no trae las dimensiones. */
+  const proporcion = img.naturalWidth / (img.naturalHeight || 1);
+  const entera = !(proporcion >= 1.45);   // el NaN de una imagen rota también va entera
+  if(entera){
+    img.classList.add("entera");
+    if(!LIVIANO){
+      const blur = document.createElement("img");
+      blur.className = "fondoBlur"; blur.src = item.url;
+      capa.appendChild(blur);
+    }else{
+      capa.classList.add("conAfiche");   // el degradado barato, sin blur
+    }
+  }
 
   const seg = item.segundos || CFG.segundos_foto;
   img.style.setProperty("--kb", (seg + 1.2) + "s");

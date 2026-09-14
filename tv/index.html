@@ -488,9 +488,14 @@ function mezclarConSemilla(a, txt){
    El `turno` de la tele además la hace arrancar en otro punto de la rueda, para que
    no salgan todas juntas del mismo año cuando se prenden a la misma hora.
 
-   El punto 2 del orden viejo sigue vivo acá: "el TBT hay que ir tirándolo todos los
-   días también, y los jueves full". El año que contiene una colección con día propio
-   se intercala entre todos los demás, o sea que sale una de cada dos tandas. */
+   NO hay año con día propio. Existía: la colección marcada con un día (el TBT, que
+   viene de una carpeta "jueves") se intercalaba entre todas las demás y se llevaba
+   media jornada. Iván lo dio de baja el 14/09/2026 — "el TBT no cambia los jueves,
+   prácticamente todos los días es TBT, no es necesario algo diferente": con el
+   archivo entero en la tele, todo lo que se muestra es un recuerdo, así que el TBT
+   no es un día, es el material. Ahora su año entra en la rueda como uno más.
+   El `dia` de la colección sigue viniendo en el playlist (lo pone tv_sync desde el
+   nombre de la carpeta) pero la tele ya no lo mira. */
 
 let BOLSAS = new Map();   // año → colecciones de ese año
 let ANIOS = [];           // la rueda barajada de esta tele para hoy
@@ -507,22 +512,7 @@ function armarRuedaDeAnios(lista){
   });
   BOLSAS = bolsas;
 
-  const barajados = mezclarConSemilla([...bolsas.keys()], hoyISO() + "|" + (TELE || "tv"));
-  const hoyD = diaDeHoy();
-  const conDia = barajados.filter(a => bolsas.get(a).some(c => c.dia === hoyD));
-  const resto  = barajados.filter(a => !conDia.includes(a));
-  if(conDia.length && resto.length){
-    // Una tanda de cada TRES es del año que manda hoy (el TBT los jueves). Era una de
-    // cada dos, heredado de cuando el orden era por colección y no por año: con la
-    // mitad de las tandas en el mismo año las cuatro teles quedaban de a dos mostrando
-    // 2020 a la misma hora, que es justo lo contrario de lo que se buscaba.
-    const out = [];
-    resto.forEach((a, i) => { out.push(a); if(i % 2 === 1) out.push(conDia[(i >> 1) % conDia.length]); });
-    ANIOS = out;
-    console.log("[TV] hoy manda el año " + conDia.join(", "));
-  }else{
-    ANIOS = barajados;
-  }
+  ANIOS = mezclarConSemilla([...bolsas.keys()], hoyISO() + "|" + (TELE || "tv"));
 
   // Solo la primera vez: repartir las teles a lo largo de la rueda.
   if(!anioIdx && ANIOS.length) anioIdx = ((T ? T.turno : 0) * 5) % ANIOS.length;
@@ -545,16 +535,13 @@ function _tieneAlgoSinVer(c){
    vuelta: mejor repetir que dejar la pantalla vacía. */
 function colDelProximoAnio(){
   if(!ANIOS.length) return null;
-  const hoyD = diaDeHoy();
   let respaldo = null;
   for(let i = 0; i < ANIOS.length; i++){
     const anio = ANIOS[anioIdx++ % ANIOS.length];
     const bolsa = (BOLSAS.get(anio) || []).filter(c => c.videos.length || c.fotos.length);
     if(!bolsa.length) continue;
     if(!respaldo) respaldo = {anio, bolsa};
-    // Dentro del año, la del día propio primero (el TBT de los jueves)
-    const frescas = bolsa.filter(_tieneAlgoSinVer)
-                         .sort((a, b) => (b.dia === hoyD) - (a.dia === hoyD));
+    const frescas = bolsa.filter(_tieneAlgoSinVer);
     if(!frescas.length) continue;        // este año ya salió entero esta noche
     const n = CUR_ANIO[anio] = (CUR_ANIO[anio] || 0) + 1;
     const c = frescas[(n - 1) % frescas.length];
@@ -588,13 +575,6 @@ async function traerJSON(url, ms=12000){
 // Fotos de las clases: mismas URLs que ve el alumno en /fotos, de las últimas N
 // semanas. Es una ventana de TIEMPO, no un número de fechas: si una semana hubo
 // clases todos los días entran todas, y lo viejo sale solo sin tocar nada.
-// Día de la semana en Paraguay (0 = domingo), no el del reloj de la tele: si la
-// Android TV quedó en otro huso, el TBT saldría el día equivocado.
-function diaDeHoy(){
-  const p = hoyISO().split("-").map(Number);
-  return new Date(p[0], p[1]-1, p[2]).getDay();
-}
-
 function desdeISO(semanas){
   const d = new Date();
   d.setDate(d.getDate() - semanas * 7);

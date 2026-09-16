@@ -573,23 +573,48 @@ function _tieneAlgoSinVer(c){
    vuelta: mejor repetir que dejar la pantalla vacía. */
 function colDelProximoAnio(){
   if(!ANIOS.length) return null;
-  let respaldo = null;
-  for(let i = 0; i < ANIOS.length; i++){
-    const anio = ANIOS[anioIdx++ % ANIOS.length];
-    const bolsa = (BOLSAS.get(anio) || []).filter(c => c.videos.length || c.fotos.length);
-    if(!bolsa.length) continue;
-    if(!respaldo) respaldo = {anio, bolsa};
-    const frescas = bolsa.filter(_tieneAlgoSinVer);
-    if(!frescas.length) continue;        // este año ya salió entero esta noche
-    const n = CUR_ANIO[anio] = (CUR_ANIO[anio] || 0) + 1;
-    const c = frescas[(n - 1) % frescas.length];
-    console.log("[TV] tanda del año " + anio + " → " + c.nombre);
-    return c;
-  }
-  if(!respaldo) return null;
-  console.log("[TV] ya salió todo el archivo esta noche, otra vuelta");
-  const n = CUR_ANIO[respaldo.anio] = (CUR_ANIO[respaldo.anio] || 0) + 1;
-  return respaldo.bolsa[(n - 1) % respaldo.bolsa.length];
+  const recorrer = () => {
+    for(let i = 0; i < ANIOS.length; i++){
+      const anio = ANIOS[anioIdx++ % ANIOS.length];
+      const bolsa = (BOLSAS.get(anio) || []).filter(c => c.videos.length || c.fotos.length);
+      if(!bolsa.length) continue;
+      const frescas = bolsa.filter(_tieneAlgoSinVer);
+      if(!frescas.length) continue;      // este año ya salió entero esta noche
+      const n = CUR_ANIO[anio] = (CUR_ANIO[anio] || 0) + 1;
+      const c = frescas[(n - 1) % frescas.length];
+      console.log("[TV] tanda del año " + anio + " → " + c.nombre);
+      return c;
+    }
+    return null;
+  };
+
+  const c = recorrer();
+  if(c) return c;
+
+  /* Ya salió todo lo del día: se EMPIEZA OTRA JORNADA, no se elige un respaldo.
+
+     Antes acá se devolvía la primera bolsa con material del recorrido, y esa elección
+     se anclaba: el for avanza `anioIdx` una vez por año, así que la vuelta siguiente
+     arrancaba en el mismo lugar, encontraba el mismo respaldo y devolvía la misma
+     colección para siempre. Mientras la colección tuviera varias fotos no se notaba
+     —`fotoNoVista` iba rotando—, pero con una de UNA sola foto y sin afiches fijos que
+     la cortaran (Mamba no tiene), la cartelera se quedaba recargando esa única foto:
+     pasó el 16/09/2026 en la pantalla de Mamba con CAMPUS MAMBA 2021.
+
+     Limpiar el registro del día es lo que ya hacen `fotoNoVista` y `videoNoVisto`
+     cuando se les acaba el grupo, y devuelve la rueda a girar por todos los años. */
+  console.log("[TV] ya salió todo el archivo: se reinicia el registro del día");
+  vistasHoy.clear();
+  guardarVistas();
+  const c2 = recorrer();
+  if(c2) return c2;
+
+  // Solo quedan colecciones de puros videos y ya salieron todos. Se reciclan también,
+  // que es lo que hace videoNoVisto por grupo, antes de dejar la tanda sin material.
+  console.log("[TV] tampoco quedan videos sin ver: se reinicia el registro de videos");
+  videosVistos.clear();
+  guardarVistos();
+  return recorrer();
 }
 
 function mezclar(a){
@@ -924,7 +949,13 @@ function* guion(){
     // siempre hay en una cartelera —una foto— y si no hay ni eso, el generador
     // termina y quien llama muestra el aviso de "sin contenido" en vez de colgarse.
     const suelta = POOL.foto.length ? fotoNoVista(POOL.foto) : null;
-    const deColeccion = COLECCIONES.find(c => c.fotos.length);
+    // Rotando, no find(): find devuelve siempre la PRIMERA colección con fotos, y si
+    // esa tiene una sola foto, la guarda repite esa misma foto en cada vuelta — el
+    // mismo vicio que tenía el respaldo de colDelProximoAnio (16/09/2026).
+    const conFotos = COLECCIONES.filter(c => c.fotos.length);
+    const deColeccion = conFotos.length
+      ? conFotos[CURSOR.foto++ % conFotos.length]
+      : null;
     const f = suelta || (deColeccion ? fotoNoVista(deColeccion) : null)
               || POOL.afiche[CURSOR.afiche++ % Math.max(1, POOL.afiche.length)];
     if(!f){ console.error("[TV] no hay NADA para mostrar"); return; }

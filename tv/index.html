@@ -385,7 +385,28 @@ let sinConexion = false;   // el cartel de "sin conexión" está puesto
 
 /* ── Utilidades ────────────────────────────────────────────────────────────── */
 
-const dormir = ms => new Promise(r => setTimeout(r, ms));
+/* ── El mando ───────────────────────────────────────────────────────────────
+   Iván maneja las pantallas desde el celular (/mando en Dorita). La orden NO llega
+   por un websocket: se deja en `<prefijo>/control.json` en R2 y la tele la lee cada
+   pocos segundos. Así la cartelera NO DEPENDE del server — Railway se reinicia sin
+   aviso y acá no se nota. Si el archivo no está, da 404 o viene roto, todo sigue
+   exactamente como antes: el mando se suma, no se interpone. */
+const MANDO_CADA_MS = 8000;
+const MANDO_API = "https://salsa-soul-dorita-production.up.railway.app";
+let SALTO = 0;                 // sube con cada orden de saltar: corta la espera en curso
+let saltarColeccion = false;   // la próxima vuelta descarta lo que quede de esta tanda
+let ultimaColeccion = null;
+let ordenHecha = localStorage.getItem("tv_orden_hecha:" + MARCA) || "";
+let OCULTAS = new Set();
+
+/* La espera se corta si llega una orden (SALTO cambió). Sin esto, "Siguiente" tendría
+   que esperar a que termine la foto: con un afiche de 13 s el botón se sentiría roto. */
+const dormir = ms => new Promise(r => {
+  const desde = SALTO, hasta = Date.now() + ms;
+  const tic = setInterval(() => {
+    if(SALTO !== desde || Date.now() >= hasta){ clearInterval(tic); r(); }
+  }, 200);
+});
 
 function hoyISO(){
   // Fecha de Paraguay, no la del sistema (la notebook puede tener otro huso)
@@ -700,7 +721,10 @@ async function cargarPlaylist(){
   // tomando el del playlist, que es donde Iván lo puede tocar sin deploy.
   if(typeof M.volumen_musica === "number") CFG.volumen_musica = M.volumen_musica;
 
-  const items = (pl.items || []).filter(vigente);
+  // Lo que Iván sacó desde el mando no entra a los pools: se filtra acá, además del
+  // chequeo del loop, para que tampoco cuente como material de su colección.
+  cargarOcultas();
+  const items = (pl.items || []).filter(vigente).filter(i => !OCULTAS.has(i.url));
   const nuevo = {video:[], foto:[], afiche:[], noticia:[], fijo:[], musica:[]};
   const cols = new Map();   // nombre del evento → {nombre, videos, fotos}
 
@@ -1208,9 +1232,11 @@ async function pintarVideo(item){
     v.addEventListener("ended", ()=>cerrar(null), {once:true});
     v.addEventListener("error", ()=>cerrar("error de reproducción"), {once:true});
 
+    const saltoAlEmpezar = SALTO;
     tic = setInterval(()=>{
       const t = v.currentTime;
       progresoEn(t / dur);
+      if(SALTO !== saltoAlEmpezar) return cerrar(null);   // el mando pidió saltar
       if(t >= dur) return cerrar(null);            // tope de max_video
       quieto = (t > ultimoT + 0.05) ? 0 : quieto + 1;
       ultimoT = Math.max(ultimoT, t);
@@ -1344,6 +1370,59 @@ function fmtDiaFecha(iso){
   return DIAS[d.getDay()] + " " + fmtFechaPie(iso);
 }
 
+/* ── El mando: escuchar órdenes y contar qué se ve ──────────────────────────── */
+
+// El control vive al lado del playlist de la marca: /tv/… o /tv-mamba/…
+const _base = () => (R2 + M.playlist).replace(/playlist\.json$/, "");
+
+/* Avisa al server QUÉ está en pantalla, para que el mando pueda mostrarlo y ofrecer
+   "sacá esta foto". Va por sendBeacon: no espera respuesta, no hace preflight de CORS
+   y si el server no está, no pasa absolutamente nada. */
+function contarQueSeVe(item){
+  try{
+    const cuerpo = JSON.stringify({
+      marca: MARCA, tele: TELE || "", tipo: item.tipo || "",
+      titulo: item.titulo || "", coleccion: item.coleccion || "", url: item.url || "",
+    });
+    navigator.sendBeacon(MANDO_API + "/tv/estado",
+                         new Blob([cuerpo], {type: "text/plain"}));
+  }catch(e){ /* la pantalla no depende de esto */ }
+}
+
+/* La lista de fotos que Iván sacó desde el celular. Se relee con el playlist. */
+async function cargarOcultas(){
+  try{
+    const r = await fetch(_base() + "ocultas.json?t=" + Date.now(), {cache: "no-store"});
+    if(!r.ok) return;                       // 404 = nunca se ocultó nada, es lo normal
+    const d = await r.json();
+    OCULTAS = new Set((d.urls || []).filter(u => typeof u === "string"));
+    if(OCULTAS.size) console.log("[TV] " + OCULTAS.size + " ocultas desde el mando");
+  }catch(e){ /* sin lista, se muestra todo: el mando nunca deja la tele sin material */ }
+}
+
+/* Una orden dura ORDEN_VALE_SEG y se ejecuta UNA vez. Si la tele estaba apagada
+   cuando se tocó el botón, al prender no tiene que ejecutar la orden de ayer. */
+async function mirarMando(){
+  try{
+    const r = await fetch(_base() + "control.json?t=" + Date.now(), {cache: "no-store"});
+    if(!r.ok) return;
+    const o = await r.json();
+    if(!o || !o.id || o.id === ordenHecha) return;
+    const edad = Date.now()/1000 - (o.ts || 0);
+    if(edad > (o.vale_seg || 60)){ ordenHecha = o.id; return; }   // vieja: se descarta
+    if(o.tele && o.tele !== "todas" && o.tele !== (TELE || "")) return;  // no es para mí
+
+    ordenHecha = o.id;
+    try{ localStorage.setItem("tv_orden_hecha:" + MARCA, o.id); }catch(e){}
+    if(o.recargar_ocultas) await cargarOcultas();
+    if(o.accion === "saltar_coleccion") saltarColeccion = true;
+    console.log("[TV] mando: " + o.accion);
+    SALTO++;                                  // corta lo que esté en pantalla
+  }catch(e){ /* sin mando, la cartelera sigue sola */ }
+}
+
+if(!APAGADA) setInterval(mirarMando, MANDO_CADA_MS);
+
 /* ── El loop ───────────────────────────────────────────────────────────────── */
 
 async function loop(){
@@ -1355,7 +1434,29 @@ async function loop(){
       await dormir(60000);   // la recarga tarda: no seguir pintando mientras tanto
       continue;
     }
-    const item = siguienteItem();
+    let item = siguienteItem();
+
+    /* "Saltar colección": se descartan los items que quedan de esta tanda hasta que
+       cambie la colección. Con tope, porque el guion no promete cambiar nunca. */
+    if(item && saltarColeccion){
+      saltarColeccion = false;
+      let n = 0;
+      while(item && n < 80 && (item.coleccion || null) === ultimaColeccion){
+        item = siguienteItem(); n++;
+      }
+      console.log("[TV] mando: colección saltada (" + n + " items descartados)");
+    }
+
+    /* Lo que Iván sacó desde el celular no se muestra más, sin esperar al sync. */
+    if(item && item.url && OCULTAS.has(item.url)){
+      console.log("[TV] oculta desde el mando, la salteo:", item.url);
+      continue;
+    }
+
+    if(item){
+      ultimaColeccion = item.coleccion || null;
+      contarQueSeVe(item);
+    }
     if(!item){
       // Sin contenido: esperar y reintentar, nunca dejar la pantalla muerta
       await mostrarEstado("Sin contenido para mostrar", "Reintentando…");

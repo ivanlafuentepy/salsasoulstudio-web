@@ -321,11 +321,31 @@ function horaPY(){
     hour: "2-digit", minute: "2-digit", hourCycle: "h23"}).format(new Date());
 }
 
+/* La academia que Iván puso a mano desde el mando del celular, si es que puso una.
+
+   Vale hasta la MEDIANOCHE de Paraguay y no más: un override sin vencimiento es una
+   pantalla que quedó en la academia equivocada y nadie se acuerda de por qué. Al día
+   siguiente el horario manda de nuevo, solo. Para sacarlo antes está "Volver al
+   horario" en el mando. Va en localStorage porque cambiar de academia RECARGA la
+   página —son otro playlist, otro logo y otro registro de lo ya visto— y tiene que
+   sobrevivir a esa recarga. */
+const LS_MARCA_MANDO = "tv_marca_forzada:" + (_TELE_PEDIDA || "");
+function marcaDelMando(){
+  try{
+    const d = JSON.parse(localStorage.getItem(LS_MARCA_MANDO) || "null");
+    if(!d || !MARCAS[d.marca]) return null;
+    if(d.dia !== hoyISO()){ localStorage.removeItem(LS_MARCA_MANDO); return null; }
+    return d.marca;
+  }catch(e){ return null; }
+}
+
 // Qué academia le toca a esta tele AHORA. `?marca=` sigue mandando sobre el horario:
 // sirve para probar el archivo de Mamba a cualquier hora sin esperar al programa.
 function marcaDeAhora(){
   const forzada = PARAMS.get("marca");
   if(MARCAS[forzada]) return forzada;
+  const delMando = marcaDelMando();
+  if(delMando) return delMando;
   if(!T || !T.cambio) return "salsa";
   return horaPY() < T.cambio ? "mamba" : "salsa";
 }
@@ -1382,6 +1402,7 @@ function contarQueSeVe(item){
   try{
     const cuerpo = JSON.stringify({
       marca: MARCA, tele: TELE || "", tipo: item.tipo || "",
+      forzada: !!marcaDelMando(),
       titulo: item.titulo || "", coleccion: item.coleccion || "", url: item.url || "",
     });
     navigator.sendBeacon(MANDO_API + "/tv/estado",
@@ -1416,7 +1437,24 @@ async function mirarMando(){
     try{ localStorage.setItem("tv_orden_hecha:" + MARCA, o.id); }catch(e){}
     if(o.recargar_ocultas) await cargarOcultas();
     if(o.accion === "saltar_coleccion") saltarColeccion = true;
-    console.log("[TV] mando: " + o.accion);
+
+    /* Cambiar de academia es RECARGAR la página: otro playlist, otro logo y otro
+       registro de lo visto. Se hace por `cambioPendiente`, el mismo camino que usa el
+       cambio por horario, así que la recarga espera a que termine lo que está en
+       pantalla — con SALTO++ eso es en el acto, porque acá el corte lo pidió Iván. */
+    if(o.accion === "marca" && MARCAS[o.a]){
+      try{ localStorage.setItem(LS_MARCA_MANDO,
+                                JSON.stringify({marca: o.a, dia: hoyISO()})); }catch(e){}
+      cambioPendiente = o.a;
+    }
+    if(o.accion === "volver_horario"){
+      try{ localStorage.removeItem(LS_MARCA_MANDO); }catch(e){}
+      // Si el horario dice lo mismo que se está viendo, no hay nada que recargar.
+      const toca = marcaDeAhora();
+      if(toca !== MARCA) cambioPendiente = toca;
+    }
+
+    console.log("[TV] mando: " + o.accion + (o.a ? " → " + o.a : ""));
     SALTO++;                                  // corta lo que esté en pantalla
   }catch(e){ /* sin mando, la cartelera sigue sola */ }
 }

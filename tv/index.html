@@ -299,6 +299,9 @@ const MARCAS = {
    pantalla muestra el archivo de Mamba, y a partir de ahí el de Salsa Soul, que es
    cuando empiezan las clases de baile.
 
+   MARTES y JUEVES son de Salsa todo el día: el `cambio` de abajo no corre (ver
+   DIAS_SOLO_SALSA, pedido de Iván del 17/09/2026).
+
    `turno` reparte las teles a lo largo de la rueda de años (ver armarRuedaDeAnios):
    es lo que hace que a la misma hora cada pantalla esté mostrando un año distinto.
 
@@ -350,13 +353,31 @@ function marcaDelMando(){
   }catch(e){ return null; }
 }
 
+/* Los días que son de Salsa TODO el día, sin importar la hora ni el horario de la
+   pantalla (decisión de Iván, 17/09/2026): martes y jueves. Domingo = 0, igual que
+   `getDay()` y que el `_DIAS_SEMANA` de tv_sync.
+
+   El día se saca de la fecha de PARAGUAY, no de la del aparato: una tele con el reloj
+   en otro huso cambiaría de academia a destiempo, que es el mismo cuidado que ya tiene
+   `horaPY()`. Se arma la fecha con los números de `hoyISO()` —no `new Date()` a secas—
+   para que no se corra un día al convertir de UTC. */
+const DIAS_SOLO_SALSA = [2, 4];   // martes y jueves
+
+function diaPY(){
+  const p = hoyISO().split("-").map(Number);
+  return new Date(p[0], p[1] - 1, p[2]).getDay();
+}
+
 // Qué academia le toca a esta tele AHORA. `?marca=` sigue mandando sobre el horario:
 // sirve para probar el archivo de Mamba a cualquier hora sin esperar al programa.
 function marcaDeAhora(){
   const forzada = PARAMS.get("marca");
   if(MARCAS[forzada]) return forzada;
+  // El mando va ANTES del día: si Iván pone Mamba a mano un martes, es porque hay algo
+  // de Mamba ese martes. La regla del día es el default, no una prohibición.
   const delMando = marcaDelMando();
   if(delMando) return delMando;
+  if(DIAS_SOLO_SALSA.includes(diaPY())) return "salsa";
   if(!T || !T.cambio) return "salsa";
   return horaPY() < T.cambio ? "mamba" : "salsa";
 }

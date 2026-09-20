@@ -1282,12 +1282,33 @@ async function pintarVideo(item){
       fin = true;
       clearInterval(tic);
       if(motivo) console.warn("[TV] " + motivo + ":", item.url);
+      try{
+        const q = calidad();
+        const frames = q.totalVideoFrames - q0.totalVideoFrames;
+        const caidos = q.droppedVideoFrames - q0.droppedVideoFrames;
+        contarComoSalio(item, {
+          frames, caidos,
+          pct_caidos: frames ? Math.round(1000 * caidos / frames) / 10 : 0,
+          segundos: Math.round(v.currentTime),
+          // Cuánto MENOS avanzó el video que el reloj: es el tranque tal como se ve.
+          atraso: Math.round((performance.now() - t_inicio) / 1000 - v.currentTime),
+          motivo: motivo || "",
+        });
+      }catch(e){}
       res();
     };
     v.addEventListener("ended", ()=>cerrar(null), {once:true});
     v.addEventListener("error", ()=>cerrar("error de reproducción"), {once:true});
 
     const saltoAlEmpezar = SALTO;
+    // `getVideoPlaybackQuality` es el contador del propio navegador: cuántos frames
+    // decodificó y cuántos NO llegó a pintar. Un video que "se ve trancado" es esto,
+    // medido, en vez de una impresión desde el otro lado del salón.
+    const calidad = () => (v.getVideoPlaybackQuality ? v.getVideoPlaybackQuality()
+                           : {totalVideoFrames: 0, droppedVideoFrames: 0});
+    const q0 = calidad();
+    const t_inicio = performance.now();
+
     tic = setInterval(()=>{
       const t = v.currentTime;
       progresoEn(t / dur);
@@ -1302,6 +1323,7 @@ async function pintarVideo(item){
 }
 
 async function pintarFoto(item){
+  const t_inicio = performance.now();
   const capa = nuevaCapa();
   const img = document.createElement("img");
   img.className = "foto";
@@ -1343,6 +1365,11 @@ async function pintarFoto(item){
   // de Mamba leía "CAMPUS MAMBA 2025 / Salsa Soul Studio" — una foto de básquet
   // firmada por la academia de baile.
   pie(item.titulo || M.nombre, item.subtitulo || M.lema, item.anio);
+  contarComoSalio(item, {
+    ms_pintar: Math.round(performance.now() - t_inicio),
+    mp: Math.round(img.naturalWidth * img.naturalHeight / 1e5) / 10,
+    entera,
+  });
   correrProgreso(seg);
   await dormir(seg*1000);
   return 1;
@@ -1433,16 +1460,29 @@ const _base = () => (R2 + M.playlist).replace(/playlist\.json$/, "");
 /* Avisa al server QUÉ está en pantalla, para que el mando pueda mostrarlo y ofrecer
    "sacá esta foto". Va por sendBeacon: no espera respuesta, no hace preflight de CORS
    y si el server no está, no pasa absolutamente nada. */
-function contarQueSeVe(item){
+function contarQueSeVe(item, extra){
   try{
     const cuerpo = JSON.stringify({
       marca: MARCA, tele: TELE || "", tipo: item.tipo || "",
       forzada: !!marcaDelMando(),
       titulo: item.titulo || "", coleccion: item.coleccion || "", url: item.url || "",
+      ...(extra || {}),
     });
     navigator.sendBeacon(MANDO_API + "/tv/estado",
                          new Blob([cuerpo], {type: "text/plain"}));
   }catch(e){ /* la pantalla no depende de esto */ }
+}
+
+/* Lo que costó mostrar el item que acaba de terminar, medido EN LA TELE.
+
+   Sin esto, "se tranca" es una impresión y del otro lado solo se puede adivinar: los
+   archivos pueden estar sanos —los 384 videos lo estaban el 19/09/2026— y la pantalla
+   trabarse igual, porque quien decodifica es un SoC que no tenemos acá. Ahora cada
+   pantalla cuenta sus propios números y el que mira el mando ve CUÁL se le traba.
+
+   Va en el mismo beacon que ya usaba el mando: no agrega una conexión ni espera nada. */
+function contarComoSalio(item, medida){
+  contarQueSeVe(item, {medida});
 }
 
 /* La lista de fotos que Iván sacó desde el celular. Se relee con el playlist. */

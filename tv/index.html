@@ -698,13 +698,25 @@ function mezclar(a){
 
 /* ── Carga del contenido ───────────────────────────────────────────────────── */
 
-async function traerJSON(url, ms=12000){
+/* `cache: "no-cache"` en vez del `?t=<timestamp>` de antes: el navegador REVALIDA con
+   If-None-Match y R2 contesta 304 sin cuerpo cuando el archivo no cambió (verificado el
+   21/09/2026). Con el timestamp cada pedido era un archivo nuevo para la caché, y el
+   playlist —4,4 MB, sin gzip— se bajaba entero cada 10 minutos en cada tele por el
+   mismo WiFi que las fotos, justo cuando el salón se llena de celulares. Si `desde`
+   viene y el Last-Modified coincide, devuelve SIN_CAMBIOS: ni se parsea. El objeto
+   devuelto trae `__mod` (su Last-Modified) para poder pasarlo la próxima vez. */
+const SIN_CAMBIOS = Symbol("sin cambios");
+async function traerJSON(url, ms=12000, desde=null){
   const ctrl = new AbortController();
   const t = setTimeout(()=>ctrl.abort(), ms);
   try{
-    const r = await fetch(url + (url.includes("?")?"&":"?") + "t=" + Date.now(), {signal:ctrl.signal});
+    const r = await fetch(url, {signal:ctrl.signal, cache:"no-cache"});
     if(!r.ok) throw new Error("HTTP " + r.status);
-    return await r.json();
+    const mod = r.headers.get("last-modified") || "";
+    if(desde && mod && mod === desde) return SIN_CAMBIOS;
+    const datos = await r.json();
+    if(datos && typeof datos === "object") datos.__mod = mod;
+    return datos;
   } finally { clearTimeout(t); }
 }
 
@@ -752,10 +764,13 @@ function anioDeItem(it){
   return m ? parseInt(m[0], 10) : null;
 }
 
+let playlistMod = "";   // Last-Modified del playlist armado: si R2 dice el mismo, no se rearma
 async function cargarPlaylist(){
   let pl = null;
   try{
-    pl = await traerJSON(R2 + M.playlist);
+    pl = await traerJSON(R2 + M.playlist, 12000, playlistMod || null);
+    if(pl === SIN_CAMBIOS){ console.log("[TV] playlist sin cambios en R2, sigo con el que tengo"); return true; }
+    playlistMod = (pl && pl.__mod) || "";
   }catch(e){
     console.warn("[TV] playlist de R2 no disponible, uso la copia del repo:", e.message);
     // La copia de respaldo del repo es solo la de Salsa: si la de Mamba no está en R2,
@@ -1335,6 +1350,15 @@ async function pintarFoto(item){
     setTimeout(()=>res(false), 9000);
   });
   if(!ok){ console.warn("[TV] foto sin cargar, la salteo:", item.url); capa.remove(); return 0; }
+  const ms_espera = Math.round(performance.now() - t_inicio);   // lo que la anterior quedó quieta
+
+  /* Decodificar ANTES de ponerla en pantalla: si no, el navegador la decodifica en el
+     primer cuadro que la dibuja, que es el del fundido. Con tope, por si el SoC se cuelga
+     en una: la foto se muestra igual, decodificada o no. Y queda medido aparte. */
+  const t_dec = performance.now();
+  try{ await Promise.race([img.decode ? img.decode() : Promise.resolve(),
+                           new Promise(r=>setTimeout(r, 4000))]); }catch(e){}
+  const ms_decode = Math.round(performance.now() - t_dec);
 
   /* Entera o a pantalla completa, según la forma de la foto. El corte está en 1.45
      (entre una 4:3 y una 3:2): con la pantalla en 16:9, de una 3:2 `cover` se come
@@ -1367,6 +1391,7 @@ async function pintarFoto(item){
   pie(item.titulo || M.nombre, item.subtitulo || M.lema, item.anio);
   contarComoSalio(item, {
     ms_pintar: Math.round(performance.now() - t_inicio),
+    ms_espera, ms_decode, ...tiempoDeRed(item.url),
     mp: Math.round(img.naturalWidth * img.naturalHeight / 1e5) / 10,
     entera,
   });
@@ -1460,11 +1485,78 @@ const _base = () => (R2 + M.playlist).replace(/playlist\.json$/, "");
 /* Avisa al server QUÉ está en pantalla, para que el mando pueda mostrarlo y ofrecer
    "sacá esta foto". Va por sendBeacon: no espera respuesta, no hace preflight de CORS
    y si el server no está, no pasa absolutamente nada. */
+/* ── ¿La pantalla DIBUJA? ────────────────────────────────────────────────────────
+   El 21/09/2026 Iván vio las teles clavadas en una foto mientras el mando mostraba
+   que la cartelera seguía avanzando: el JavaScript estaba vivo (mandaba su estado) y
+   el navegador de la tele había dejado de pintar. Eso no se mide con un reloj: se mide
+   con requestAnimationFrame, que SOLO corre cuando el navegador dibuja un cuadro. Si
+   los timers siguen y los cuadros no, la pantalla está congelada aunque todo lo demás
+   diga que anda. Cada beacon lleva `sin_pintar` para que el mando lo muestre, y a los
+   CONGELADA_SEG la página se recarga sola (una vez cada 3 min como mucho: si recargar
+   no la destraba, no se entra en un loop de recargas cada 30 s). */
+let ultimoCuadro = performance.now();
+(function latido(){ ultimoCuadro = performance.now(); requestAnimationFrame(latido); })();
+const segSinPintar = () => Math.round((performance.now() - ultimoCuadro) / 1000);
+const CONGELADA_SEG = 30;
+const LS_RECARGA_CONGELADA = "tv_recarga_congelada:" + MARCA;
+let itemEnPantalla = null;
+if(!APAGADA) setInterval(()=>{
+  if(document.visibilityState !== "visible") return;   // en standby rAF no corre, y no es un tranque
+  const seg = segSinPintar();
+  if(seg < CONGELADA_SEG) return;
+  console.error("[TV] la pantalla no dibuja hace " + seg + " s");
+  contarQueSeVe(itemEnPantalla || {}, {evento: "congelada", sin_pintar_seg: seg});
+  let ultima = 0;
+  try{ ultima = Number(localStorage.getItem(LS_RECARGA_CONGELADA) || 0); }catch(e){}
+  if(Date.now() - ultima < 180000) return;
+  try{ localStorage.setItem(LS_RECARGA_CONGELADA, String(Date.now())); }catch(e){}
+  setTimeout(()=>location.reload(), 500);
+}, 10000);
+
+/* Cuánto tardó la RED en traer un archivo, según el navegador (Resource Timing).
+   Separa el diagnóstico: una foto que tarda 5 s por la red no es lo mismo que una que
+   tarda 5 s en decodificarse, y hasta hoy `ms_pintar` sumaba las dos. El buffer se
+   agranda y se vacía cuando se llena: con miles de fotos por noche, el de 250 por
+   defecto se llenaba en la primera hora y después no medía nada. */
+try{
+  performance.setResourceTimingBufferSize(600);
+  performance.addEventListener("resourcetimingbufferfull", ()=>performance.clearResourceTimings());
+}catch(e){}
+function tiempoDeRed(url){
+  try{
+    const e = performance.getEntriesByName(url);
+    if(!e.length) return {};
+    const u = e[e.length - 1];
+    const kb = Math.round((u.transferSize || u.encodedBodySize || 0) / 1024);
+    return {red_ms: Math.round(u.duration), ...(kb ? {kb} : {})};
+  }catch(err){ return {}; }
+}
+
+/* El PRÓXIMO item se empieza a bajar mientras el actual está en pantalla. Antes cada
+   foto se pedía recién cuando le tocaba salir, y la anterior quedaba quieta —Ken Burns
+   terminado, barra llena— todo lo que tardara la bajada: medido el 21/09/2026, fotos de
+   300 KB tardando de 4 a 8 s a las 19:00, en las tres teles y en las dos academias. Eso
+   es lo que se ve como "se trancó". Los videos no se precargan: son decenas de MB. */
+let itemProximo = null;
+let precalentada = null;   // referencia viva a la Image: que el GC no la tire a mitad de bajada
+function precalentar(it){
+  if(!it || !it.url || (it.tipo !== "foto" && it.tipo !== "afiche")) return;
+  try{ precalentada = new Image(); precalentada.src = it.url; }catch(e){}
+}
+function tomarItem(){
+  const it = itemProximo || siguienteItem();
+  itemProximo = siguienteItem();
+  precalentar(itemProximo);
+  return it;
+}
+
 function contarQueSeVe(item, extra){
   try{
     const cuerpo = JSON.stringify({
       marca: MARCA, tele: TELE || "", tipo: item.tipo || "",
       forzada: !!marcaDelMando(),
+      sin_pintar: segSinPintar(),
+      pantalla: innerWidth + "x" + innerHeight + "@" + (devicePixelRatio || 1),
       titulo: item.titulo || "", coleccion: item.coleccion || "", url: item.url || "",
       ...(extra || {}),
     });
@@ -1547,12 +1639,13 @@ async function loop(){
       await dormir(60000);   // la recarga tarda: no seguir pintando mientras tanto
       continue;
     }
-    let item = siguienteItem();
+    let item = tomarItem();
 
     /* "Saltar colección": se descartan los items que quedan de esta tanda hasta que
        cambie la colección. Con tope, porque el guion no promete cambiar nunca. */
     if(item && saltarColeccion){
       saltarColeccion = false;
+      itemProximo = null;    // el precalentado es de la colección que se está saltando
       let n = 0;
       while(item && n < 80 && (item.coleccion || null) === ultimaColeccion){
         item = siguienteItem(); n++;
@@ -1568,6 +1661,7 @@ async function loop(){
 
     if(item){
       ultimaColeccion = item.coleccion || null;
+      itemEnPantalla = item;
       contarQueSeVe(item);
     }
     if(!item){

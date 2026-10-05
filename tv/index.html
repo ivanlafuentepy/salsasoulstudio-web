@@ -1225,6 +1225,7 @@ function reiniciarProgreso(){
 }
 
 async function pintarVideo(item){
+  const t_pedido = performance.now();
   const capa = nuevaCapa();
   const v = document.createElement("video");
   v.src = item.url;
@@ -1245,6 +1246,8 @@ async function pintarVideo(item){
     v.addEventListener("error", ok, {once:true});
     setTimeout(ok, CFG.espera_video * 1000);
   });
+  // Lo que la pantalla anterior quedó quieta esperando que este video se pudiera ver.
+  const ms_arranque = Math.round(performance.now() - t_pedido);
 
   // El corte es readyState < 2 (HAVE_CURRENT_DATA), no === 0: cuando la red se corta
   // a mitad el video queda en 1 (bajó los metadatos, no la imagen). Con el guard viejo
@@ -1253,6 +1256,10 @@ async function pintarVideo(item){
   if(v.error || v.readyState < 2){
     console.warn("[TV] video sin imagen (readyState " + v.readyState + "), lo salteo:", item.url);
     descartarCapa(capa);
+    // También se cuenta: la pantalla estuvo quieta hasta espera_video segundos y eso
+    // se ve como "se trancó", aunque el video nunca haya salido (04/10/2026).
+    contarComoSalio(item, {frames: 0, caidos: 0, pct_caidos: 0, atraso: 0,
+                           ms_arranque, motivo: v.error ? "error al cargar" : "no arrancó, lo salteé"});
     return 0;
   }
 
@@ -1292,10 +1299,23 @@ async function pintarVideo(item){
   reiniciarProgreso();
   await new Promise(res=>{
     let fin = false, ultimoT = -1, quieto = 0, tic = null;
+    /* Las veces que el video se quedó SIN DATOS (`waiting`) y cuánto. Separa los dos
+       tranques que se ven igual desde el salón: esperar datos es la red; tirar frames
+       con datos de sobra es el procesador de la tele. */
+    let esperas = 0, ms_esperando = 0, desde = 0;
+    v.addEventListener("waiting", ()=>{ if(!desde){ esperas++; desde = performance.now(); } });
+    v.addEventListener("playing", ()=>{ if(desde){ ms_esperando += performance.now() - desde; desde = 0; } });
+    // Si la tele pasa a standby a mitad, el reloj sigue y el video no: eso no es un
+    // tranque, y el server no lo anota.
+    let oculta = document.visibilityState !== "visible";
+    const alOcultar = ()=>{ if(document.visibilityState !== "visible") oculta = true; };
+    document.addEventListener("visibilitychange", alOcultar);
     const cerrar = motivo => {
       if(fin) return;
       fin = true;
       clearInterval(tic);
+      document.removeEventListener("visibilitychange", alOcultar);
+      if(desde){ ms_esperando += performance.now() - desde; desde = 0; }
       if(motivo) console.warn("[TV] " + motivo + ":", item.url);
       try{
         const q = calidad();
@@ -1308,6 +1328,9 @@ async function pintarVideo(item){
           // Cuánto MENOS avanzó el video que el reloj: es el tranque tal como se ve.
           atraso: Math.round((performance.now() - t_inicio) / 1000 - v.currentTime),
           motivo: motivo || "",
+          ms_arranque, esperas,
+          esperando: Math.round(ms_esperando / 100) / 10,
+          ...(oculta ? {oculta: 1} : {}),
         });
       }catch(e){}
       res();

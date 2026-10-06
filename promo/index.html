@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Promo Primavera | Salsa Soul Studio</title>
+  <title>Promo Fin de Año | Salsa Soul Studio</title>
   <!-- Página por invitación: se llega solo por el link que manda Iván, no se
        enlaza desde el sitio y no se indexa. -->
   <meta name="robots" content="noindex, nofollow">
@@ -86,15 +86,16 @@
 
   <header>
     <img src="/logo-dorado.png" alt="Salsa Soul Studio" class="logo">
-    <h1>Promo Primavera 🌸</h1>
+    <h1>Promo Fin de Año 🎄</h1>
     <p class="sub">Completá tus datos y quedás anotada/o.<br>Te llega tu QR por WhatsApp.</p>
   </header>
 
-  <img src="/promo-primavera-inicio.jpg" alt="Promo Primavera — Salsa Soul Studio" class="afiche">
+  <!-- Flyer de Principiante 1 (Iván, 06/10/2026): la grilla nueva mié/vie 19:30 y sáb 18:30. -->
+  <img src="/promo-fin-de-ano.jpg" alt="Promo Fin de Año — horarios de Principiante 1, Salsa Soul Studio" class="afiche">
 
   <ul class="beneficios">
     <li>🎁 Tu <b>clase de prueba GRATIS</b></li>
-    <li>🔥 <b>2 meses al precio de 1</b> — 300.000 Gs por 2 meses de TODAS las clases</li>
+    <li>🔥 <b>Octubre, noviembre y diciembre por 300.000 Gs</b> — TODAS las clases, hasta el 15 de diciembre</li>
     <li>✅ <b>Matrícula incluida</b></li>
     <li>💃 Podés venir <b>con tu pareja</b>: los dos prueban gratis</li>
     <p class="vence" id="vence"></p>
@@ -150,8 +151,8 @@
 
     <label class="campo">¿Qué días te sirven? <span class="opt">(los que quieras)</span></label>
     <div class="chips" data-campo="horarios" data-multi="1">
-      <div class="chip" data-v="lunes">Lunes</div>
-      <div class="chip" data-v="jueves">Jueves</div>
+      <div class="chip" data-v="miercoles">Miércoles</div>
+      <div class="chip" data-v="viernes">Viernes</div>
       <div class="chip" data-v="sabado">Sábado</div>
       <div class="chip" data-v="cualquiera">Cualquiera</div>
     </div>
@@ -238,20 +239,20 @@
 </div>
 
 <script>
-  // Los días salen del servidor: el ciclo de la promo salta solo el lunes a la
+  // Los días salen del servidor: el ciclo de la promo salta solo el sábado a la
   // noche y una página con fechas escritas a mano miente al día siguiente.
   let TELEFONO = "";
 
-  // La promo terminó (Dorita manda activa:false desde el cierre, sábado 12/09
-  // 18:30): se saca el formulario y queda el aviso con el flujo de siempre.
+  // La promo terminó (Dorita manda activa:false desde el cierre, el sábado a la
+  // hora de la clase): se saca el formulario y queda el aviso con el flujo de siempre.
   // Con ?terminada=1 se ve esta vista antes del cierre, para revisarla.
   function mostrarTerminada() {
     document.querySelector("header .sub").innerHTML =
       "La promo terminó, pero las clases siguen 💃";
     document.querySelector(".beneficios").innerHTML =
-      '<li>🌸 La <b>Promo Primavera</b> terminó el sábado 12 de septiembre.</li>' +
+      '<li>🎄 La <b>Promo Fin de Año</b> terminó.</li>' +
       '<li>💃 Igual te esperamos: podés venir a <b>probar una clase</b> cuando quieras — ' +
-      'lunes y jueves 19:30, sábados 18:30.</li>' +
+      'miércoles y viernes 19:30, sábados 18:30.</li>' +
       '<li>🎟️ La clase de prueba sale <b>50.000 Gs</b> y se descuenta de la cuota si te inscribís.</li>' +
       '<li><a href="https://wa.me/595971889475?text=Hola%20Dorita!%20Quiero%20probar%20una%20clase%20de%20salsa" ' +
       'style="color:var(--gold-light);font-weight:700">📲 Escribile a Dorita por WhatsApp</a></li>';

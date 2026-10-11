@@ -59,7 +59,8 @@ export async function onRequestGet(context) {
         const formula = 'OR(' + idsArr.map(id => `RECORD_ID()="${id}"`).join(',') + ')';
         const alumnoParams = new URLSearchParams({
           filterByFormula: formula,
-          'fields[]': 'NIVEL',
+          // NIVEL CERTIFICADO = el nivel que cursa; ALUMNOS.NIVEL se retira (11/10/2026).
+          'fields[]': 'NIVEL CERTIFICADO',
         });
         const alumnoRes = await fetch(
           `https://api.airtable.com/v0/${BASE_ID}/ALUMNOS?${alumnoParams}`,
@@ -68,7 +69,7 @@ export async function onRequestGet(context) {
         if (alumnoRes.ok) {
           const alumnoData = await alumnoRes.json();
           for (const ar of alumnoData.records || []) {
-            niveles[ar.id] = ar.fields?.NIVEL || '';
+            niveles[ar.id] = ar.fields?.['NIVEL CERTIFICADO'] || '';
           }
         }
       }

@@ -28,7 +28,7 @@
 /tv/salon /tv/?tele=salon 302
 /tv/lfm /tv/?tele=lfm 302
 
-# Las Elegidas: desde el 13/10/2026 es un sitio con índice (/las-elegidas/) y una página por
+# Las Elegidas: desde el 12/10/2026 es un sitio con índice (/las-elegidas/) y una página por
 # parte (scripts/festival_web_elegidas.py, repo de Dorita). La guía de una sola página quedó
 # adentro: el link viejo va al índice.
 /las-elegidas-guia /las-elegidas/ 301

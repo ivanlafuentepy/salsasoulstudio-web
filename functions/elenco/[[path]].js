@@ -1,7 +1,7 @@
 // /elenco/* — App del elenco de Las Elegidas, servida desde salsasoulstudio.com.
 //
 // La app vive en el servidor de Dorita (Railway, agent/festival_app). Iván quiere mandar
-// el link salsasoulstudio.com/elenco y que la app QUEDE en este dominio (13/10/2026), no un
+// el link salsasoulstudio.com/elenco y que la app QUEDE en este dominio (12/10/2026), no un
 // 302 a la URL larga de Railway: por eso esta Function le pasa cada pedido a Railway y le
 // devuelve la respuesta al navegador sin cambiar la dirección.
 //
@@ -18,7 +18,7 @@ export async function onRequest({ request }) {
   const url = new URL(request.url);
 
   // /elenco sin barra: se sirve la app DIRECTO (200), sin redirigir. Con un 301 a /elenco/,
-  // WhatsApp no arma la vista previa del link (13/10/2026). La PWA usa rutas absolutas
+  // WhatsApp no arma la vista previa del link (12/10/2026). La PWA usa rutas absolutas
   // (/elenco/api, /elenco/manifest…), así que funciona igual sin la barra final.
   const ruta = url.pathname === '/elenco' ? '/elenco/' : url.pathname;
 

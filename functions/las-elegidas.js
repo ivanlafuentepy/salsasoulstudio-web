@@ -2,7 +2,7 @@
 //
 // Pages respondía un 308 a /las-elegidas/ (la carpeta del sitio de Las Elegidas) y WhatsApp no
 // sigue esa redirección para armar la vista previa: el link pegado salía sin el afiche
-// (13/10/2026). Esta Function devuelve el mismo index.html sin redirigir.
+// (12/10/2026). Esta Function devuelve el mismo index.html sin redirigir.
 // /las-elegidas/ y las páginas de adentro siguen siendo archivos estáticos.
 
 export async function onRequest({ request, env }) {

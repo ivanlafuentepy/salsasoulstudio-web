@@ -17,10 +17,10 @@ const ORIGEN = 'https://salsa-soul-dorita-production.up.railway.app';
 export async function onRequest({ request }) {
   const url = new URL(request.url);
 
-  // /elenco sin barra: la PWA y sus rutas relativas necesitan /elenco/
-  if (url.pathname === '/elenco') {
-    return Response.redirect(`${url.origin}/elenco/${url.search}`, 301);
-  }
+  // /elenco sin barra: se sirve la app DIRECTO (200), sin redirigir. Con un 301 a /elenco/,
+  // WhatsApp no arma la vista previa del link (13/10/2026). La PWA usa rutas absolutas
+  // (/elenco/api, /elenco/manifest…), así que funciona igual sin la barra final.
+  const ruta = url.pathname === '/elenco' ? '/elenco/' : url.pathname;
 
   const headers = new Headers(request.headers);
   headers.delete('host');
@@ -28,7 +28,7 @@ export async function onRequest({ request }) {
   if (ip) headers.set('X-Forwarded-For', ip);
 
   const metodo = request.method.toUpperCase();
-  const resp = await fetch(ORIGEN + url.pathname + url.search, {
+  const resp = await fetch(ORIGEN + ruta + url.search, {
     method: metodo,
     headers,
     body: metodo === 'GET' || metodo === 'HEAD' ? undefined : request.body,

@@ -141,6 +141,24 @@
 
     footer { border-top: 1px solid var(--linea); text-align: center; padding: 28px 20px; color: #444; font-size: 0.78rem; }
     footer .gold { color: var(--gold); }
+
+    /* Impresión / PDF de la app: mismo diseño, fondo negro, sin navegación ni reproductores */
+    .solo-print { display: none !important; }
+    @media print {
+      @page { size: A4; margin: 0; }
+      html, body { background: var(--black); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body { font-size: 12.5px; }
+      .topbar, nav.indice, .volver-pie, audio { display: none !important; }
+      .solo-print { display: inline-block !important; }
+      .portada { padding: 28px 20px 22px; }
+      .contenido { padding: 6px 34px 30px; max-width: none; }
+      .parte { margin: 30px 0 16px; break-after: avoid; }
+      .escena, .grupo, .pasos, .cifra, .aviso, tr { break-inside: avoid; }
+      .baile { break-inside: auto; }
+      .grupos { grid-template-columns: 1fr 1fr; }
+      details.lista summary::after { content: ''; }
+      footer { padding: 18px; }
+    }
   </style>
 </head>
 <body>
@@ -282,7 +300,7 @@
       </div>
       <div class="escena-body">
         <p class="meta">Referente: Fátima</p>
-        <div class="cancion"><span class="lbl">Canción</span><b>Cortes de fuego</b> — Micayael</div><audio class="audio" controls preload="none" src="https://pub-1fc0fb1ac8244995981fc724066bf71c.r2.dev/festival/musica/l-s-f1-40537ccf64.mp3"></audio>
+        <div class="cancion"><span class="lbl">Canción</span><b>Cortes de fuego</b> — Micayael</div><audio class="audio" controls preload="none" src="https://pub-1fc0fb1ac8244995981fc724066bf71c.r2.dev/festival/musica/l-s-f1-40537ccf64.mp3"></audio><a class="yt solo-print" href="https://pub-1fc0fb1ac8244995981fc724066bf71c.r2.dev/festival/musica/l-s-f1-40537ccf64.mp3">▶ Escuchar la canción (MP3)</a>
         <p class="nota-chica">Las integrantes de este número todavía no están confirmadas.</p>
       </div>
     </section>

@@ -104,6 +104,22 @@
     .tab:hover{border-color:var(--gold)}
     .tab.on{background:var(--gold);color:#14100a;border-color:var(--gold);font-weight:700}
 
+    /* Banner al archivo arriba del relato: la página abre en el relato y, sin esto,
+       las fotos y videos de la otra pestaña pasaban desapercibidos. */
+    .banner-archivo{
+      display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center;
+      max-width:760px;margin:0 auto 30px;padding:18px 22px;border-radius:14px;cursor:pointer;
+      background:linear-gradient(135deg,rgba(138,104,32,.28),rgba(201,168,76,.12));
+      border:1px solid rgba(201,168,76,.55);text-align:center;transition:border-color .25s,transform .25s;
+    }
+    .banner-archivo:hover{border-color:var(--gold);transform:translateY(-2px)}
+    .banner-archivo .txt{color:#eee;font-size:.98rem;line-height:1.45}
+    .banner-archivo .txt b{color:var(--gold-light);font-weight:normal}
+    .banner-archivo .btn{
+      padding:9px 20px;border-radius:999px;background:var(--gold);color:#14100a;
+      font-weight:700;font-size:.9rem;white-space:nowrap;
+    }
+
     .relato{max-width:760px;margin:0 auto}
     .relato .firma{text-align:center;color:#8a8478;font-size:.86rem;margin-bottom:26px}
     .capitulo{border-top:1px solid rgba(201,168,76,.18)}
@@ -185,6 +201,10 @@
   </div>
 
   <div id="vista-relato">
+    <div class="banner-archivo" id="banner-archivo">
+      <span class="txt">📼 <b id="banner-cuantos">Fotos y videos</b> de festivales, shows y años anteriores</span>
+      <span class="btn">Ver el archivo →</span>
+    </div>
     <div class="relato">
       <div class="firma" id="relato-firma"></div>
       <div id="caps"></div>
@@ -279,6 +299,7 @@ function pintarColecciones(){
   const tf = visibles.reduce((s,c) => s + c.fotos, 0);
   const tv = visibles.reduce((s,c) => s + c.videos, 0);
   $("bajada").textContent = `${tf.toLocaleString("es")} fotos y ${tv} videos de la academia.`;
+  $("banner-cuantos").textContent = `${tf.toLocaleString("es")} fotos y ${tv} videos`;
 }
 
 /* ── Adentro de una colección ────────────────────────────────────────────── */
@@ -457,6 +478,9 @@ document.querySelectorAll("#tabs .tab").forEach(b => {
   };
 });
 
+$("banner-archivo").onclick = () =>
+  document.querySelector('#tabs .tab[data-vista="archivo"]').click();
+
 /* ── Arranque ────────────────────────────────────────────────────────────── */
 
 (async function(){
@@ -468,7 +492,10 @@ document.querySelectorAll("#tabs .tab").forEach(b => {
     $("estado").hidden = true;
     cargarRelato();
     const slug = location.hash.replace("#", "");
-    if(slug){
+    if(slug === "archivo"){
+      // /historia/#archivo (el botón de /fotos): las colecciones, sin pasar por el relato.
+      document.querySelector('#tabs .tab[data-vista="archivo"]').click();
+    }else if(slug){
       // Un link directo a una colección entra por el archivo, no por el relato.
       document.querySelector('#tabs .tab[data-vista="archivo"]').click();
       abrirColeccion(slug);

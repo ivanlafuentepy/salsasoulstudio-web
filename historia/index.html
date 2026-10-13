@@ -284,12 +284,12 @@ function pintarColecciones(){
                      c.videos ? c.videos + (c.videos === 1 ? " video" : " videos") : ""]
                     .filter(Boolean).join(" · ");
     // Una colección que es solo de videos (los shows, nuestros profes) no tiene foto de
-    // portada: se usa el video, del que el navegador saca el primer cuadro solo.
-    const port = c.portada
-      ? (c.portada_tipo === "video"
-          ? '<video preload="metadata" muted playsinline src="' + escapar(c.portada) + '#t=0.5"></video>'
-          : '<img loading="lazy" src="' + escapar(c.portada) + '" alt="">')
-      : "";
+    // portada: va el póster del video, un JPG de un cuadro que genera tv_sync.py.
+    // NUNCA el video mismo: el celular lo empezaba a bajar para sacarle el cuadro,
+    // 27 portadas eran 579 MB y tocar una colección tardaba más de 30 segundos.
+    const port = c.portada_tipo === "video"
+      ? (c.poster ? '<img loading="lazy" src="' + escapar(c.poster) + '" alt="">' : "")
+      : (c.portada ? '<img loading="lazy" src="' + escapar(c.portada) + '" alt="">' : "");
     d.innerHTML = port +
       '<div class="cap"><h2>' + escapar(c.nombre) + "</h2><span>" +
       (c.anio ? c.anio + " · " : "") + cuantos + "</span></div>";
@@ -346,10 +346,12 @@ function mas(){
     d.className = "item" + (it.tipo === "video" ? " video" : "");
     d.dataset.i = i;
     if(it.tipo === "video"){
-      // Un póster del video costaría generar 129 miniaturas y subirlas: el
-      // navegador saca el primer cuadro solo con preload="metadata".
-      d.innerHTML = '<video preload="metadata" muted playsinline src="' +
-                    escapar(it.url) + '#t=0.5"></video>';
+      // La miniatura es el póster (un JPG de ~30 KB que genera tv_sync.py); el video
+      // se baja recién en el visor. Con preload="metadata" cada miniatura bajaba un
+      // pedazo del video y en el celular trababa la colección entera.
+      d.innerHTML = it.poster
+        ? '<img loading="lazy" src="' + escapar(it.poster) + '" alt="">'
+        : '<video preload="none" muted playsinline src="' + escapar(it.url) + '"></video>';
     }else{
       d.innerHTML = '<img loading="lazy" src="' + escapar(it.url) + '" alt="">';
     }

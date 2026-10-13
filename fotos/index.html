@@ -351,11 +351,10 @@
           const cuantos = [c.fotos ? c.fotos + (c.fotos === 1 ? " foto" : " fotos") : "",
                            c.videos ? c.videos + (c.videos === 1 ? " video" : " videos") : ""]
                           .filter(Boolean).join(" · ");
-          const port = c.portada
-            ? (c.portada_tipo === "video"
-                ? '<video preload="metadata" muted playsinline src="' + escapar(c.portada) + '#t=0.5"></video>'
-                : '<img loading="lazy" src="' + escapar(c.portada) + '" alt="">')
-            : "";
+          // Las colecciones de solo videos llevan el póster (un JPG), nunca el video:
+          // 27 portadas en video eran 579 MB y trababan la página en el celular.
+          const img = c.portada_tipo === "video" ? c.poster : c.portada;
+          const port = img ? '<img loading="lazy" src="' + escapar(img) + '" alt="">' : "";
           a.innerHTML = port + '<div class="cap"><h3>' + escapar(c.nombre) + "</h3><span>" +
                         (c.anio ? c.anio + " · " : "") + cuantos + "</span></div>";
           cont.appendChild(a);

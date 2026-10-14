@@ -4,10 +4,10 @@
 # Los query params (?k=<invite>) se preservan solos.
 /ronda https://salsa-soul-dorita-production.up.railway.app/ronda/ 302
 /ronda/* https://salsa-soul-dorita-production.up.railway.app/ronda/:splat 302
-# Salsa Soul App (PWA del alumno): desde el 14/10/2026 NO redirige a Railway. La sirven
-# functions/miapp y functions/app, que le pasan los pedidos a Railway por atrás y la
-# dirección queda en salsasoulstudio.com/miapp. /app exacto sigue yendo a la AppSheet
-# vieja por una regla del dominio en Cloudflare (le gana a este archivo y a las Functions).
+# Salsa Soul App (PWA del alumno): desde el 14/10/2026 NO redirige a Railway. La sirve
+# functions/miapp, que le pasa los pedidos a Railway por atrás: la app entera queda en
+# salsasoulstudio.com/miapp. /app y /app/* NO sirven en este dominio: reglas viejas de
+# Cloudflare (AppSheet) los atajan antes de llegar a este archivo y a las Functions.
 
 # Las TVs del local — una dirección por pantalla (14/09/2026). En una Smart TV la
 # dirección se tipea con el control remoto, así que tiene que ser corta: se tipea

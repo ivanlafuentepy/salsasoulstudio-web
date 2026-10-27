@@ -467,9 +467,13 @@ function hoyISO(){
 
 // Un item vencido no se muestra más: el afiche del festival pasado no puede
 // seguir girando en la tele. La fecha sale del nombre del archivo (tv_sync.py).
+// Y uno con "desde" todavía no: el afiche del mes que viene trae otro precio.
 function vigente(item){
-  if(!item || !item.hasta) return true;
-  return item.hasta >= hoyISO();
+  if(!item) return true;
+  const hoy = hoyISO();
+  if(item.hasta && item.hasta < hoy) return false;
+  if(item.desde && item.desde > hoy) return false;
+  return true;
 }
 
 /* ── Fotos ya vistas hoy ───────────────────────────────────────────────────────
@@ -765,10 +769,14 @@ function anioDeItem(it){
 }
 
 let playlistMod = "";   // Last-Modified del playlist armado: si R2 dice el mismo, no se rearma
+// ...salvo que cambie el día: los pools se arman filtrando por `vigente`, así que el
+// afiche "desde 01-11" recién entra si se rearma después de la medianoche, aunque
+// nadie haya vuelto a publicar. Una vez por día, en el primer refresco.
+let playlistDia = "";
 async function cargarPlaylist(){
   let pl = null;
   try{
-    pl = await traerJSON(R2 + M.playlist, 12000, playlistMod || null);
+    pl = await traerJSON(R2 + M.playlist, 12000, (playlistDia === hoyISO() && playlistMod) || null);
     if(pl === SIN_CAMBIOS){ console.log("[TV] playlist sin cambios en R2, sigo con el que tengo"); return true; }
     playlistMod = (pl && pl.__mod) || "";
   }catch(e){
@@ -779,6 +787,7 @@ async function cargarPlaylist(){
     catch(e2){ console.error("[TV] tampoco hay copia local:", e2.message); pl = null; }
   }
   if(!pl) return false;
+  playlistDia = hoyISO();
 
   // La marca va ÚLTIMA: manda sobre lo que traiga el playlist, porque los nombres de
   // los afiches de Salsa no existen en el archivo de Mamba.

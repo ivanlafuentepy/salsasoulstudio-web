@@ -10,12 +10,12 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="Entradas — Las Elegidas · Festival Salsa Soul Studio 2026">
   <meta property="og:description" content="16 de diciembre · Teatro del Hotel Guaraní. Tu entrada incluye taller de bachata y menores de 20 gratis 💃🕺">
-  <meta property="og:image" content="https://salsasoulstudio.com/afiche-entradas-festival.jpg">
+  <meta property="og:image" content="https://salsasoulstudio.com/afiche-las-elegidas.jpg">
   <meta property="og:url" content="https://salsasoulstudio.com/entradas-festival/">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Entradas — Las Elegidas · Festival Salsa Soul Studio 2026">
   <meta name="twitter:description" content="16 de diciembre · Teatro del Hotel Guaraní. Incluye taller de bachata y menores de 20 gratis 💃🕺">
-  <meta name="twitter:image" content="https://salsasoulstudio.com/afiche-entradas-festival.jpg">
+  <meta name="twitter:image" content="https://salsasoulstudio.com/afiche-las-elegidas.jpg">
 
   <style>
     :root{
@@ -148,12 +148,12 @@
       </p>
     </header>
 
-    <img class="afiche" src="/afiche-entradas-festival.jpg"
+    <img class="afiche" id="afiche" src="/afiche-festival-2026-10.jpg"
          alt="Las Elegidas — Festival Salsa Soul Studio 2026 · Entradas en venta" loading="lazy">
 
     <div class="precio-card">
       <div class="etiqueta">Entrada general</div>
-      <div class="monto" id="precio">80.000 Gs</div>
+      <div class="monto" id="precio">90.000 Gs</div>
       <div class="sube" id="sube"></div>
 
       <ul class="incluye">
@@ -217,8 +217,9 @@
     (function () {
       var ESCALONES = [
         { hasta:new Date(2026,9,1),  precio:80000,  menores:5, sigue:90000,  mesSigue:'octubre',   menoresSigue:3, cuotas:true  },
-        { hasta:new Date(2026,10,1), precio:90000,  menores:3, sigue:100000, mesSigue:'noviembre', menoresSigue:1, cuotas:false },
-        { hasta:new Date(2026,11,17),precio:100000, menores:1, sigue:null,   mesSigue:null,        menoresSigue:null, cuotas:false }
+        { hasta:new Date(2026,10,1), precio:90000,  menores:3, sigue:95000,  mesSigue:'noviembre', menoresSigue:1, cuotas:false, afiche:'/afiche-festival-2026-10.jpg' },
+        { hasta:new Date(2026,11,1), precio:95000,  menores:1, sigue:100000, mesSigue:'diciembre', menoresSigue:1, cuotas:false, afiche:'/afiche-festival-2026-11.jpg' },
+        { hasta:new Date(2026,11,17),precio:100000, menores:1, sigue:null,   mesSigue:null,        menoresSigue:null, cuotas:false, afiche:'/afiche-las-elegidas.jpg' }
       ];
 
       var TALLERES = [
@@ -235,6 +236,8 @@
       var plural = function (n, s, p) { return n === 1 ? s : p; };
 
       document.getElementById('precio').textContent = gs(e.precio);
+      // El afiche trae el precio impreso: va el del mes, igual que en Dorita.
+      if (e.afiche) { document.getElementById('afiche').src = e.afiche; }
       if (e.sigue) {
         document.getElementById('sube').textContent =
           '⏰ En ' + e.mesSigue + ' pasa a ' + gs(e.sigue) +
@@ -282,6 +285,7 @@
       var FIRMAS = {
         80000:  {1:'01ffa459c3158c4c',2:'9a86770c4cf3b4d6',3:'767d0a0ed81694fb',4:'20d6734681a6bc68',5:'130da362307b7367',6:'d834b79632cd5424'},
         90000:  {1:'caf9e3ab65272467',2:'40b167f9cb64016c',3:'7163e7ad917320b2',4:'775fc7b32600825d',5:'7c8aea8abf85c388',6:'cca39d6ae948fe9d'},
+        95000:  {1:'a2f7860f43b20d25',2:'df06d9a1466fb09e',3:'a96ecde6ddcb98a4',4:'50b92c7b0b437ef7',5:'7334a2d6fd607589',6:'32e3a9c83e138be4'},
         100000: {1:'1371e6f4e5acb57e',2:'d8b6205cd186734f',3:'d44a1343b4199523',4:'130da362307b7367',5:'64fca4c406c71cf3',6:'3c32dc46e0b586b8'}
       };
       var sel = document.getElementById('cantEntradas');

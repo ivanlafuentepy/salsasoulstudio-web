@@ -349,7 +349,7 @@
   <div class="festival-wrapper" id="festival">
     <div class="festival-inner">
       <div class="festival-poster" onclick="openLightbox(this)">
-        <img src="/afiche-entradas-festival.jpg" alt="Las Elegidas — Festival Salsa Soul Studio 2026 · Entradas en venta" loading="lazy">
+        <img id="aficheFestival" src="/afiche-festival-2026-10.jpg" alt="Las Elegidas — Festival Salsa Soul Studio 2026 · Entradas en venta" loading="lazy">
       </div>
       <div class="festival-info">
         <span class="badge">Miércoles 16 de diciembre</span>
@@ -358,7 +358,7 @@
         <div class="detalles">
           La batalla por un lugar en el gran escenario ✨<br>
           Una historia de desafíos, ensayos y pasión 💃🕺<br>
-          <strong style="color:var(--gold-light)">Entradas en venta</strong> · <span id="precioEntrada">80.000 Gs</span>
+          <strong style="color:var(--gold-light)">Entradas en venta</strong> · <span id="precioEntrada">90.000 Gs</span>
           <span id="incluyeEntrada" style="display:block;font-size:0.92em;margin-top:6px"></span>
           <span id="subeEntrada" style="display:block;font-size:0.9em;opacity:0.85"></span>
           <a href="/entradas-festival/" style="display:inline-block;margin-top:10px;font-size:0.9em;color:var(--gold-light)">Ver toda la promo →</a>
@@ -387,15 +387,17 @@
 
   <script>
     // El precio de la entrada sube por mes. Se calcula acá para que el texto no
-    // envejezca solo el 1° de octubre — el afiche sí hay que cambiarlo a mano.
+    // envejezca solo el 1° del mes — y el afiche, que trae el precio impreso,
+    // también: cada escalón dice cuál va (Dorita usa los mismos, uno por mes).
     (function () {
       // Lo que incluye la entrada tambien cambia por mes (menores gratis, cuotas).
       // Fuente de verdad: agent/utils.py de Dorita. La promo completa vive en
       // /entradas-festival/, que repite este mismo escalonado.
       var ESCALONES = [
         { hasta: new Date(2026, 9, 1), precio: 80000, sigue: 90000, mes: 'octubre', menores: 5, menoresSigue: 3, cuotas: true },   // hasta el 30/09
-        { hasta: new Date(2026, 10, 1), precio: 90000, sigue: 100000, mes: 'noviembre', menores: 3, menoresSigue: 1, cuotas: false }, // hasta el 31/10
-        { hasta: new Date(2026, 11, 17), precio: 100000, sigue: null, mes: null, menores: 1, menoresSigue: null, cuotas: false }     // hasta el festival
+        { hasta: new Date(2026, 10, 1), precio: 90000, sigue: 95000, mes: 'noviembre', menores: 3, menoresSigue: 1, cuotas: false, afiche: '/afiche-festival-2026-10.jpg' }, // hasta el 31/10
+        { hasta: new Date(2026, 11, 1), precio: 95000, sigue: 100000, mes: 'diciembre', menores: 1, menoresSigue: 1, cuotas: false, afiche: '/afiche-festival-2026-11.jpg' }, // hasta el 30/11
+        { hasta: new Date(2026, 11, 17), precio: 100000, sigue: null, mes: null, menores: 1, menoresSigue: null, cuotas: false, afiche: '/afiche-las-elegidas.jpg' }     // hasta el festival (sin precio impreso)
       ];
       var TALLERES = [
         { fecha: new Date(2026, 8, 18), texto: 'viernes 18 de septiembre' },
@@ -406,6 +408,7 @@
       var gs = function (n) { return n.toLocaleString('es-PY').replace(/,/g, '.') + ' Gs'; };
       var plural = function (n, s, p) { return n === 1 ? s : p; };
       document.getElementById('precioEntrada').textContent = gs(e.precio);
+      if (e.afiche) { document.getElementById('aficheFestival').src = e.afiche; }
 
       var incluye = [];
       var talleres = TALLERES.filter(function (t) { return hoy <= t.fecha; })
@@ -437,6 +440,7 @@
       var FIRMAS = {
         80000:  {1:'01ffa459c3158c4c',2:'9a86770c4cf3b4d6',3:'767d0a0ed81694fb',4:'20d6734681a6bc68',5:'130da362307b7367',6:'d834b79632cd5424'},
         90000:  {1:'caf9e3ab65272467',2:'40b167f9cb64016c',3:'7163e7ad917320b2',4:'775fc7b32600825d',5:'7c8aea8abf85c388',6:'cca39d6ae948fe9d'},
+        95000:  {1:'a2f7860f43b20d25',2:'df06d9a1466fb09e',3:'a96ecde6ddcb98a4',4:'50b92c7b0b437ef7',5:'7334a2d6fd607589',6:'32e3a9c83e138be4'},
         100000: {1:'1371e6f4e5acb57e',2:'d8b6205cd186734f',3:'d44a1343b4199523',4:'130da362307b7367',5:'64fca4c406c71cf3',6:'3c32dc46e0b586b8'}
       };
       var sel = document.getElementById('cantEntradas');

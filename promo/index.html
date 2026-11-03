@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Promo Fin de Año | Salsa Soul Studio</title>
+  <!-- Sin el nombre de la promo: es lo que muestra la vista previa de WhatsApp
+       cuando se comparte el link, y sigue ahí cuando la promo ya terminó. -->
+  <title>Clase de prueba | Salsa Soul Studio</title>
   <!-- Página por invitación: se llega solo por el link que manda Iván, no se
        enlaza desde el sitio y no se indexa. -->
   <meta name="robots" content="noindex, nofollow">
@@ -247,6 +249,8 @@
   // hora de la clase): se saca el formulario y queda el aviso con el flujo de siempre.
   // Con ?terminada=1 se ve esta vista antes del cierre, para revisarla.
   function mostrarTerminada() {
+    // Arriba de todo decía "Promo Fin de Año 🎄" aunque abajo dijera que terminó (02/11/2026).
+    document.querySelector("header h1").textContent = "Clase de prueba 💃";
     document.querySelector("header .sub").innerHTML =
       "La promo terminó, pero las clases siguen 💃";
     document.querySelector(".beneficios").innerHTML =

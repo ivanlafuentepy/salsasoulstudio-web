@@ -8,19 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   gsap.registerPlugin(ScrollTrigger);
 
   /* ══════════════════════════════════════════
-     NAV STICKY
-     ══════════════════════════════════════════ */
-  const nav = document.getElementById('mainNav');
-  const hero = document.getElementById('hero');
-  if (nav && hero) {
-    const navObserver = new IntersectionObserver(([entry]) => {
-      nav.classList.toggle('visible', !entry.isIntersecting);
-    }, { threshold: 0.1 });
-    navObserver.observe(hero);
-  }
-
-  /* ══════════════════════════════════════════
-     MENÚ HAMBURGUER (móvil)
+     MENÚ HAMBURGUER
      ══════════════════════════════════════════ */
   const navToggle = document.getElementById('navToggle');
   const navLinks = document.getElementById('navLinks');
@@ -33,12 +21,16 @@ document.addEventListener('DOMContentLoaded', () => {
     navToggle.addEventListener('click', () => setOpen(!navLinks.classList.contains('open')));
     // Al elegir una sección, cerrar el menú
     navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setOpen(false)));
+    // Tocar afuera también lo cierra
+    document.addEventListener('click', e => {
+      if (!navLinks.contains(e.target) && !navToggle.contains(e.target)) setOpen(false);
+    });
   }
 
   /* ══════════════════════════════════════════
      SMOOTH SCROLL
      ══════════════════════════════════════════ */
-  document.querySelectorAll('.nav-links a').forEach(link => {
+  document.querySelectorAll('.nav-main a, .nav-links a').forEach(link => {
     link.addEventListener('click', e => {
       const href = link.getAttribute('href');
       if (href.startsWith('#')) {
@@ -238,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
      ACTIVE NAV LINK
      ══════════════════════════════════════════ */
   const sections = document.querySelectorAll('[id]');
-  const navLinksAll = document.querySelectorAll('.nav-links a[href^="#"]');
+  const navLinksAll = document.querySelectorAll('.nav-main a[href^="#"], .nav-links a[href^="#"]');
 
   sections.forEach(section => {
     ScrollTrigger.create({

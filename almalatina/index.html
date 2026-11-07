@@ -399,14 +399,15 @@
     // si cambia la SEÑA hay que recalcular la firma con LINK_SECRET)
     const SIG_SENA = "452f3501492a378d";
     // Un modelo con `monto` se paga entero: su firma sale igual, con ese monto.
-    // Con `talles` se vende lo que hay: lo agotado se muestra deshabilitado.
+    // `talles` limita los que existen de ese modelo; sin él, son todos los de TALLES.
     const MODELOS = {
       BOTITA_NEGRO: { producto: "BOTITA", color: "NEGRO", nombre: "Botita negra" },
       ZAPATO_BEIGE: { producto: "ZAPATO", color: "DORADO BEIGE", nombre: "Zapato beige dorado" },
       ZAPATO_NEGRO: { producto: "ZAPATO", color: "NEGRO", nombre: "Zapato negro" },
       SNEAKER_BLANCO: { producto: "SNEAKER", color: "BLANCO", nombre: "Sneaker blanco",
                         monto: 390000, sig: "e9a08ce8e1adc9c2",
-                        talles: ["35", "36", "37", "38", "39", "40"] },
+                        talles: ["35", "36", "37", "38", "39", "40"],
+                        nota: "Horma angosta: te recomendamos pedir un talle más 😊" },
     };
     const TALLES = ["34", "34.5", "35", "35.5", "36", "36.5", "37", "37.5", "38", "38.5", "39", "39.5", "40"];
     const talleBonito = (t) => t.endsWith(".5") ? t.replace(".5", "½") : t;
@@ -431,27 +432,27 @@
         `<input type="radio" name="talle" id="${id}" value="${t}"><label for="${id}">${talleBonito(t)}</label>`);
     });
 
-    // Talles del modelo elegido. Si el stock no se pudo leer quedan los del modelo:
-    // Dorita vuelve a mirarlo al comprar y rechaza el agotado.
+    // Talles del modelo elegido: lo agotado se ve tachado y no se elige. Si el stock no
+    // se pudo leer quedan los del modelo: Dorita vuelve a mirarlo al comprar y lo rechaza.
+    let pintadaVigente = 0;
     async function pintarTalles(modelo) {
+      const yo = ++pintadaVigente;
       let stock = null;
-      if (modelo && modelo.talles) {
-        try {
-          const r = await fetch("/api/almalatina");
-          const d = await r.json();
-          if (d.ok) stock = (d.stock || {})[modelo.producto] || null;
-        } catch (e) { /* sigue con los talles del modelo */ }
-      }
+      try {
+        const r = await fetch("/api/almalatina");
+        const d = await r.json();
+        if (d.ok) stock = (d.stock || {})[`${modelo.producto}|${modelo.color}`] || null;
+      } catch (e) { /* sigue con los talles del modelo */ }
+      if (yo !== pintadaVigente) return;   // ya eligió otro modelo mientras esperaba
+      const existen = modelo.talles || TALLES;
       TALLES.forEach((t) => {
         const el = document.getElementById(`talle${t.replace(".", "_")}`);
-        const hay = !modelo || !modelo.talles
-          || (modelo.talles.includes(t) && (!stock || (stock[t] || 0) > 0));
+        const hay = existen.includes(t) && (!stock || (stock[t] || 0) > 0);
         el.disabled = !hay;
         if (!hay) el.checked = false;
       });
-      document.getElementById("notaTalle").textContent = modelo && modelo.talles
-        ? "Los tachados están agotados. Horma angosta: te recomendamos pedir un talle más 😊"
-        : "Cuando venís a retirar te lo probás y te llevás el calce que te quede mejor 😊";
+      document.getElementById("notaTalle").textContent =
+        `Los tachados están agotados. ${modelo.nota || "Cuando venís a retirar te lo probás 😊"}`;
     }
     document.querySelectorAll('input[name="modelo"]').forEach((el) => {
       el.addEventListener("change", () => pintarTalles(MODELOS[el.value]));

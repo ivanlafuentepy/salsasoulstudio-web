@@ -1,10 +1,21 @@
 // API pública — proxy del formulario de Alma Latina Boutique hacia Dorita (Railway)
 // POST /api/almalatina {nombre, telefono, producto, color, talle} → POST Railway /almalatina/reserva
+// GET  /api/almalatina → GET Railway /almalatina/stock (pares a la venta por talle)
 // Existe para no exponer el dominio de Railway en el HTML y evitar CORS.
 // La validación real (talles, colores, duplicados) vive en Dorita — acá solo
 // se chequea la forma del body y se reenvía tal cual.
 
 const DORITA_URL = 'https://salsa-soul-dorita-production.up.railway.app/almalatina/reserva';
+
+export async function onRequestGet() {
+  try {
+    const r = await fetch(DORITA_URL.replace('/reserva', '/stock'));
+    const data = await r.json().catch(() => ({ ok: false, motivo: 'error' }));
+    return Response.json(data, { status: r.status, headers: { 'Cache-Control': 'no-store' } });
+  } catch (e) {
+    return Response.json({ ok: false, motivo: 'error' }, { status: 502 });
+  }
+}
 
 export async function onRequestPost(context) {
   let body;

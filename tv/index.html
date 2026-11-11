@@ -1255,6 +1255,26 @@ async function pintarVideo(item){
     v.addEventListener("error", ok, {once:true});
     setTimeout(ok, CFG.espera_video * 1000);
   });
+  /* Segundo intento antes de saltearlo. El 11/11/2026 la tele llevaba anotados 155 "no
+     arrancó" y 141 eran de UNA sola vez: el mismo archivo antes y después salía bien.
+     Casi todos fallaban entre 0,5 y 2,5 s, sin error y sin esperar la red — el
+     reproductor de la tele se quedaba sin imagen, no el archivo. Un play() lo despierta;
+     se le da el resto de espera_video (mínimo 4 s) antes de darlo por perdido. */
+  let reintento = 0;
+  if(!v.error && v.readyState < 2){
+    reintento = 1;
+    const resto = Math.max(4000, CFG.espera_video * 1000 - (performance.now() - t_pedido));
+    try{ const p = v.play(); if(p && p.catch) p.catch(()=>{}); }catch(e){}
+    await new Promise(res=>{
+      let listo = false;
+      const ok = ()=>{ if(!listo){ listo = true; res(); } };
+      if(v.readyState >= 2) return ok();
+      v.addEventListener("loadeddata", ok, {once:true});
+      v.addEventListener("canplay", ok, {once:true});
+      v.addEventListener("error", ok, {once:true});
+      setTimeout(ok, resto);
+    });
+  }
   // Lo que la pantalla anterior quedó quieta esperando que este video se pudiera ver.
   const ms_arranque = Math.round(performance.now() - t_pedido);
 
@@ -1267,8 +1287,12 @@ async function pintarVideo(item){
     descartarCapa(capa);
     // También se cuenta: la pantalla estuvo quieta hasta espera_video segundos y eso
     // se ve como "se trancó", aunque el video nunca haya salido (04/10/2026).
+    // readyState / networkState en el motivo: si vuelve a pasar, dice en qué quedó el
+    // reproductor (rs 1 = solo metadatos; ns 2 = bajando, ns 3 = no encontró el archivo).
     contarComoSalio(item, {frames: 0, caidos: 0, pct_caidos: 0, atraso: 0,
-                           ms_arranque, motivo: v.error ? "error al cargar" : "no arrancó, lo salteé"});
+                           ms_arranque, motivo: v.error ? "error al cargar (código " + v.error.code + ")"
+                             : "no arrancó ni al segundo intento (rs " + v.readyState +
+                               " · ns " + v.networkState + "), lo salteé"});
     return 0;
   }
 
@@ -1339,6 +1363,7 @@ async function pintarVideo(item){
           motivo: motivo || "",
           ms_arranque, esperas,
           esperando: Math.round(ms_esperando / 100) / 10,
+          ...(reintento ? {reintento: 1} : {}),
           ...(oculta ? {oculta: 1} : {}),
         });
       }catch(e){}

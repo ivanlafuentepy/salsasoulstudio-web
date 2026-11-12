@@ -125,10 +125,15 @@
     /* GALERÍA */
     .galeria{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
     .galeria.dos{grid-template-columns:1fr 1fr}
+    .galeria.una{grid-template-columns:1fr}
+    .remera-tag{display:inline-block;background:var(--gold);color:#0a0a0a;font-weight:bold;
+      font-size:.78rem;border-radius:20px;padding:3px 12px;margin-bottom:8px;letter-spacing:.5px}
     .galeria img{
       width:100%;display:block;border-radius:12px;background:#fff;
       border:1px solid rgba(201,168,76,.25);cursor:pointer;aspect-ratio:1;object-fit:cover;
     }
+    /* Mockups de la remera: apaisados con frente y espalda, se ven enteros (sin recorte) */
+    .galeria.una img{aspect-ratio:3/2;object-fit:contain}
     .pie-foto{text-align:center;color:#777;font-size:.8rem;margin:-4px 0 12px}
 
     /* LIGHTBOX */
@@ -227,6 +232,67 @@
   </div>
 
   <div class="wrap">
+
+    <!-- Remera «Mi 2do hogar» (12/11/2026). El precio y los planes los manda Dorita
+         (GET /api/remera-sss): lo escrito acá es solo lo que se ve si no responde. -->
+    <h2 class="seccion-titulo" id="remera">Remera «Mi 2do hogar» 👕</h2>
+    <p class="seccion-sub">18 años de Salsa Soul Studio · desde el 2008</p>
+
+    <div class="card">
+      <span class="remera-tag" id="remTag">PREVENTA</span>
+      <h3>Salsa Soul Studio · Mi 2do hogar</h3>
+      <p>Logo dorado en el pecho, <b>NY</b> y <b>CALI</b> en las mangas y <b>Mi 2do hogar</b>
+      en la espalda. En negra o blanca 🖤🤍</p>
+      <div class="precios-prod" id="remPrecios">
+        <span class="hoy">95.000 Gs</span>
+        <span class="cuotas">Precio de preventa hasta que lleguen las remeras (después, 135.000) ·
+        en 1 pago o <b style="color:var(--gold-light)">50.000 ahora y 45.000 en diciembre</b></span>
+      </div>
+      <div class="galeria una">
+        <img src="img/remera-negra.jpg" alt="Remera Mi 2do hogar negra — frente y espalda">
+        <img src="img/remera-blanca.jpg" alt="Remera Mi 2do hogar blanca — frente y espalda" loading="lazy">
+      </div>
+    </div>
+
+    <div class="form-card">
+      <form id="formRemera">
+        <label for="remNombre">👤 Nombre y apellido</label>
+        <input type="text" id="remNombre" placeholder="Ej: María González" autocomplete="name" required>
+
+        <label for="remTel">📱 Tu número de WhatsApp</label>
+        <input type="tel" id="remTel" placeholder="0981 123 456" autocomplete="tel" required>
+
+        <label>🎨 Color</label>
+        <div class="opciones">
+          <input type="radio" name="remColor" id="remNegra" value="NEGRA" required><label for="remNegra">🖤 Negra</label>
+          <input type="radio" name="remColor" id="remBlanca" value="BLANCA"><label for="remBlanca">🤍 Blanca</label>
+        </div>
+
+        <label>📏 Talle</label>
+        <p style="color:#999;font-size:.82rem;margin:-4px 0 10px;line-height:1.4">
+          Si después necesitás otro talle, lo cambiamos 😊</p>
+        <div class="opciones" id="remTalles"></div>
+
+        <div id="remPlanBloque">
+          <label>💳 ¿Cómo la pagás?</label>
+          <div class="opciones">
+            <input type="radio" name="remPlan" id="remPlan1" value="1" checked><label for="remPlan1" id="remPlan1Txt">1 pago de 95.000</label>
+            <input type="radio" name="remPlan" id="remPlan2" value="2"><label for="remPlan2" id="remPlan2Txt">50.000 ahora + 45.000 en diciembre</label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-enviar" id="remEnviar">Pedir mi remera 👕</button>
+        <div class="form-resultado" id="remResultado"></div>
+
+        <div class="pago-opciones" id="remPago">
+          <p style="color:#ddd;text-align:center;margin-top:8px">
+            Completá tu pedido pagando <b style="color:var(--gold-light)" id="remMonto">95.000 Gs</b> 👇
+          </p>
+          <a class="btn-pago btn-tarjeta" id="remTarjeta" href="#" target="_blank" rel="noopener">💳 Pagar con tarjeta</a>
+          <a class="btn-pago btn-transfer" id="remTransfer" href="#" target="_blank" rel="noopener">📲 Pagar por transferencia (WhatsApp)</a>
+        </div>
+      </form>
+    </div>
 
     <div class="promo">
       <h3>🌟 Cómo comprás</h3>
@@ -552,6 +618,80 @@
         }
       }
     });
+  </script>
+  <script>
+    // ── Remera «Mi 2do hogar»: precio desde Dorita, pedido, pago ──
+    (function () {
+      const WA_DORITA = "595971889475";
+      const gsTxt = (n) => Number(n).toLocaleString("es-PY").replace(/,/g, ".");
+      const TALLES_REM = ["P", "M", "G", "XG", "XXG"];
+      const cont = document.getElementById("remTalles");
+      TALLES_REM.forEach((t) => cont.insertAdjacentHTML("beforeend",
+        `<input type="radio" name="remTalle" id="remT${t}" value="${t}"><label for="remT${t}">${t}</label>`));
+
+      // Precio y planes vigentes (si Dorita no responde, queda lo escrito en el HTML)
+      fetch("/api/remera-sss").then((r) => r.json()).then((d) => {
+        if (!d.ok) return;
+        const precios = document.getElementById("remPrecios");
+        if (d.preventa) {
+          const p2 = (d.planes.find((x) => x.montos.length === 2) || {}).montos || [];
+          precios.innerHTML = `<span class="hoy">${gsTxt(d.precio)} Gs</span>` +
+            `<span class="cuotas">Precio de preventa hasta que lleguen las remeras (después, ${gsTxt(d.precio_lista)}) · ` +
+            `en 1 pago o <b style="color:var(--gold-light)">${gsTxt(p2[0])} ahora y ${gsTxt(p2[1])} en diciembre</b></span>`;
+          document.getElementById("remPlan1Txt").textContent = `1 pago de ${gsTxt(d.precio)}`;
+          document.getElementById("remPlan2Txt").textContent = `${gsTxt(p2[0])} ahora + ${gsTxt(p2[1])} en diciembre`;
+        } else {
+          document.getElementById("remTag").style.display = "none";
+          precios.innerHTML = `<span class="hoy">${gsTxt(d.precio)} Gs</span>`;
+          document.getElementById("remPlanBloque").style.display = "none";
+          document.getElementById("remPlan1").checked = true;
+        }
+      }).catch(() => {});
+
+      const form = document.getElementById("formRemera");
+      const btn = document.getElementById("remEnviar");
+      const res = document.getElementById("remResultado");
+      const pago = document.getElementById("remPago");
+      const mostrar = (clase, html) => { res.className = `form-resultado ${clase}`; res.innerHTML = html; };
+      const elegido = (n) => (form.querySelector(`input[name="${n}"]:checked`) || {}).value || "";
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const datos = {
+          nombre: document.getElementById("remNombre").value.trim(),
+          telefono: document.getElementById("remTel").value.trim(),
+          color: elegido("remColor"), talle: elegido("remTalle"), plan: elegido("remPlan") || "1",
+        };
+        if (!datos.color || !datos.talle) { mostrar("err", "Elegí color y talle 😊"); return; }
+        btn.disabled = true; btn.textContent = "Anotando…"; pago.classList.remove("visible");
+        try {
+          const r = await fetch("/api/remera-sss", {
+            method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(datos),
+          });
+          const d = await r.json();
+          if (d.ok) {
+            const col = d.remera.color === "NEGRA" ? "negra" : "blanca";
+            mostrar("ok", `✅ ¡Listo ${datos.nombre.split(" ")[0]}! Anotamos tu remera <b>${col}</b>, ` +
+              `talle <b>${d.remera.talle}</b>.<br>Te avisamos por WhatsApp cuando llegue 📦`);
+            document.getElementById("remMonto").textContent = `${gsTxt(d.monto)} Gs`;
+            document.getElementById("remTarjeta").href = d.link_tarjeta;
+            const msg = `Hola Dorita! 👕 Pedí mi remera Mi 2do hogar en la web y quiero pagar ${gsTxt(d.monto)} Gs por transferencia`;
+            document.getElementById("remTransfer").href = `https://wa.me/${WA_DORITA}?text=${encodeURIComponent(msg)}`;
+            pago.classList.add("visible");
+          } else if (d.motivo === "datos_invalidos") {
+            mostrar("err", "Revisá tu nombre y tu número de WhatsApp 😊");
+          } else {
+            mostrar("err", `😔 No pude anotar tu remera. Probá de nuevo en un rato o escribile al ` +
+              `<a href="https://wa.me/595982790407?text=${encodeURIComponent("¡Hola profe Iván! 👕 Quiero la remera Mi 2do hogar")}" target="_blank" rel="noopener">profe Iván por WhatsApp</a> 💛`);
+          }
+        } catch (err) {
+          mostrar("err", `😔 Error de conexión. Probá de nuevo o escribile al ` +
+            `<a href="https://wa.me/595982790407?text=${encodeURIComponent("¡Hola profe Iván! 👕 Quiero la remera Mi 2do hogar")}" target="_blank" rel="noopener">profe Iván</a> 💛`);
+        } finally {
+          btn.disabled = false; btn.textContent = "Pedir mi remera 👕";
+        }
+      });
+    })();
   </script>
 </body>
 </html>

@@ -418,7 +418,12 @@ const CONFIG_DEFAULT = {
   afiches_horarios: ["Horarios Principiante 1", "Horarios Basico 2",
                      "Horarios Basico 3", "Horarios Intermedio"],
   afiche_social: "Proximo Social",
-  refresco_min: 10,             // cada cuánto se relee el playlist (sin cortar nada)
+  // El bloque de los años (12/11/2026): las frases las manda tv_sync en el playlist,
+  // del mismo banco que las fotos de clase en redes. Sin frases (Mamba) no hay bloque.
+  fotos_por_anio: 2,
+  segundos_foto_anios: 4,
+  frases_fotos: [],
+  refresco_min: 10,            // cada cuánto se relee el playlist (sin cortar nada)
   recarga_horas: 6              // recarga completa, por si queda muchas horas viva
 };
 
@@ -916,9 +921,12 @@ function _porTitulo(lista, titulo){
      1. un video de un festival
      2. 20 fotos DE ESE MISMO festival, 4s cada una,
         con el afiche del festival intercalado cada 5 fotos
-     3. todos los afiches de horarios
-     4. el afiche del próximo social
-     5. TODAS las fotos de un día de clase, con su día y su fecha en pantalla
+     3. la ficha del Festival (12/11/2026: en lugar de los afiches de horarios y
+        del próximo social, que siguen cargados pero ya no salen)
+     4. TODAS las fotos de un día de clase, con su día y su fecha en pantalla
+     5. una noticia
+     6. el bloque de los años: 2 fotos de cada año, del más viejo al más nuevo,
+        4 s cada una, cada foto con una frase del banco (12/11/2026)
      … y de nuevo, con el siguiente festival.
 
    Es un generador y no una tabla de tipos: lo que manda es la SECUENCIA, y las
@@ -933,7 +941,9 @@ let creditoPool = 0;
 // días de clase —Mamba Basket -- recorría la vuelta entera sin un solo yield. Un
 // generador que no cede dentro de un while(true) no "no muestra nada": CUELGA la
 // pestaña, y la TV de la academia se queda congelada hasta que alguien la reinicia.
-function* unaVuelta(){
+// El paso 1 (archivo o video suelto) vive en bloqueArchivo(); unaVuelta() lo recorre y
+// sigue con el resto del guion.
+function* bloqueArchivo(){
   {
     // Turnos alternados: una vuelta le toca a un festival (video + SUS fotos) y la
     // siguiente a un video suelto del canal. Sin esto, con un solo festival cargado
@@ -1020,13 +1030,23 @@ function* unaVuelta(){
       }
     }
 
-    // Los horarios, todos juntos, después del bloque del festival
-    for(const nombre of (CFG.afiches_horarios || [])){
-      const a = _porTitulo(POOL.afiche, nombre);
-      if(a && vigente(a)) yield a;
+  }
+}
+
+function* unaVuelta(){
+  // El bloque del archivo puede terminar CON la ficha (detrás de un video suelto, o en
+  // la foto 20): entonces la del paso siguiente se saltea, para no mostrarla dos veces
+  // seguidas.
+  let ultimoFueFicha = false;
+  for(const it of bloqueArchivo()){ ultimoFueFicha = !!it.fijo; yield it; }
+  {
+    // La ficha del Festival, donde iban los 4 horarios y el próximo social (Iván,
+    // 12/11/2026). Esos afiches siguen en la carpeta y en el playlist: volver a
+    // mostrarlos es devolver acá el for de CFG.afiches_horarios y el de CFG.afiche_social.
+    if(POOL.fijo.length && !ultimoFueFicha){
+      const a = POOL.fijo[CURSOR.fijo++ % POOL.fijo.length];
+      if(vigente(a)) yield a;
     }
-    const social = _porTitulo(POOL.afiche, CFG.afiche_social);
-    if(social && vigente(social)) yield social;
 
     // Un día entero de clases: todas sus fotos seguidas, con la fecha en pantalla
     if(DIAS_CLASE.length){
@@ -1035,8 +1055,49 @@ function* unaVuelta(){
       for(const f of dia.fotos) yield f;
     }
 
-    // Una noticia para cerrar la vuelta
+    // Una noticia
     if(POOL.noticia.length) yield POOL.noticia[CURSOR.noticia++ % POOL.noticia.length];
+
+    // Y para cerrar la vuelta, 2 fotos de cada año con una frase cada una
+    yield* bloqueDeAnios();
+  }
+}
+
+/* El bloque de los años (Iván, 12/11/2026): 2 fotos de cada año del archivo, del más
+   viejo al más nuevo, 4 s cada una, y cada foto con una frase DISTINTA del banco
+   `frases_fotos` — el mismo que usan las fotos de clase en redes; lo manda tv_sync en
+   el playlist, sacado de config/redes_auto.yaml de Dorita. En pantalla: el año grande,
+   la frase y, abajo, de qué evento es. Las frases siguen donde quedaron de una vuelta
+   a la otra. Sin frases (Mamba) no hay bloque. Las fotos salen de una colección
+   distinta del año cada vez y cuentan como vistas, igual que las del bloque del
+   festival. Un año con UNA sola foto (2013) sale con esa sola: la misma dos veces
+   seguidas, no. */
+let fraseIdx = 0;
+const cursorAnio = {};
+
+function* bloqueDeAnios(){
+  const frases = CFG.frases_fotos || [];
+  if(!frases.length) return;
+  const porAnio = new Map();
+  for(const c of COLECCIONES){
+    if(typeof c.anio !== "number" || !c.fotos.length) continue;
+    if(!porAnio.has(c.anio)) porAnio.set(c.anio, []);
+    porAnio.get(c.anio).push(c);
+  }
+  const n = CFG.fotos_por_anio || 2;
+  for(const anio of [...porAnio.keys()].sort((a, b) => a - b)){
+    const cols = porAnio.get(anio);
+    const salieron = new Set();
+    for(let i = 0; i < n; i++){
+      cursorAnio[anio] = (cursorAnio[anio] || 0) + 1;
+      const f = fotoNoVista(cols[cursorAnio[anio] % cols.length]);
+      if(!f || salieron.has(_claveFoto(f))) continue;
+      salieron.add(_claveFoto(f));
+      yield {...f, anio,
+             titulo: frases[fraseIdx++ % frases.length],
+             subtitulo: [f.coleccion, f.fecha, f.lugar].filter(Boolean).join(" · "),
+             segundos: CFG.segundos_foto_anios || 4};
+    }
   }
 }
 

@@ -302,15 +302,22 @@ const MARCAS = {
    MARTES y JUEVES son de Salsa todo el día: el `cambio` de abajo no corre (ver
    DIAS_SOLO_SALSA, pedido de Iván del 17/09/2026).
 
+   DESDE EL 19/11/2026 TODAS SON SALSA SIEMPRE (Iván: «siempre en modo Salsa Soul
+   Studio»): el `cambio` de cada tele quedó en null, como el salón. Las teles ahora se
+   prenden solas a las 18:30 (control por horario de la Mini PC) y con el cambio a las
+   19:00-19:30 arrancaban media hora en Mamba. Mamba sigue disponible a mano: desde el
+   mando («pasar a la otra academia», vale hasta medianoche) o con /tv/gym?marca=mamba.
+   Para volver al reparto por hora, reponer los `cambio` ("19:00", "19:15", "19:30").
+
    `turno` reparte las teles a lo largo de la rueda de años (ver armarRuedaDeAnios):
    es lo que hace que a la misma hora cada pantalla esté mostrando un año distinto.
 
    SIN el parámetro `tele` la página se comporta EXACTAMENTE como antes del 14/09:
    Salsa Soul todo el día. Una tele apuntada a /tv a secas sigue andando igual. */
 const TELES = {
-  entrada: {nombre: "Entrada",      cambio: "19:00", turno: 0},
-  cantina: {nombre: "Cantina",      cambio: "19:15", turno: 1},
-  gym:     {nombre: "Gimnasio",     cambio: "19:30", turno: 2},
+  entrada: {nombre: "Entrada",      cambio: null,    turno: 0},   // salsa siempre (19/11/2026)
+  cantina: {nombre: "Cantina",      cambio: null,    turno: 1},   // salsa siempre (19/11/2026)
+  gym:     {nombre: "Gimnasio",     cambio: null,    turno: 2},   // salsa siempre (19/11/2026)
   salon:   {nombre: "Salón Salsa",  cambio: null,    turno: 3},   // salsa siempre
   // La tele de la tienda de ropa: la dirección ya existe, el material todavía no.
   // Hasta que se defina, pantalla negra con el logo — sin bajar un solo byte de R2.

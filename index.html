@@ -196,7 +196,7 @@
     <p class="subtitle">Salsa &amp; Bachata · Para todos los niveles</p>
     <div class="divider"></div>
 
-    <div class="levels">
+    <div class="levels semana-regular">
 
       <div class="level-card">
         <h3>Principiante 1 y 2</h3>
@@ -270,7 +270,97 @@
       </div>
 
     </div>
-    <p class="classes-note">⏱ Cada clase dura aproximadamente una hora · Podés comenzar esta semana o la siguiente sin problema</p>
+    <p class="classes-note semana-regular">⏱ Cada clase dura aproximadamente una hora · Podés comenzar esta semana o la siguiente sin problema</p>
+
+    <!-- HORARIOS ESPECIALES DE DICIEMBRE 2026 (texto y afiche de Iván, 23/11/2026; los mismos datos que
+         config/horarios.yaml → especiales en el repo de Dorita). Se ven hasta el 3/1; desde el 1/12 se
+         oculta la grilla semanal (clase semana-regular). El script del final del bloque mira la fecha. -->
+    <div id="diciembre">
+      <h2 style="margin-top:10px">Horarios especiales de diciembre</h2>
+      <p class="subtitle">Las clases regulares van hasta el lunes 30 de noviembre · En diciembre no hay clases regulares de bachata</p>
+      <div class="divider"></div>
+      <div class="levels">
+
+      <div class="level-card" data-hasta="2026-12-12">
+        <h3>Principiante 1 y 2</h3>
+        <div class="schedule-item">
+          <div class="day">Miércoles 2 y 9</div>
+          <div class="classes">19:30h — Salsa</div>
+        </div>
+        <div class="schedule-item">
+          <div class="day">Viernes 4 y 11</div>
+          <div class="classes">19:30h — Salsa</div>
+        </div>
+        <div class="schedule-item">
+          <div class="day">Sábados 5 y 12</div>
+          <div class="classes">18:30h — Salsa</div>
+        </div>
+      </div>
+
+      <div class="level-card" data-hasta="2026-12-14">
+        <h3>Básico 2</h3>
+        <div class="schedule-item">
+          <div class="day">Sábados 5 y 12</div>
+          <div class="classes">17:30h — Salsa</div>
+        </div>
+        <div class="schedule-item">
+          <div class="day">Lunes 7 y 14</div>
+          <div class="classes">19:00h — Salsa</div>
+        </div>
+      </div>
+
+      <div class="level-card" data-hasta="2026-12-14">
+        <h3>Básico 3</h3>
+        <div class="schedule-item">
+          <div class="day">Sábados 5 y 12</div>
+          <div class="classes">16:00h — Salsa</div>
+        </div>
+        <div class="schedule-item">
+          <div class="day">Lunes 7 y 14</div>
+          <div class="classes">20:00h — Salsa</div>
+        </div>
+      </div>
+
+      <div class="level-card" data-hasta="2026-12-14">
+        <h3>Intermedio 1 y 2</h3>
+        <div class="schedule-item">
+          <div class="day">Sábados 5 y 12</div>
+          <div class="classes">15:00h — Salsa</div>
+        </div>
+        <div class="schedule-item">
+          <div class="day">Lunes 7 y 14</div>
+          <div class="classes">21:00h — Salsa</div>
+        </div>
+      </div>
+
+      </div>
+      <p class="classes-note">📌 Retomamos el <strong>lunes 4 de enero</strong> · Los horarios de enero todavía no están disponibles</p>
+    </div>
+    <script>
+      (function () {
+        var hoy = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Asuncion" }).format(new Date());
+        var forzar = new URLSearchParams(location.search).get("hoy");      // ?hoy=2026-12-05 para revisarlo
+        if (/^\d{4}-\d{2}-\d{2}$/.test(forzar || "")) hoy = forzar;
+        var diciembre = document.getElementById("diciembre");
+        if (hoy >= "2027-01-04") {
+          diciembre.style.display = "none";
+          document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".solo-diciembre").forEach(function (e) { e.style.display = "none"; });
+          });
+          return;
+        }
+        diciembre.querySelectorAll("[data-hasta]").forEach(function (c) {
+          if (hoy > c.dataset.hasta) c.style.display = "none";
+        });
+        if (hoy > "2026-12-14") diciembre.querySelector("h2").textContent = "Terminamos las clases de este año";
+        if (hoy > "2026-12-14") diciembre.querySelector(".subtitle").style.display = "none";
+        if (hoy >= "2026-12-01") document.addEventListener("DOMContentLoaded", function () {
+          document.querySelectorAll(".semana-regular").forEach(function (e) { e.style.display = "none"; });
+          if (hoy > "2026-12-14") document.getElementById("afiches").style.display = "none";   // no queda ninguno para mostrar
+        });
+        if (hoy < "2026-12-01") diciembre.querySelector("h2").style.marginTop = "50px";
+      })();
+    </script>
   </div>
 
   <!-- AFICHES -->
@@ -281,13 +371,16 @@
       <div class="divider"></div>
 
       <div class="afiches-grid">
-        <div class="afiche-card" onclick="openLightbox(this)">
+        <div class="afiche-card solo-diciembre" onclick="openLightbox(this)">
+          <img src="afiche-horarios-diciembre-2026.jpg" alt="Horarios especiales de salsa, diciembre 2026: lunes 7 y 14, sábados 5 y 12" loading="lazy">
+        </div>
+        <div class="afiche-card semana-regular" onclick="openLightbox(this)">
           <img src="afiche-horarios-p1.png?v=4" alt="Horarios Principiante 1 y 2" loading="lazy">
         </div>
-        <div class="afiche-card" onclick="openLightbox(this)">
+        <div class="afiche-card semana-regular" onclick="openLightbox(this)">
           <img src="afiche-horarios-niveles.png" alt="Horarios Principiante 1 y 2, Básico 2 y Básico 3" loading="lazy">
         </div>
-        <div class="afiche-card" onclick="openLightbox(this)">
+        <div class="afiche-card semana-regular" onclick="openLightbox(this)">
           <img src="afiche-horarios-intermedio.png?v=3" alt="Horarios Intermedio 2 — martes salsa y jueves bachata, grupos A y B" loading="lazy">
         </div>
       </div>

@@ -132,6 +132,9 @@
   <div class="seccion">
     <h2>Los Grupos</h2>
     <p class="intro">Alumnas de Intermedio 2 — Ladies + Pareja · Martes y Jueves</p>
+    <!-- Diciembre 2026 (Iván, 24/11/2026): Intermedio 2 hace las clases de Intermedio 1. Se oculta solo el 4/1. -->
+    <p class="intro" id="aviso-diciembre" style="color:var(--gold)">📅 En diciembre no hay clases martes y jueves: Intermedio 2 hace las clases de Intermedio 1, sábados 5 y 12 a las 15:00 y lunes 7 y 14 a las 21:00. Retomamos el lunes 4 de enero.</p>
+    <script>if (new Intl.DateTimeFormat("en-CA", { timeZone: "America/Asuncion" }).format(new Date()) >= "2027-01-04") document.getElementById("aviso-diciembre").remove();</script>
     <div class="grupos-grid">
 
       <div class="grupo-card">

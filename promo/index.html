@@ -248,6 +248,10 @@
   // La promo terminó (Dorita manda activa:false desde el cierre, el sábado a la
   // hora de la clase): se saca el formulario y queda el aviso con el flujo de siempre.
   // Con ?terminada=1 se ve esta vista antes del cierre, para revisarla.
+  function cerrado2026() {
+    const hoy = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Asuncion" }).format(new Date());
+    return hoy > "2026-12-12" && hoy < "2027-01-04";
+  }
   function mostrarTerminada() {
     // Arriba de todo decía "Promo Fin de Año 🎄" aunque abajo dijera que terminó (02/11/2026).
     document.querySelector("header h1").textContent = "Clase de prueba 💃";
@@ -255,8 +259,11 @@
       "La promo terminó, pero las clases siguen 💃";
     document.querySelector(".beneficios").innerHTML =
       '<li>🎄 La <b>Promo Fin de Año</b> terminó.</li>' +
+      // Cierre de 2026 (Iván, 24/11): hasta el sábado 12/12 y se retoma el lunes 4/1.
+      (cerrado2026() ?
+      '<li>🎄 Ya terminamos las clases de este año. Retomamos el <b>lunes 4 de enero</b>; las agendas de enero todavía no están disponibles.</li>' :
       '<li>💃 Igual te esperamos: podés venir a <b>probar</b> cuando quieras — ' +
-      'miércoles y viernes 19:30, sábados 18:30.</li>' +
+      'miércoles y viernes 19:30, sábados 18:30.</li>') +
       '<li>🎟️ La clase de prueba sale <b>50.000 Gs</b>: la pagás por WhatsApp o al llegar a la academia.</li>' +
       '<li><a href="https://wa.me/595971889475?text=Hola%20Dorita!%20Quiero%20probar%20una%20clase%20de%20salsa" ' +
       'style="color:var(--gold-light);font-weight:700">📲 Escribile a Dorita por WhatsApp</a></li>';

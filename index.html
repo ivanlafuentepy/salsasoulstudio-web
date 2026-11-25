@@ -355,7 +355,8 @@
         if (hoy > "2026-12-14") diciembre.querySelector("h2").textContent = "Terminamos las clases de este año";
         if (hoy > "2026-12-14") diciembre.querySelector(".subtitle").style.display = "none";
         if (hoy >= "2026-12-01") document.addEventListener("DOMContentLoaded", function () {
-          document.querySelectorAll(".semana-regular").forEach(function (e) { e.style.display = "none"; });
+          document.querySelectorAll(".semana-regular, .cuota-mensual").forEach(function (e) { e.style.display = "none"; });
+          document.querySelector(".por-clase").style.display = "";
           if (hoy > "2026-12-14") document.getElementById("afiches").style.display = "none";   // no queda ninguno para mostrar
         });
         if (hoy < "2026-12-01") diciembre.querySelector("h2").style.marginTop = "50px";
@@ -628,6 +629,12 @@
       <h2>Aranceles</h2>
       <div class="divider"></div>
 
+      <!-- Del 1/12 al 3/1 (Iván, 24/11/2026): no se cobra la cuota, se paga por clase en la academia.
+           La muestra el script de los horarios de diciembre, que también oculta .cuota-mensual. -->
+      <div class="promo-banner por-clase" style="display:none;margin:0 auto 26px">
+        💃 En <strong>diciembre no hay cuota mensual</strong>: se paga <strong>por clase, 50.000 gs</strong>, en la academia al llegar.
+      </div>
+
       <div class="pricing-grid">
         <div class="price-card featured">
           <div class="label">⭐ Full Pass</div>
@@ -637,7 +644,7 @@
           <a class="btn-festival btn-pago" target="_blank" rel="noopener"
              href="https://wa.me/595971889475?text=Hola%20Dorita!%20Quiero%20inscribirme%20a%20Salsa%20Soul%20Studio%20%F0%9F%94%A5">🔥 Inscribirme ahora</a>
           <br>
-          <a class="btn-tarjeta" target="_blank" rel="noopener"
+          <a class="btn-tarjeta cuota-mensual" target="_blank" rel="noopener"
              href="https://pago.ivanlafuente.com/pagar/salsa?monto=200000&amp;sig=d8b6205cd186734f&amp;concepto=Cuota+mensual">💳 Pagar con tarjeta</a>
         </div>
         <div class="price-card">
@@ -645,7 +652,7 @@
           <div class="amount">150.000 gs</div>
           <div class="unit">/ mes</div>
           <div class="desc">Elegís un día fijo de la semana</div>
-          <a class="btn-tarjeta" target="_blank" rel="noopener"
+          <a class="btn-tarjeta cuota-mensual" target="_blank" rel="noopener"
              href="https://pago.ivanlafuente.com/pagar/salsa?monto=150000&amp;sig=452f3501492a378d&amp;concepto=Cuota+mensual">💳 Pagar con tarjeta</a>
         </div>
         <div class="price-card">
@@ -666,7 +673,7 @@
         🎁 <strong>Por 50.000 gs más</strong> que el plan de una clase por semana ya tenés el <strong>FULL PASS</strong> con los tres días de Salsa y Bachata.
       </div>
 
-      <div class="pago-cuota-cta">
+      <div class="pago-cuota-cta cuota-mensual">
         <a class="btn-tarjeta" target="_blank" rel="noopener"
            href="https://pago.ivanlafuente.com/pagar/salsa?monto=200000&amp;sig=d8b6205cd186734f&amp;concepto=Cuota+mensual">💳 ¿Ya sos alumno? Pagá tu Full Pass (200.000 gs)</a>
         <a class="btn-tarjeta" target="_blank" rel="noopener"

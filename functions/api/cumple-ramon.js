@@ -1,5 +1,5 @@
 // API pública — la lista del cumple de Don Ramón (página /cumple-ramon)
-// GET /api/cumple-ramon → { nombres: [...], total, cantidad }
+// GET /api/cumple-ramon → { nombres: [...], total, cantidad }  (cantidad = personas: una pareja cuenta 2)
 //
 // Lee la tabla CUMPLE RAMON (base de Dorita), donde Iván carga cada aporte desde el
 // Centro de Comando (🎂 Cumple Don Ramón). Devuelve SOLO los nombres y el total:
@@ -27,6 +27,7 @@ export async function onRequestGet(context) {
       });
       params.append('fields[]', 'NOMBRE');
       params.append('fields[]', 'MONTO');
+      params.append('fields[]', 'PAREJA');
       if (offset) params.set('offset', offset);
       const r = await fetch(
         `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLA)}?${params}`,
@@ -41,23 +42,27 @@ export async function onRequestGet(context) {
     } while (offset);
 
     let total = 0;
+    let personas = 0;
     const vistos = new Set();
     const nombres = [];
     for (const rec of registros) {
       const f = rec.fields || {};
       total += Number(f.MONTO) || 0;
-      const nombre = String(f.NOMBRE || '').trim();
+      // Aporte en pareja: paga uno y vale por los dos → «Luis Pérez y Rocío Gómez», cuenta 2.
+      const pareja = String(f.PAREJA || '').trim();
+      const nombre = [String(f.NOMBRE || '').trim(), pareja].filter(Boolean).join(' y ');
       // El que aportó dos veces sale una sola vez en la lista (el total suma las dos).
       const clave = nombre.toLowerCase();
       if (nombre && !vistos.has(clave)) {
         vistos.add(clave);
         nombres.push(nombre);
+        personas += pareja ? 2 : 1;
       }
     }
     nombres.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
 
     return Response.json(
-      { nombres, total, cantidad: nombres.length },
+      { nombres, total, cantidad: personas },
       { headers: { 'Cache-Control': 'public, max-age=20' } }
     );
   } catch (e) {

@@ -15,6 +15,9 @@ Disallow: /entradas/
 # Si Google lo indexa, se spoilea el show entero antes de la funcion.
 Disallow: /las-elegidas
 
+# Cumple de Don Ramón: lista de aportes que se comparte por WhatsApp, no es contenido del sitio.
+Disallow: /cumple-ramon
+
 # Redirecciones a las apps en Railway: son otra aplicacion, no contenido del sitio.
 Disallow: /miapp
 Disallow: /ronda
